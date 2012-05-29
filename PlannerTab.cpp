@@ -25,13 +25,17 @@ using namespace std;
 // Control IDs (used for event handling - be sure to start with a non-conflicted id)
 enum PlannerTabEvents {
   button_RRT = 100,
-
+  button_RRTExecute,
   button_Get3DInfo,
   button_Plot3DInfo,
   button_RunLJM2,
   button_Plot3DPaths,
+  button_Plot3DPath,
+  button_Follow3DPath,
 
-  button_Execute
+  button_Dummy,
+  slider_Alpha,
+  slider_NumPaths
 };
 
 
@@ -69,10 +73,10 @@ PlannerTab::PlannerTab( wxWindow *parent, const wxWindowID id,
     // Create sizer for start buttons in 1st column
     wxBoxSizer *RandomButtonSizer = new wxBoxSizer(wxVERTICAL);
     RandomButtonSizer->Add( new wxButton(this, button_RRT, wxT("RRT")), 0, wxALL, 1 );
-
+    RandomButtonSizer->Add( new wxButton( this, button_RRTExecute, wxT("Execute")), 0, wxALL, 1 );
     RandomBoxSizer->Add( RandomButtonSizer, 1, wxALIGN_NOT ); 
 
-    sizerFull_Planner->Add( RandomBoxSizer, 1, wxEXPAND | wxALL, 1 );
+    sizerFull_Planner->Add( RandomBoxSizer, 1, wxEXPAND | wxALL, 4 );
 
     // ** Discrete Planners **
 
@@ -80,32 +84,69 @@ PlannerTab::PlannerTab( wxWindow *parent, const wxWindowID id,
     wxStaticBox* DiscreteBox = new wxStaticBox(this, -1, wxT("Discrete Planners"));
 
     // Create sizer for this box with horizontal layout
-    wxStaticBoxSizer* DiscreteBoxSizer = new wxStaticBoxSizer(DiscreteBox, wxHORIZONTAL);
+    wxStaticBoxSizer* DiscreteBoxSizer = new wxStaticBoxSizer(DiscreteBox, wxVERTICAL);
 
-    // Create sizer for start buttons in 1st column
-    wxBoxSizer *DiscreteButtonSizer = new wxBoxSizer(wxVERTICAL);
-    DiscreteButtonSizer->Add( new wxButton(this, button_Get3DInfo, wxT("Get 3D Info")), 0, wxALL, 1 );
-    DiscreteButtonSizer->Add( new wxButton(this, button_Plot3DInfo, wxT("Plot 3D Info")), 0, wxALL, 1 );
-    DiscreteButtonSizer->Add( new wxButton(this, button_RunLJM2, wxT("Run LJM2")), 0, wxALL, 1 );
-    DiscreteButtonSizer->Add( new wxButton(this, button_Plot3DPaths, wxT("Plot 3D Paths")), 0, wxALL, 1 );
+    // 3D Info
+    wxBoxSizer *Info3DSizer = new wxBoxSizer(wxHORIZONTAL);
+    Info3DSizer->Add( new wxButton(this, button_Get3DInfo, wxT("Get 3D Info")), 0, wxALL, 1 );
+    Info3DSizer->Add( new wxButton(this, button_Plot3DInfo, wxT("Plot 3D Info")), 0, wxALL, 1 );
 
-    DiscreteBoxSizer->Add( DiscreteButtonSizer, 1, wxALIGN_NOT ); 
+    DiscreteBoxSizer->Add( Info3DSizer, 1, wxALIGN_NOT ); 
 
-    sizerFull_Planner->Add( DiscreteBoxSizer, 1, wxEXPAND | wxALL, 1 );
+  // LJM2 Parameters
+    wxBoxSizer *LJM2ParamSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    // ** Execute **
+    mSlider_Alpha = new GRIPSlider( "alpha", 0.0, 1.0, 50, 0.01, 10, 50, this, slider_Alpha ); 
+    LJM2ParamSizer->Add( mSlider_Alpha, 0, wxEXPAND | wxALL, 1 );
+  
+    mSlider_NumPaths = new GRIPSlider( "num paths:", 0.0, 5, 5, 1, 10, 50, this, slider_NumPaths ); 
+    LJM2ParamSizer->Add( mSlider_NumPaths, 0, wxEXPAND | wxALL, 1 );
+
+    DiscreteBoxSizer->Add( LJM2ParamSizer, 1, wxALIGN_NOT ); 
+
+    // LJM2 Run Info
+    wxBoxSizer *LJM2RunSizer = new wxBoxSizer(wxHORIZONTAL);
+    LJM2RunSizer->Add( new wxButton(this, button_RunLJM2, wxT("Run LJM2")), 0, wxALL, 1 );
+    LJM2RunSizer->Add( new wxButton(this, button_Plot3DPaths, wxT("Plot 3D Paths")), 0, wxALL, 1 );
+
+    DiscreteBoxSizer->Add( LJM2RunSizer, 1, wxALIGN_NOT ); 
+
+    // Execute LJM2Path
+    wxBoxSizer *LJM2ExecuteSizer = new wxBoxSizer(wxHORIZONTAL);
+
+    wxBoxSizer *LJM2ExecuteButtonSizer = new wxBoxSizer(wxHORIZONTAL);
+    LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Plot3DPath, wxT("Plot path")), 0, wxALL, 1 );
+    LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Follow3DPath, wxT("Follow path")), 0, wxALL, 1 );
+
+    LJM2ExecuteSizer->Add( LJM2ExecuteButtonSizer, 1, wxALL, 2 );
+
+    wxBoxSizer *pathIndexSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText *pathIndexLabel = new wxStaticText( this, 1013, wxT("Path:") );
+    mPathIndex = new wxTextCtrl(this,1014,wxT("0"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);//,wxTE_PROCESS_ENTER | wxTE_RIGHT);
+
+    pathIndexSizer->Add( pathIndexLabel, 0, wxALL, 1 );
+    pathIndexSizer->Add( mPathIndex, 0, wxALL, 1 );
+    LJM2ExecuteSizer->Add( pathIndexSizer, 0, wxALL, 1 );
+
+
+    DiscreteBoxSizer->Add( LJM2ExecuteSizer, 1, wxALIGN_NOT ); 
+
+    // Add DiscreteBoxSizer to sizerFull_Planner
+    sizerFull_Planner->Add( DiscreteBoxSizer, 2, wxEXPAND | wxALL, 4 );
+
+    // ** Dummy **
 
     // Create StaticBox container for all items
-    wxStaticBox* ExecuteBox = new wxStaticBox(this, -1, wxT("Execute"));
+    wxStaticBox* DummyBox = new wxStaticBox(this, -1, wxT("Dummy"));
 
     // Create sizer for this box with horizontal layout
-    wxStaticBoxSizer* ExecuteBoxSizer = new wxStaticBoxSizer(ExecuteBox, wxVERTICAL);
+    wxStaticBoxSizer* DummyBoxSizer = new wxStaticBoxSizer(DummyBox, wxVERTICAL);
 
     // Create sizer for start buttons in 1st column
-    wxBoxSizer *ExecuteButtonSizer = new wxBoxSizer(wxVERTICAL);
-    ExecuteButtonSizer->Add( new wxButton(this, button_Execute, wxT("Execute")), 0, wxALL, 1 );
+    wxBoxSizer *DummyButtonSizer = new wxBoxSizer(wxVERTICAL);
+    DummyButtonSizer->Add( new wxButton(this, button_Dummy, wxT("Dummy")), 0, wxALL, 1 );
 
-    ExecuteBoxSizer->Add( ExecuteButtonSizer, 1, wxALIGN_NOT ); 
+    DummyBoxSizer->Add( DummyButtonSizer, 1, wxALIGN_NOT ); 
 
     wxBoxSizer *timeSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText *timeLabel = new wxStaticText( this, 1007, wxT("T: ") );
@@ -113,9 +154,9 @@ PlannerTab::PlannerTab( wxWindow *parent, const wxWindowID id,
 
     timeSizer->Add(timeLabel,2,wxALL,1);
     timeSizer->Add(timeText,2,wxALL,1);
-	ExecuteBoxSizer->Add( timeSizer, 1, wxALIGN_NOT );
+    DummyBoxSizer->Add( timeSizer, 1, wxALIGN_NOT );
 
-    sizerFull_Planner->Add( ExecuteBoxSizer, 1, wxEXPAND | wxALL, 1 );
+    sizerFull_Planner->Add( DummyBoxSizer, 1, wxEXPAND | wxALL, 4 );
 
 
 
@@ -131,44 +172,160 @@ PlannerTab::~PlannerTab(){
 
 }
 
+
 /**
- * @function setTimeLine
- * @brief 
+ * @function OnButton
+ * @brief Handle Button Events
  */
-void PlannerTab::SetTimeline( std::vector<Eigen::VectorXd> _path ) {
-    
-    if( mWorld == NULL || _path.size() == 0 ) {
-        std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
-	      return;
+void PlannerTab::OnButton(wxCommandEvent &evt) {
+
+    int button_num = evt.GetId();
+
+    switch (button_num) {
+      
+        /** RRT */
+    case button_RRT: {
+      RRTPlan();
     }
-    
-    double T;
-    timeText->GetValue().ToDouble(&T);
-    
-    int numsteps = _path.size();
-    double increment = T/(double)numsteps;
-
-    cout << "-->(+) Updating Timeline - Increment: " << increment << " Total T: " << T << " Steps: " << numsteps << endl;
-
-    frame->InitTimer( string("Plan"),increment );
-
-
-    Eigen::VectorXd vals( gLinks.size() );
-
-	for( size_t i = 0; i < numsteps; ++i ) {
-        mWorld->mRobots[gRobotId]->setDofs( _path[i], gLinks );
-	    mWorld->mRobots[gRobotId]->update();
-
-        frame->AddWorld( mWorld );
+      break;
+      
+      /** RRT Execute */
+    case button_RRTExecute: {
+      
     }
-   
+      break;
+
+
+      /** Get 3D Info */
+    case button_Get3DInfo:
+      {
+	printf("**********************\n");
+	printf("      Get 3D Info     \n");
+	printf("**********************\n");
+	printf("--(!) Be sure to set start conf and target object or I will output rubbish \n");
+	mLjm2 = new LJM2( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
+	mCp = new CheckProcess( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
+	mCp->getObjectsData( mWorld->mObjects, gTargetObjectName );  
+	mCp->build_voxel( mWorld->mObjects, *mLjm2, gPadding ); // Here your LJM2 is built
+	mCp->reportObjects(); 
+	printf(" (i) Process Geometry (i) \n");
+	mLjm2->ProcessGeometry();
+	printf(" (i) End process geometry (i)  \n");
+      }		
+      break;
+      
+      /** Plot 3D Configuration */
+    case button_Plot3DInfo:
+      {
+	printf("*************************************\n");
+	printf( "     Plotting 3D Configuration      \n");
+	printf("*************************************\n");
+	pcl::visualization::PCLVisualizer *viewer;
+	viewer = new pcl::visualization::PCLVisualizer( "Discretized Workspace" );
+
+	mLjm2->ViewObstacles( viewer, 0, 0, 255 );
+	
+	while( !viewer->wasStopped() ) {
+	  viewer->spin();
+	}
+	delete viewer;
+      }		
+      break;
+      
+      /** Execute Plan */
+    case button_RunLJM2: {
+      WorkspacePlan();
+    }
+      break;
+
+      /** Plot 3D Paths*/
+    case button_Plot3DPaths: {
+      printf("******************************\n");
+      printf( "     Plotting 3D Paths       \n");
+      printf("******************************\n");
+      pcl::visualization::PCLVisualizer *viewer;
+      viewer = new pcl::visualization::PCLVisualizer( "Workspace Paths" );
+      mLjm2->ViewObstacles( viewer, 0, 0, 255 );
+      mLjm2->ViewPaths( mNodePaths, viewer );
+      mLjm2->ViewBall( viewer, mStartNode(0), mStartNode(1), mStartNode(2), "Start" );
+      mLjm2->ViewBall( viewer, mTargetNode(0), mTargetNode(1), mTargetNode(2), "Target" );
+      
+      while( !viewer->wasStopped() ) {
+	viewer->spin();
+      }
+      delete viewer; 
+    }
+      break;
+
+      /** Show Path */
+    case button_Plot3DPath: {     
+
+      double temp;
+      mPathIndex->GetValue().ToDouble(&temp);
+      int n = (int) temp;
+    
+      printf("*******************************\n");
+      printf( "     Plotting 3D Path %d       \n", n);
+      printf("*******************************\n");
+      pcl::visualization::PCLVisualizer *viewer;
+      viewer = new pcl::visualization::PCLVisualizer( "Workspace Path" );
+      mLjm2->ViewObstacles( viewer, 0, 0, 255 );
+      mLjm2->ViewPath( mNodePaths[n], viewer );
+      mLjm2->ViewBall( viewer, mStartNode(0), mStartNode(1), mStartNode(2), "Start" );
+      mLjm2->ViewBall( viewer, mTargetNode(0), mTargetNode(1), mTargetNode(2), "Target" );
+      
+      while( !viewer->wasStopped() ) {
+	viewer->spin();
+      }
+      delete viewer; 
+    }    
+      break;
+
+    case button_Follow3DPath: {
+      double temp;
+      mPathIndex->GetValue().ToDouble(&temp);
+      int n = (int) temp;
+	  printf("Executing workspace %d \n", n);
+      WorkspaceExecute( mWorkspacePaths[n] );
+    }
+
+      /** Dummy */
+    case button_Dummy: { 
+    }
+      break;
+
+    } // end of switch
+}
+
+
+/**
+ * @function RRTPlan
+ */
+void PlannerTab::RRTPlan() {
+
+  double stepSize = 0.02;	  
+  PathPlanner *planner = new PathPlanner( *mWorld, mCollision, false, stepSize );
+  
+  int maxNodes = 5000;
+  bool result = planner->planPath( gRobotId, 
+				   gLinks, 
+				   gStartConf, 
+				   gTargetConf, 
+				   true, // bidirectional  
+				   true, // connect
+				   true, // greedy 
+				   false, // smooth 
+				   maxNodes );
+  
+  RRTExecute( planner->path );
+  
 }
 
 /**
- * @function setTimeLine
+ * @function RRTExecute
  * @brief 
  */
-void PlannerTab::SetTimeline( std::list<Eigen::VectorXd> _path ) {
+void PlannerTab::RRTExecute( std::list<Eigen::VectorXd> _path ) {
 
     if( mWorld == NULL || _path.size() == 0 ) {
         cout << "--(!) Must create a valid plan before updating its duration (!)--" << endl;
@@ -194,122 +351,7 @@ void PlannerTab::SetTimeline( std::list<Eigen::VectorXd> _path ) {
 
         frame->AddWorld( mWorld );
     }
-
 }
-
-
-/**
- * @function OnButton
- * @brief Handle Button Events
- */
-void PlannerTab::OnButton(wxCommandEvent &evt) {
-
-    int button_num = evt.GetId();
-
-    switch (button_num) {
-
-        /** RRT */
-        case button_RRT: {
-          RRTPlan();
-	    }
-	    break;
-
-
-        /** Get 3D Info */
-	      case button_Get3DInfo:
-          {
-            printf("------- Get 3D Info -------\n" );
-            printf("--(!) Be sure to set start conf and target object or I will output rubbish \n");
-             mLjm2 = new LJM2( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
-              mCp = new CheckProcess( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
-            mCp->getObjectsData( mWorld->mObjects, gTargetObjectName );  
-            mCp->build_voxel( mWorld->mObjects, *mLjm2, gPadding ); // Here your LJM2 is built
-             mCp->reportObjects(); 
-             printf("----- (i) Process Geometry (i) ----- \n");
-                  mLjm2->ProcessGeometry();
-               printf("----- (i) End process geometry (i) ----- \n");
-          }		
-	          break;
-
-        /** Plot 3D Configuration */
-	      case button_Plot3DInfo:
-          {
-			printf( "--------- Plotting 3D Configuration ---------- \n" );
-	        pcl::visualization::PCLVisualizer *viewer;
-			viewer = new pcl::visualization::PCLVisualizer( "Discretized Workspace" );
-
-			mLjm2->ViewObstacles( viewer, 0, 0, 255 );
-
-   	        while( !viewer->wasStopped() ) {
-		    	viewer->spin();
-	        }
-           delete viewer;
-          }		
-	          break;
-
-        /** Execute Plan */
-		  case button_RunLJM2: {
-		  	WorkspacePlan();
-		  }
-		  break;
-
-		  case button_Plot3DPaths: {
-			printf( "--------- Plotting 3D Paths ---------- \n" );
-	        pcl::visualization::PCLVisualizer *viewer;
-			viewer = new pcl::visualization::PCLVisualizer( "Workspace Paths" );
-			mLjm2->ViewObstacles( viewer, 0, 0, 255 );
-			mLjm2->ViewPaths( mNodePaths, viewer );
-            mLjm2->ViewBall( viewer, mStartNode(0), mStartNode(1), mStartNode(2), "Start" );
-            mLjm2->ViewBall( viewer, mTargetNode(0), mTargetNode(1), mTargetNode(2), "Target" );
-
-   	        while( !viewer->wasStopped() ) {
-		    	viewer->spin();
-	        }
-           delete viewer;
-
-
-			}
-		break;
-
-	/** Execute */
-	case button_Execute: {
-		
-	}
-
-
-
-    } // end of switch
-}
-
-
-
-
-
-
-
-/**
- * @function RRTPlan
- */
-void PlannerTab::RRTPlan() {
-
-	  double stepSize = 0.02;	  
-	  PathPlanner *planner = new PathPlanner( *mWorld, mCollision, false, stepSize );
-	  
-	  int maxNodes = 5000;
-	  bool result = planner->planPath( gRobotId, 
-					   gLinks, 
-					   gStartConf, 
-					   gTargetConf, 
-					   true, // bidirectional  
-					   true, // connect
-					   true, // greedy 
-					   false, // smooth 
-					   maxNodes );
- 
-SetTimeline( planner->path);
-
-}
-
 
 /**
  * @function WorkspacePlan
@@ -331,25 +373,61 @@ void PlannerTab::WorkspacePlan() {
    mTargetNode.resize(3);
 
    if( mLjm2->WorldToGrid( gStartPos(0), gStartPos(1), gStartPos(2), mStartNode(0), mStartNode(1), mStartNode(2) ) == false )
-   {  printf("-------(x) Error: Start Position no valid (off limits) (x)-------\n"); return; } 
+   {  printf("(x) Error: Start Position no valid  (x)\n"); return; } 
    if( mLjm2->WorldToGrid( gTargetPos(0), gTargetPos(1), gTargetPos(2), mTargetNode(0), mTargetNode(1), mTargetNode(2) ) == false )
-   {  printf("-------(x) Error: Target Position no valid (off limits) (x)-------\n"); return; }    
+   {  printf("(x) Error: Target Position no valid  (x)\n"); return; }    
 
 
-	//-- Plan now workspace guys
-	printf("-------(o) Planning from (%d %d %d) to (%d %d %d) (o)-------\n", mStartNode(0), mStartNode(1), mStartNode(2), mTargetNode(0), mTargetNode(1), mTargetNode(2) );
-	printf("-------(o) Start State: %d  Target state: %d (FREE: 1 OBSTACLE: 2) (o)-------\n", mLjm2->GetState(mStartNode(0), mStartNode(1), mStartNode(2)), mLjm2->GetState(mTargetNode(0), mTargetNode(1), mTargetNode(2)));
+   //-- Plan now workspace guys
+   printf("(o) Planning from (%d %d %d) to (%d %d %d) (o)\n", mStartNode(0), mStartNode(1), mStartNode(2), mTargetNode(0), mTargetNode(1), mTargetNode(2) );
+   printf("(o) Start State: %d  Target state: %d (FREE: 1 OBSTACLE: 2) (o)\n", mLjm2->GetState(mStartNode(0), mStartNode(1), mStartNode(2)), mLjm2->GetState(mTargetNode(0), mTargetNode(1), mTargetNode(2)));
 
-	//-- Check alpha and numPaths
-    mAlpha = 0.1;
-    mNumPaths = 3;
-	printf("---(i) Search Parameters: Alpha: %.3f - Num Paths: %d \n", mAlpha, mNumPaths );
-
-	mNodePaths = mLjm2->FindVarietyPaths2( mStartNode(0), mStartNode(1), mStartNode(2), mTargetNode(0), mTargetNode(1), mTargetNode(2), mNumPaths, mAlpha );
-	mWorkspacePaths = mLjm2->NodePathToWorkspacePath( mNodePaths );
-	printf("-------(i) Finished Workpace Planning (i)------- \n");
-
+   //-- Check alpha and numPaths
+   printf("---(i) Search Parameters: Alpha: %.3f - Num Paths: %d \n", mAlpha, mNumPaths );
+   
+   mNodePaths = mLjm2->FindVarietyPaths2( mStartNode(0), mStartNode(1), mStartNode(2), mTargetNode(0), mTargetNode(1), mTargetNode(2), mNumPaths, mAlpha );
+   mWorkspacePaths = mLjm2->NodePathToWorkspacePath( mNodePaths );
+   printf("-------(i) Finished Workpace Planning (i)------- \n");
+   
 }
+
+/**
+ * @function WorkspaceExecute
+ * @brief 
+ */
+void PlannerTab::WorkspaceExecute( std::vector<Eigen::VectorXd> _path ) {
+
+    if( mWorld == NULL || _path.size() == 0 ) {
+        std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
+	      return;
+    }
+    
+    JTFollower jt( *mWorld, mCollision, false );	
+    std::vector< Eigen::VectorXd > configPath = jt.PlanPath( gRobotId, gLinks, gStartConf, gEEName, gEEId, _path );
+    
+
+    double T;
+    timeText->GetValue().ToDouble(&T);
+    
+    int numsteps = configPath.size();
+    double increment = T/(double)numsteps;
+
+    cout << "-->(+) Updating Timeline - Increment: " << increment << " Total T: " << T << " Steps: " << numsteps << endl;
+
+    frame->InitTimer( string("Plan"),increment );
+
+
+    Eigen::VectorXd vals( gLinks.size() );
+
+    for( size_t i = 0; i < numsteps; ++i ) {
+      mWorld->mRobots[gRobotId]->setDofs( configPath[i], gLinks );
+      mWorld->mRobots[gRobotId]->update();
+      
+      frame->AddWorld( mWorld );
+    }
+    
+}
+
 
 /**
  * @function OnSlider
@@ -368,8 +446,16 @@ void PlannerTab::OnSlider(wxCommandEvent &evt) {
 
     switch (slnum) {
 
-      	default:
-	          return;
+    case slider_Alpha:
+      mAlpha = pos;
+      break;
+
+    case slider_NumPaths:
+      mNumPaths = (int) pos;
+      break;
+      
+    default:
+      return;
     }
 
     //world->updateCollision(o);

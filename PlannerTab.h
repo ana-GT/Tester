@@ -56,6 +56,7 @@
 #include "globalStuff.h"
 #include "Planners/RRT/PathPlanner.h"
 #include "Planners/LJM2_Suite/myFunctions/CheckProcess.h"
+#include "Planners/JTFollower/JTFollower.h"
 
 using namespace std;
 
@@ -66,7 +67,6 @@ using namespace std;
 class PlannerTab : public GRIPTab
 {
 public:
-
 
     /// Functions related to Tab
     PlannerTab(){};
@@ -84,17 +84,16 @@ public:
   planning::Robot* selectedRobot;
   kinematics::BodyNode* selectedNode;
 
-    void OnSlider(wxCommandEvent &evt);
-    void OnRadio(wxCommandEvent &evt);
-    void OnButton(wxCommandEvent &evt);
-    void OnCheckBox(wxCommandEvent &evt);
-
-  void SetTimeline( std::vector<Eigen::VectorXd> _path );
-  void SetTimeline( std::list<Eigen::VectorXd> _path );
-
+  void OnSlider(wxCommandEvent &evt);
+  void OnRadio(wxCommandEvent &evt);
+  void OnButton(wxCommandEvent &evt);
+  void OnCheckBox(wxCommandEvent &evt);
+  
+  // ***** RRT Plan *****
   void RRTPlan();
+  void RRTExecute( std::list<Eigen::VectorXd> _path );
 
-  // Workspace Plan stuff
+  // ***** Workspace Plan *****
   CheckProcess *mCp;
   LJM2 *mLjm2;
 
@@ -106,11 +105,16 @@ public:
   std::vector< std::vector<Eigen::Vector3i> > mNodePaths;
   std::vector< std::vector<Eigen::VectorXd> > mConfigPaths;
 
+  GRIPSlider* mSlider_Alpha;
+  GRIPSlider* mSlider_NumPaths;
+  wxTextCtrl *mPathIndex;
+
   void WorkspacePlan(); 
+  void WorkspaceExecute( std::vector<Eigen::VectorXd> _path );
  
+  // ****************************
+
     void GRIPStateChange();
-
-
     DECLARE_DYNAMIC_CLASS( PlannerTab )
     DECLARE_EVENT_TABLE()
 };

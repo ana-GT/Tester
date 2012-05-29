@@ -29,14 +29,16 @@ set( SRC_PLANNERS Planners/RRT/RRT.cpp
   Planners/LJM2_Suite/myFunctions/CheckProcess.cpp
   Planners/LJM2_Suite/LJM2/LJM2.cpp 
   Planners/LJM2_Suite/LJM2/searchFunctionsFree.cpp
-  Planners/LJM2_Suite/LJM2/searchFunctionsSurface.cpp )
+  Planners/LJM2_Suite/LJM2/searchFunctionsSurface.cpp
+  Planners/JTFollower/JTFollower.cpp )
 
 set( HDR_PLANNERS Planners/RRT/RRT.h
   Planners/RRT/PathPlanner.h
   kdtree/kdtree.h
   Planners/LJM2_Suite/myFunctions/CheckObject.h
   Planners/LJM2_Suite/myFunctions/CheckProcess.h
-  Planners/LJM2_Suite/LJM2/LJM2.h )
+  Planners/LJM2_Suite/LJM2/LJM2.h
+  Planners/JTFollower/JTFollower.h )
 
 set( SRC_LJM2 LJM2/LJM2.cpp 
   LJM2/searchFunctionsFree.cpp
