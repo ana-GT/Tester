@@ -57,8 +57,8 @@ IMPLEMENT_DYNAMIC_CLASS( PlannerTab, GRIPTab )
  * @brief Constructor
  */
 PlannerTab::PlannerTab( wxWindow *parent, const wxWindowID id,
-		                      const wxPoint& pos, const wxSize& size, long style) :
-	                          GRIPTab(parent, id, pos, size, style ) {
+			const wxPoint& pos, const wxSize& size, long style) :
+GRIPTab(parent, id, pos, size, style ) {
 
     sizerFull_Planner = new wxBoxSizer( wxHORIZONTAL );
  
@@ -99,7 +99,7 @@ PlannerTab::PlannerTab( wxWindow *parent, const wxWindowID id,
     mSlider_Alpha = new GRIPSlider( "alpha", 0.0, 1.0, 50, 0.01, 10, 50, this, slider_Alpha ); 
     LJM2ParamSizer->Add( mSlider_Alpha, 0, wxEXPAND | wxALL, 1 );
   
-    mSlider_NumPaths = new GRIPSlider( "num paths:", 0.0, 5, 5, 1, 10, 50, this, slider_NumPaths ); 
+    mSlider_NumPaths = new GRIPSlider( "num paths:", 0.0, 5.0, 5, 1, 10, 50, this, slider_NumPaths ); 
     LJM2ParamSizer->Add( mSlider_NumPaths, 0, wxEXPAND | wxALL, 1 );
 
     DiscreteBoxSizer->Add( LJM2ParamSizer, 1, wxALIGN_NOT ); 
@@ -402,10 +402,9 @@ void PlannerTab::WorkspaceExecute( std::vector<Eigen::VectorXd> _path ) {
 	      return;
     }
     
-    JTFollower jt( *mWorld, mCollision, false );	
-    std::vector< Eigen::VectorXd > configPath = jt.PlanPath( gRobotId, gLinks, gStartConf, gEEName, gEEId, _path );
+    JNSFollower jns( *mWorld, mCollision, false );	
+    std::vector< Eigen::VectorXd > configPath = jns.PlanPath( gRobotId, gLinks, gStartConf, gEEName, gEEId, gResolution, _path );
     
-
     double T;
     timeText->GetValue().ToDouble(&T);
     

@@ -36,8 +36,8 @@
  *
  */	
 
-#ifndef _JT_FOLLOWER_H_
-#define _JT_FOLLOWER_H_
+#ifndef _JNS_FOLLOWER_H_
+#define _JNS_FOLLOWER_H_
 
 #include <iostream>
 #include <Eigen/Core>
@@ -46,53 +46,55 @@
 #include <Tools/Collision.h>
 
 /**
- * @class JTFollower
- * @brief Simple Follower with Jacobian Transpose
+ * @class JNSFollower
+ * @brief Simple Follower with Jacobian PseudoInverse
  */
-class JTFollower {
+class JNSFollower {
 
 public:
 
     /// Member variables
-    double mConfigStep;
-    planning::World *mWorld;
-    Collision *mCollision;
-    int mRobotId;
-    Eigen::VectorXi mLinks;
-    double mWorkspaceThresh;
+  double mConfigStep;
+  planning::World *mWorld;
+  Collision *mCollision;
+  int mRobotId;
+  Eigen::VectorXi mLinks;
+  double mWorkspaceThresh;
+  
+  kinematics::BodyNode *mEENode;
+  int mEEId;
+  int mMaxIter;
+  
+  /// Constructor
+  JNSFollower();
+  JNSFollower( planning::World &_world,
+	       Collision *_collision,
+	       bool _copyWorld = false,
+	       double _configStep = 1.05 ); // 0.35 = sqrt(7)*1_degree
     
-    kinematics::BodyNode *mEENode;
-    int mEEId;
-    int mMaxIter;
+  /// Destructor
+  ~JNSFollower();
+  
+  /// Planner itself
+  std::vector< Eigen::VectorXd > PlanPath( int _robotId,
+					   const Eigen::VectorXi &_links,
+					   const Eigen::VectorXd &_start,  // Configuration,
+					   std::string _EEName,
+					   int _EEId,
+					   double _res,
+					   const std::vector<Eigen::VectorXd> &_workspacePath ); // Pose    
     
-    /// Constructor
-    JTFollower();
-    JTFollower( planning::World &_world,
-		Collision *_collision,
-                bool _copyWorld = false,
-                double _configStep = 1.05 ); // 0.35 = sqrt(7)*1_degree
-    
-    /// Destructor
-    ~JTFollower();
-    
-    /// Planner itself
-    std::vector< Eigen::VectorXd > PlanPath( int _robotId,
-					     const Eigen::VectorXi &_links,
-					     const Eigen::VectorXd &_start,  // Configuration,
-					     std::string _EEName,
-                                             int _EEId,
-					     double _res,
-					     const std::vector<Eigen::VectorXd> &_workspacePath ); // Pose    
-    
-    Eigen::MatrixXd GetPseudoInvJac( Eigen::VectorXd _q ) ;
-    bool GoToXYZ( Eigen::VectorXd &_q, Eigen::VectorXd _targetXYZ, std::vector<Eigen::VectorXd> &_workspacePath );
-    Eigen::VectorXd GetXYZ( Eigen::VectorXd _q );
+  Eigen::MatrixXd GetPseudoInvJac( Eigen::VectorXd _q ) ;
+  bool GoToEEPos( Eigen::VectorXd &_q, 
+		  Eigen::VectorXd _targetPos, 
+		  std::vector<Eigen::VectorXd> &_workspacePath );
+  Eigen::VectorXd GetEEPos( Eigen::VectorXd _q );
     
  private:
-    /// Member variables
-    bool mCopyWorld;
-    
+  /// Member variables
+  bool mCopyWorld;
+  
 };
 
-#endif /** _JT_FOLLOWER_H_ */
+#endif /** _JNS_FOLLOWER_H_ */
 

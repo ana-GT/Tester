@@ -61,39 +61,50 @@ JTFollower::~JTFollower() {
 std::vector< Eigen::VectorXd > JTFollower::PlanPath( int _robotId,
 						     const Eigen::VectorXi &_links,
 						     const Eigen::VectorXd &_start,  
-							 std::string _EEName,
-                             int _EEId,
+						     std::string _EEName,
+						     int _EEId,
+						     double _res,
 						     const std::vector<Eigen::VectorXd> &_workspacePath ) {
- 
-	mRobotId = _robotId;
-	mLinks = _links;
+  
+  mRobotId = _robotId;
+  mLinks = _links;
 
-    mMaxIter = 100;
-    mWorkspaceThresh = 0.02; // An error of 0.005 per coordinate
-    mEENode = mWorld->mRobots[mRobotId]->getNode( _EEName.c_str() );
-    mEEId = _EEId;
+  mMaxIter = 100;
+  mWorkspaceThresh = _res; // An error of half the resolution
+  mEENode = mWorld->mRobots[mRobotId]->getNode( _EEName.c_str() );
+  mEEId = _EEId;
 
 
-	//-- Follow the path
-	std::vector< Eigen::VectorXd > configPath;
-	Eigen::VectorXd q;
-
-    int numPoints = _workspacePath.size();
-
-	//-- Initialize	
-	q = _start;
-
-	for( size_t i = 1; i < numPoints; ++i ) { // start from 1 since 0 is the current start position
-		if( GoToXYZ( q, _workspacePath[i], configPath ) == false ) {
-			printf(" --(x) An error here, stop following path \n"); break;
-		}
-	} 
-
-	printf("End of Plan Path \n");
-	return configPath;
-
+  //-- Follow the path
+  std::vector< Eigen::VectorXd > configPath;
+  Eigen::VectorXd q;
+  
+  int numPoints = _workspacePath.size();
+  
+  //-- Initialize	
+  q = _start;
+  
+  for( size_t i = 1; i < numPoints; ++i ) { // start from 1 since 0 is the current start position
+    if( GoToXYZ( q, _workspacePath[i], configPath ) == false ) {
+      printf(" --(x) An error here, stop following path \n"); break;
+    }
+  } 
+  
+  printf("End of Plan Path \n");
+  return configPath;
+  
 }
 
+/**
+ * @function GetPseudoInvJac   
+ */
+Eigen::MatrixXd JTFollower::GetPseudoInvJac( Eigen::VectorXd _q ) {
+  Eigen::MatrixXd Jaclin = mEENode->getJacobianLinear().topRightCorner( 3, mLinks.size() );
+  Eigen::MatrixXd JaclinT = Jaclin.transpose();
+  Eigen::MatrixXd Jt;
+  Jt = JaclinT*( (Jaclin*JaclinT).inverse() );
+  return Jt;
+}
 
 /**
  * @function GoToXYZ
@@ -107,22 +118,22 @@ bool JTFollower::GoToXYZ( Eigen::VectorXd &_q, Eigen::VectorXd _targetXYZ, std::
 	//-- Initialize
 	dXYZ = ( _targetXYZ - GetXYZ(_q) ); // GetXYZ also updates the config to _q, so Jaclin use an updated value
 	iter = 0;
-
+	printf("New call to GoToXYZ \n");
     while( dXYZ.norm() > mWorkspaceThresh && iter < mMaxIter ) {
         printf("XYZ Error: %f \n", dXYZ.norm() );
-  		Eigen::MatrixXd Jaclin;
-  		Jaclin = mEENode->getJacobianLinear().topRightCorner( 3, mLinks.size() );
-		dConfig = Jaclin.transpose()*dXYZ;
-
-		if( dConfig.norm() > mConfigStep ) {
-			double n = dConfig.norm();
-			dConfig = dConfig *(mConfigStep/n);
-		}
-		_q = _q + dConfig;
-		_workspacePath.push_back( _q );
-
-		dXYZ = (_targetXYZ - GetXYZ(_q) );
-		iter++;
+	Eigen::MatrixXd Jt = GetPseudoInvJac(_q);
+	dConfig = Jt*dXYZ;
+	printf("dConfig : %.3f \n", dConfig.norm() );
+	if( dConfig.norm() > mConfigStep ) {
+	  double n = dConfig.norm();
+	  dConfig = dConfig *(mConfigStep/n);
+	  printf("NEW dConfig : %.3f \n", dConfig.norm() );
+	}
+	_q = _q + dConfig;
+	_workspacePath.push_back( _q );
+	
+	dXYZ = (_targetXYZ - GetXYZ(_q) );
+	iter++;
 	}
 
 	if( iter >= mMaxIter ) { return false; }

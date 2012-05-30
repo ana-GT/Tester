@@ -30,7 +30,8 @@ set( SRC_PLANNERS Planners/RRT/RRT.cpp
   Planners/LJM2_Suite/LJM2/LJM2.cpp 
   Planners/LJM2_Suite/LJM2/searchFunctionsFree.cpp
   Planners/LJM2_Suite/LJM2/searchFunctionsSurface.cpp
-  Planners/JTFollower/JTFollower.cpp )
+  Planners/JTFollower/JTFollower.cpp
+  Planners/JNSFollower/JNSFollower.cpp )
 
 set( HDR_PLANNERS Planners/RRT/RRT.h
   Planners/RRT/PathPlanner.h
@@ -38,7 +39,8 @@ set( HDR_PLANNERS Planners/RRT/RRT.h
   Planners/LJM2_Suite/myFunctions/CheckObject.h
   Planners/LJM2_Suite/myFunctions/CheckProcess.h
   Planners/LJM2_Suite/LJM2/LJM2.h
-  Planners/JTFollower/JTFollower.h )
+  Planners/JTFollower/JTFollower.h
+  Planners/JNSFollower/JNSFollower.h )
 
 set( SRC_LJM2 LJM2/LJM2.cpp 
   LJM2/searchFunctionsFree.cpp

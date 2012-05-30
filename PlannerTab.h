@@ -57,6 +57,7 @@
 #include "Planners/RRT/PathPlanner.h"
 #include "Planners/LJM2_Suite/myFunctions/CheckProcess.h"
 #include "Planners/JTFollower/JTFollower.h"
+#include "Planners/JNSFollower/JNSFollower.h"
 
 using namespace std;
 
