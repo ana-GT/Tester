@@ -53,7 +53,16 @@ class JNSFollower {
 
 public:
 
-    /// Member variables
+  /// Constants for class
+  static const double sMinCoeff;
+  static const double sMaxCoeff;
+  static const int sNumCoeff;
+  static const double sdCoeff;
+  
+  /// Keep going
+  double* sCoeff;
+
+  /// Member variables
   double mConfigStep;
   planning::World *mWorld;
   Collision *mCollision;
@@ -86,6 +95,7 @@ public:
     
   Eigen::MatrixXd GetPseudoInvJac( Eigen::VectorXd _q ) ;
   void GetJacStuff( const Eigen::VectorXd &_q, Eigen::MatrixXd &_Jt, Eigen::MatrixXd &_NS_Basis, int &_NS_Dim );
+  bool CheckCollisionConfig( Eigen::VectorXd _q );
   bool GoToEEPos( Eigen::VectorXd &_q, 
 		  Eigen::VectorXd _targetPos, 
 		  std::vector<Eigen::VectorXd> &_workspacePath );

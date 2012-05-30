@@ -31,7 +31,8 @@ enum PlannerTabEvents {
   button_RunLJM2,
   button_Plot3DPaths,
   button_Plot3DPath,
-  button_Follow3DPath,
+  button_Follow3DPath_NS,
+  button_Follow3DPath_PI,
 
   button_Dummy,
   slider_Alpha,
@@ -116,7 +117,8 @@ GRIPTab(parent, id, pos, size, style ) {
 
     wxBoxSizer *LJM2ExecuteButtonSizer = new wxBoxSizer(wxHORIZONTAL);
     LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Plot3DPath, wxT("Plot path")), 0, wxALL, 1 );
-    LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Follow3DPath, wxT("Follow path")), 0, wxALL, 1 );
+    LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Follow3DPath_NS, wxT("Follow NS")), 0, wxALL, 1 );
+    LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Follow3DPath_PI, wxT("Follow PI")), 0, wxALL, 1 );
 
     LJM2ExecuteSizer->Add( LJM2ExecuteButtonSizer, 1, wxALL, 2 );
 
@@ -281,12 +283,22 @@ void PlannerTab::OnButton(wxCommandEvent &evt) {
     }    
       break;
 
-    case button_Follow3DPath: {
+      /** Follow NS - Nullspace search */
+    case button_Follow3DPath_NS: {
       double temp;
       mPathIndex->GetValue().ToDouble(&temp);
       int n = (int) temp;
-	  printf("Executing workspace %d \n", n);
-      WorkspaceExecute( mWorkspacePaths[n] );
+	  printf("Executing workspace %d -- Follow NS \n", n);
+	  WorkspaceExecute( mWorkspacePaths[n], 0 );
+    }
+
+      /** Follow PI - Pseudo Inverse alone */
+    case button_Follow3DPath_PI: {
+      double temp;
+      mPathIndex->GetValue().ToDouble(&temp);
+      int n = (int) temp;
+	  printf("Executing workspace %d -- Follow JT \n", n);
+	  WorkspaceExecute( mWorkspacePaths[n], 1 );
     }
 
       /** Dummy */
@@ -395,16 +407,24 @@ void PlannerTab::WorkspacePlan() {
  * @function WorkspaceExecute
  * @brief 
  */
-void PlannerTab::WorkspaceExecute( std::vector<Eigen::VectorXd> _path ) {
+void PlannerTab::WorkspaceExecute( std::vector<Eigen::VectorXd> _path, int _type ) {
 
     if( mWorld == NULL || _path.size() == 0 ) {
         std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
 	      return;
     }
     
-    JNSFollower jns( *mWorld, mCollision, false );	
-    std::vector< Eigen::VectorXd > configPath = jns.PlanPath( gRobotId, gLinks, gStartConf, gEEName, gEEId, gResolution, _path );
-    
+    std::vector< Eigen::VectorXd > configPath;
+
+    if( _type == 0 ) { // Nullspace
+      JNSFollower jns( *mWorld, mCollision, false );	
+      configPath = jns.PlanPath( gRobotId, gLinks, gStartConf, gEEName, gEEId, gResolution, _path );
+    }
+    else if( _type == 1 ) { // Pseudo Inverse
+      JTFollower jt( *mWorld, mCollision, false );	
+      configPath = jt.PlanPath( gRobotId, gLinks, gStartConf, gEEName, gEEId, gResolution, _path );
+    }
+
     double T;
     timeText->GetValue().ToDouble(&T);
     

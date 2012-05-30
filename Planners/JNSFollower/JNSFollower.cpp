@@ -16,6 +16,12 @@
 
 #include <Eigen/LU>
 
+/***  CONSTS */
+const double JNSFollower::sMinCoeff = -10;
+const double JNSFollower::sMaxCoeff = 10;
+const int JNSFollower::sNumCoeff = 10;
+const double JNSFollower::sdCoeff = ( sMaxCoeff - sMinCoeff ) / (1.0*sNumCoeff);
+
 /**
  * @function JNSFollower
  * @brief Constructor
@@ -23,6 +29,11 @@
 JNSFollower::JNSFollower() {
   mCopyWorld = false;
   mWorld = NULL;
+
+  sCoeff = new double[sNumCoeff];
+  for( int i = 0; i < sNumCoeff; ++i ) {
+    sCoeff[i] = sMinCoeff + sdCoeff*i;
+  }
 }
 
 /**
@@ -44,6 +55,11 @@ JNSFollower::JNSFollower( planning::World &_world,
   
   mCollision = _collision;
   mConfigStep = _configStep;
+
+  sCoeff = new double[sNumCoeff];
+  for( int i = 0; i < sNumCoeff; ++i ) {
+    sCoeff[i] = sMinCoeff + sdCoeff*i;
+  }
 }
 
 /**
@@ -54,6 +70,10 @@ JNSFollower::~JNSFollower() {
 
   if( mCopyWorld ) {
     delete mWorld;
+  }
+
+  if( sCoeff != NULL ) {
+    delete [] sCoeff;
   }
 }
 
@@ -150,8 +170,8 @@ bool JNSFollower::GoToEEPos( Eigen::VectorXd &_q,
  * @function GoToEEPosCheckCollision
  */
 bool JNSFollower::GoToEEPosCheckCollision( Eigen::VectorXd &_q, 
-			     Eigen::VectorXd _targetPos, 
-			     std::vector<Eigen::VectorXd> &_workspacePath ) {
+					   Eigen::VectorXd _targetPos, 
+					   std::vector<Eigen::VectorXd> &_workspacePath ) {
   
   Eigen::VectorXd dPos;
   Eigen::VectorXd dConfig;
@@ -165,28 +185,56 @@ bool JNSFollower::GoToEEPosCheckCollision( Eigen::VectorXd &_q,
     int NS_Dim;
 
     GetJacStuff( _q, Jt, NS_Basis, NS_Dim );
+    Eigen::VectorXd dq_Particular = Jt*dPos;
+    Eigen::VectorXd dq_Temp;
 
-    NS_Coeff = Eigen::MatrixXd::Ones( NS_Dim, NS_Dim );
+    // First check if the minimum solution works
+    dq_Temp = dq_Particular;
 
-    Eigen::VectorXd temp = Jt*dPos;
+    if( CheckCollisionConfig( _q + dq_Temp ) == false ) {
+      _q = _q + dq_Temp;
+      _workspacePath.push_back( _q );
+      return true;
+    } 
+    // If not, search the nullspace
+    else {
+      printf("--> Search nullspace \n");
+      for( int a = 0; a < sNumCoeff; ++a ) {
+	for( int b = 0; b < sNumCoeff; ++b ) {
+	  for( int c = 0; c < sNumCoeff; ++c ) {
+	    for( int d = 0; d < sNumCoeff; ++d ) {
+	      // Coeff
+	      Eigen::VectorXd coeff(4); coeff << sCoeff[a], sCoeff[b], sCoeff[c], sCoeff[d];
+	      dq_Temp = dq_Particular + NS_Basis*coeff ;
+	      
+	      // Check collisions
+	      if( CheckCollisionConfig( _q + dq_Temp ) == false && 
+		  ( _targetPos - GetEEPos(_q + dq_Temp) ).norm() <  mWorkspaceThresh ) {  
+		_q = _q + dq_Temp;
+		_workspacePath.push_back( _q );
+		printf("Found it! -- \n");
+		return true;
+	      }
+	    } // for a
+	  } // for b
+	} // for c
+      } // for d
+      printf("Did not find it, damn! \n");
+      _q = _q + dq_Particular;
+      _workspacePath.push_back( _q );
+      return true;
+    }    
+}
 
-  for( int i = 0; i < NS_Dim; ++i ) {
-    temp = temp + NS_Basis.col(i)*NS_Coeff(i,i)*10;
-  }
-
-    dConfig = temp;        
-    _q = _q + dConfig;
-        
-	_workspacePath.push_back( _q );
-
-    /// Check collision
-    mWorld->mRobots[mRobotId]->setDofs( _q, mLinks );
-
-    if( mCollision->CheckCollisions() ) {   
-      printf(" --(!) Collision \n"); 
-    }
+/**
+ * @function CheckCollisionConfig
+ * @brief Return true if there IS collisions. If it is false we are cool
+ */
+bool JNSFollower::CheckCollisionConfig( Eigen::VectorXd _q ) {
   
-	return true;  
+  mWorld->mRobots[mRobotId]->setDofs( _q, mLinks );
+  mWorld->mRobots[mRobotId]->update();
+  return mCollision->CheckCollisions();  
 }
 
 /**
@@ -207,7 +255,7 @@ void JNSFollower::GetJacStuff( const Eigen::VectorXd &_q, Eigen::MatrixXd &_Jt, 
 
   // Normalize
   for( int i = 0; i < _NS_Dim; ++i ) {
-    normCoeff(i, i) = (1.0/180.0*3.1416)*1.0/_NS_Basis.col(i).norm();
+    normCoeff(i, i) = (10.0/180.0*3.1416)*1.0/_NS_Basis.col(i).norm();
   }
 
   _NS_Basis = _NS_Basis*normCoeff;

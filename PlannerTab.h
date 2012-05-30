@@ -111,7 +111,7 @@ public:
   wxTextCtrl *mPathIndex;
 
   void WorkspacePlan(); 
-  void WorkspaceExecute( std::vector<Eigen::VectorXd> _path );
+  void WorkspaceExecute( std::vector<Eigen::VectorXd> _path, int _type = 0 );
  
   // ****************************
 
