@@ -14,6 +14,8 @@
 #include <kinematics/Dof.h>
 #include "JNSFollower.h"
 
+#include <Eigen/LU>
+
 /**
  * @function JNSFollower
  * @brief Constructor
@@ -75,7 +77,6 @@ std::vector< Eigen::VectorXd > JNSFollower::PlanPath( int _robotId,
   mEENode = mWorld->mRobots[mRobotId]->getNode( _EEName.c_str() );
   mEEId = _EEId;
   
-  
   //-- Follow the path
   std::vector< Eigen::VectorXd > configPath;
   Eigen::VectorXd q;
@@ -86,7 +87,7 @@ std::vector< Eigen::VectorXd > JNSFollower::PlanPath( int _robotId,
   q = _start;
   
   for( size_t i = 1; i < numPoints; ++i ) { // start from 1 since 0 is the current start position
-    if( GoToEEPos( q, _workspacePath[i], configPath ) == false ) {
+    if( GoToEEPosCheckCollision( q, _workspacePath[i], configPath ) == false ) {
       printf(" --(x) An error here, stop following path \n"); break;
     }
   } 
@@ -122,19 +123,15 @@ bool JNSFollower::GoToEEPos( Eigen::VectorXd &_q,
   dPos = ( _targetPos - GetEEPos(_q) ); // GetEEPos also updates the config to _q, so Jaclin use an updated value
   iter = 0;
 
-  printf(" ** New call to GoToEEPos \n");
-
   do {  
-    printf("----- [do] dPos: %f \n", dPos.norm() );
     Eigen::MatrixXd Jt = GetPseudoInvJac(_q);
     dConfig = Jt*dPos;
-    printf("----- [do] dConfig : %.3f \n", dConfig.norm() );
     
+	/*
     if( dConfig.norm() > mConfigStep ) {
       double n = dConfig.norm();
       dConfig = dConfig *(mConfigStep/n);
-      printf("-----[do - IF] new dConfig : %.3f \n", dConfig.norm() );
-    }
+    } */
     
     _q = _q + dConfig;
     _workspacePath.push_back( _q );
@@ -147,6 +144,73 @@ bool JNSFollower::GoToEEPos( Eigen::VectorXd &_q,
   if( iter >= mMaxIter ) { return false; }
   else { return true; }
   
+}
+
+/**
+ * @function GoToEEPosCheckCollision
+ */
+bool JNSFollower::GoToEEPosCheckCollision( Eigen::VectorXd &_q, 
+			     Eigen::VectorXd _targetPos, 
+			     std::vector<Eigen::VectorXd> &_workspacePath ) {
+  
+  Eigen::VectorXd dPos;
+  Eigen::VectorXd dConfig;
+  
+  //-- Initialize
+  dPos = ( _targetPos - GetEEPos(_q) ); // GetEEPos also updates the config to _q, so Jaclin use an updated value
+
+    Eigen::MatrixXd Jt;
+    Eigen::MatrixXd NS_Basis; 
+    Eigen::MatrixXd NS_Coeff; 
+    int NS_Dim;
+
+    GetJacStuff( _q, Jt, NS_Basis, NS_Dim );
+
+    NS_Coeff = Eigen::MatrixXd::Ones( NS_Dim, NS_Dim );
+
+    Eigen::VectorXd temp = Jt*dPos;
+
+  for( int i = 0; i < NS_Dim; ++i ) {
+    temp = temp + NS_Basis.col(i)*NS_Coeff(i,i)*10;
+  }
+
+    dConfig = temp;        
+    _q = _q + dConfig;
+        
+	_workspacePath.push_back( _q );
+
+    /// Check collision
+    mWorld->mRobots[mRobotId]->setDofs( _q, mLinks );
+
+    if( mCollision->CheckCollisions() ) {   
+      printf(" --(!) Collision \n"); 
+    }
+  
+	return true;  
+}
+
+/**
+ * @function GetJacStuff
+ */
+void JNSFollower::GetJacStuff( const Eigen::VectorXd &_q, Eigen::MatrixXd &_Jt, Eigen::MatrixXd &_NS_Basis, int &_NS_Dim  ) {
+ 
+ Eigen::MatrixXd Jaclin = mEENode->getJacobianLinear().topRightCorner( 3, mLinks.size() );
+
+ Eigen::MatrixXd JaclinT = Jaclin.transpose();
+ _Jt = JaclinT*( (Jaclin*JaclinT).inverse() );
+
+ Eigen::FullPivLU<Eigen::MatrixXd> J_LU( Jaclin );
+ _NS_Basis = J_LU.kernel();
+
+ _NS_Dim = _NS_Basis.cols();
+ Eigen::MatrixXd normCoeff = Eigen::MatrixXd::Zero( _NS_Dim, _NS_Dim );
+
+  // Normalize
+  for( int i = 0; i < _NS_Dim; ++i ) {
+    normCoeff(i, i) = (1.0/180.0*3.1416)*1.0/_NS_Basis.col(i).norm();
+  }
+
+  _NS_Basis = _NS_Basis*normCoeff;
 }
 
 /**

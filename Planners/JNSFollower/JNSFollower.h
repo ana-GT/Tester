@@ -85,7 +85,11 @@ public:
 					   const std::vector<Eigen::VectorXd> &_workspacePath ); // Pose    
     
   Eigen::MatrixXd GetPseudoInvJac( Eigen::VectorXd _q ) ;
+  void GetJacStuff( const Eigen::VectorXd &_q, Eigen::MatrixXd &_Jt, Eigen::MatrixXd &_NS_Basis, int &_NS_Dim );
   bool GoToEEPos( Eigen::VectorXd &_q, 
+		  Eigen::VectorXd _targetPos, 
+		  std::vector<Eigen::VectorXd> &_workspacePath );
+  bool GoToEEPosCheckCollision( Eigen::VectorXd &_q, 
 		  Eigen::VectorXd _targetPos, 
 		  std::vector<Eigen::VectorXd> &_workspacePath );
   Eigen::VectorXd GetEEPos( Eigen::VectorXd _q );
