@@ -291,6 +291,7 @@ void PlannerTab::OnButton(wxCommandEvent &evt) {
 	  printf("Executing workspace %d -- Follow NS \n", n);
 	  WorkspaceExecute( mWorkspacePaths[n], 0 );
     }
+      break;
 
       /** Follow PI - Pseudo Inverse alone */
     case button_Follow3DPath_PI: {
@@ -300,6 +301,7 @@ void PlannerTab::OnButton(wxCommandEvent &evt) {
 	  printf("Executing workspace %d -- Follow JT \n", n);
 	  WorkspaceExecute( mWorkspacePaths[n], 1 );
     }
+      break;
 
       /** Dummy */
     case button_Dummy: { 
