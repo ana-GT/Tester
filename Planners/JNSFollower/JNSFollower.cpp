@@ -188,16 +188,24 @@ bool JNSFollower::GoToEEPosCheckCollision( Eigen::VectorXd &_q,
     Eigen::VectorXd dq_Particular = Jt*dPos;
     Eigen::VectorXd dq_Temp;
 
+	Eigen::VectorXd minLim;
+	Eigen::VectorXd maxLim;
+
+	GetLimits( minLim, maxLim );
+
+
     // First check if the minimum solution works
     dq_Temp = dq_Particular;
 
-    if( CheckCollisionConfig( _q + dq_Temp ) == false ) {
+    if( CheckCollisionConfig( _q + dq_Temp ) == false && IsInLim(_q + dq_Temp, minLim, maxLim ) == true ) {
       _q = _q + dq_Temp;
       _workspacePath.push_back( _q );
+	  printf("Min solution \n");
       return true;
     } 
     // If not, search the nullspace
     else {
+		if( IsInLim(_q + dq_Temp, minLim, maxLim ) == false ) {printf("Out of limits \n");};
       printf("--> Search nullspace \n");
       for( int a = 0; a < sNumCoeff; ++a ) {
 	for( int b = 0; b < sNumCoeff; ++b ) {
@@ -209,7 +217,8 @@ bool JNSFollower::GoToEEPosCheckCollision( Eigen::VectorXd &_q,
 	      
 	      // Check collisions
 	      if( CheckCollisionConfig( _q + dq_Temp ) == false && 
-		  ( _targetPos - GetEEPos(_q + dq_Temp) ).norm() <  mWorkspaceThresh ) {  
+		  ( _targetPos - GetEEPos(_q + dq_Temp) ).norm() <  mWorkspaceThresh &&
+			IsInLim(_q + dq_Temp, minLim, maxLim ) == true ) {  
 		_q = _q + dq_Temp;
 		_workspacePath.push_back( _q );
 		printf("Found it! -- \n");
@@ -275,4 +284,35 @@ Eigen::VectorXd JNSFollower::GetEEPos( Eigen::VectorXd _q ) {
   
   return qXYZ;
 }
- 
+
+/**
+ * @function GetLimits
+ */
+bool JNSFollower::GetLimits( Eigen::VectorXd &_minLim, Eigen::VectorXd &_maxLim ) {
+
+	int n = mLinks.size();
+	_minLim.resize(n);
+	_maxLim.resize(n);
+
+	for( int i = 0; i < n; ++i ) {
+		_minLim(i) = mWorld->mRobots[mRobotId]->getDof( mLinks[i] )->getMin();
+		_maxLim(i) = mWorld->mRobots[mRobotId]->getDof( mLinks[i] )->getMax();
+	}
+	
+	return true;
+}
+
+/**
+ * @function IsInLim
+ * @brief Check if links values are within limits
+ */
+bool JNSFollower::IsInLim( const Eigen::VectorXd &_val, const Eigen::VectorXd &_minLim, const Eigen::VectorXd &_maxLim ) {
+
+	int n = _val.size();
+	for( int i = 0; i < n; ++i ) {
+		if( _val(i) < _minLim(i) || _val(i) > _maxLim(i) ) {
+			return false;
+		}
+	}
+	return true;
+}

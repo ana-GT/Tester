@@ -410,7 +410,8 @@ void PlannerTab::WorkspacePlan() {
  * @brief 
  */
 void PlannerTab::WorkspaceExecute( std::vector<Eigen::VectorXd> _path, int _type ) {
-
+  gPosePath = _path;
+  printf("Got gPosePath size: %d %d \n", gPosePath[0].size(), gPosePath.size() );
     if( mWorld == NULL || _path.size() == 0 ) {
         std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
 	      return;

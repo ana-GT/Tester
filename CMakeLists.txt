@@ -49,10 +49,13 @@ set( SRC_LJM2 LJM2/LJM2.cpp
 
 set( HDR_LJM2 LJM2/LJM2.h )
 
+set( SRC_IK Planners/IK.cpp )
+set( HDR_IK Planners/IK.h )
+
 set( SRC_FILES   TesterTabApp.cpp
-  ConfigTab.cpp PlannerTab.cpp globalStuff.cpp )
+  ConfigTab.cpp PlannerTab.cpp TrackerTab.cpp globalStuff.cpp )
 			       
-set ( HDR_FILES  ConfigTab.h PlannerTab.h globalStuff.h )
+set ( HDR_FILES  ConfigTab.h PlannerTab.h TrackerTab.h globalStuff.h )
 
 set (wxWidgets_USE_LIBS base core gl)
 find_package (wxWidgets)
@@ -61,7 +64,7 @@ if (wxWidgets_FOUND)
   include_directories(${DART_HEADERS} ${GRIP_HEADERS} ${WXWIDGETS_SHARED_INCLUDE_DIRS})
   link_directories(${CMAKE_SOURCE_DIR}/lib ${GRIP_LIBDIR} ${WXWIDGETS_SHARED_LIBRARY_DIRS} )
   
-  add_executable ( TesterTab  ${HDR_FILES} ${SRC_FILES} ${SRC_PLANNERS} ${HDR_PLANNERS} )
+  add_executable ( TesterTab  ${HDR_FILES} ${SRC_FILES} ${SRC_PLANNERS} ${HDR_PLANNERS} ${HDR_IK} ${SRC_IK} )
   target_link_libraries( TesterTab ${PCL_LIBRARIES}
     ${GRIP_LIBRARIES} 
     ${DART_LIBRARIES} 

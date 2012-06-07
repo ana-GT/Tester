@@ -43,6 +43,8 @@ double gOriginY;
 double gOriginZ;
 int gPadding;
 
+std::vector<Eigen::VectorXd> gPosePath;
+
 /*
  * @function GetEE_XYZ
  */
@@ -55,3 +57,4 @@ Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q ) {
 
     return xyz;
 }
+

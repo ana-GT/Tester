@@ -103,7 +103,9 @@ public:
 		  Eigen::VectorXd _targetPos, 
 		  std::vector<Eigen::VectorXd> &_workspacePath );
   Eigen::VectorXd GetEEPos( Eigen::VectorXd _q );
-    
+  bool GetLimits( Eigen::VectorXd &_minLim, Eigen::VectorXd &_maxLim );
+  bool IsInLim( const Eigen::VectorXd &_val, const Eigen::VectorXd &_minLim, const Eigen::VectorXd &_maxLim );     
+
  private:
   /// Member variables
   bool mCopyWorld;

@@ -43,10 +43,9 @@ extern double gOriginY;
 extern double gOriginZ;
 extern int gPadding;
 
+extern std::vector<Eigen::VectorXd> gPosePath;
 
 //-- General functions
 Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q );
-
-
 
 #endif /** _GLOBAL_STUFF_H_ */
