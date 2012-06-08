@@ -33,6 +33,7 @@ enum PlannerTabEvents {
   button_Plot3DPath,
   button_Follow3DPath_NS,
   button_Follow3DPath_PI,
+  button_Save3DPath,
 
   button_Dummy,
   slider_Alpha,
@@ -119,6 +120,7 @@ GRIPTab(parent, id, pos, size, style ) {
     LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Plot3DPath, wxT("Plot path")), 0, wxALL, 1 );
     LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Follow3DPath_NS, wxT("Follow NS")), 0, wxALL, 1 );
     LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Follow3DPath_PI, wxT("Follow PI")), 0, wxALL, 1 );
+    LJM2ExecuteButtonSizer->Add( new wxButton(this, button_Save3DPath, wxT("Save path")), 0, wxALL, 1 );
 
     LJM2ExecuteSizer->Add( LJM2ExecuteButtonSizer, 1, wxALL, 2 );
 
@@ -298,8 +300,17 @@ void PlannerTab::OnButton(wxCommandEvent &evt) {
       double temp;
       mPathIndex->GetValue().ToDouble(&temp);
       int n = (int) temp;
-	  printf("Executing workspace %d -- Follow JT \n", n);
-	  WorkspaceExecute( mWorkspacePaths[n], 1 );
+      printf("Executing workspace %d -- Follow JT \n", n);
+      WorkspaceExecute( mWorkspacePaths[n], 1 );
+    }
+      break;
+
+      /** Save3DPath: Save the WSPath into a global variable */
+    case button_Save3DPath: {
+      double temp;
+      mPathIndex->GetValue().ToDouble(&temp);
+      int n = (int) temp;
+      gPosePath = mWorkspacePaths[n];      
     }
       break;
 
@@ -410,7 +421,7 @@ void PlannerTab::WorkspacePlan() {
  * @brief 
  */
 void PlannerTab::WorkspaceExecute( std::vector<Eigen::VectorXd> _path, int _type ) {
-  gPosePath = _path;
+
   printf("Got gPosePath size: %d %d \n", gPosePath[0].size(), gPosePath.size() );
     if( mWorld == NULL || _path.size() == 0 ) {
         std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;

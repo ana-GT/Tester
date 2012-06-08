@@ -39,7 +39,7 @@ class IK {
   Eigen::VectorXd GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 );
   Eigen::VectorXd GetGeneralIK( Eigen::VectorXd _q, Eigen::VectorXd _ds );
   Eigen::MatrixXd GetJ( const Eigen::VectorXd &_q );
-  Eigen::VectorXd GetJps( const Eigen::MatrixXd J );
+  Eigen::MatrixXd GetJps( const Eigen::VectorXd _q );
 
 
   /// Member variables

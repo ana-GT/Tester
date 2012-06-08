@@ -58,22 +58,27 @@ std::vector< Eigen::VectorXd > IK::Track( int _robotId,
 					  const std::vector<Eigen::VectorXd> _WSPath ) {
 
   //-- Get robot information
+  printf("Robot information \n");
   mRobotId = _robotId;
   mLinks = _links;
   mNumLinks = mLinks.size();
   mEENode = mWorld->mRobots[mRobotId]->getNode( _EEName.c_str() );
   mEEId = _EEId;
-  mNumConstraints = _constraints.size();
+ 
 
   //-- Get constraints information
+  printf("Constraint information \n");
   mConstraints.resize(0);
   for( size_t i = 0; i < _constraints.size(); ++i ) {
     if( _constraints[i] != 0 ) {
       mConstraints.push_back( i );
     }
   }
+
+ mNumConstraints = mConstraints.size();
     
   //-- Track path
+  printf("Track Path \n");
   std::vector< Eigen::VectorXd > jointPath;
   Eigen::VectorXd q;
   
@@ -82,12 +87,13 @@ std::vector< Eigen::VectorXd > IK::Track( int _robotId,
   //-- Initialize	
   q = _start;
   
-  for( size_t i = 1; i < numPoints; ++i ) { 
+  for( int i = 1; i < numPoints; ++i ) { 
     try{
+      printf("Trying %d \n", i);
       if( GoToPose( q, _WSPath[i], jointPath ) == false ) {
 	throw "GoToPose returned false"; 
       }
-    } catch(string msg) {
+    } catch(const char *msg) {
       std::cout << "--MESSAGE: " << msg << endl;
     }
       
@@ -105,7 +111,6 @@ bool IK::GoToPose( Eigen::VectorXd &_q,
 		   Eigen::VectorXd _targetPose, 
 		   std::vector<Eigen::VectorXd> &_jointPath ) {
   
-  
   Eigen::VectorXd q; // curent config
   Eigen::VectorXd dq;
   Eigen::VectorXd s; // current pose
@@ -117,20 +122,27 @@ bool IK::GoToPose( Eigen::VectorXd &_q,
   q = _q;
   s = GetPose( q );
   ds = GetPoseError( s, _targetPose );
+  std::cout << "Target pose:  " << _targetPose.transpose() << std::endl;
+  std::cout << "s:" << s.transpose() << std::endl;
+  std::cout << "ds:" << ds.transpose() << "norm: "<< ds.norm() << std::endl;
   numIter = 0;
 
   while( ds.norm() > mPoseThresh && numIter < mMaxIter ) {
+  mWorld->mRobots[mRobotId]->update();
     dq = GetGeneralIK( q, ds );
     q += dq; 
     temp.push_back( q );
     s = GetPose(q);
     ds = GetPoseError( s, _targetPose );
+    std::cout << "ds:" << ds.transpose() << "norm: "<< ds.norm() << std::endl;
     numIter++;
   };
   
+  printf("-- Num iter: %d / Norm ds: %.3f \n", numIter, ds.norm() );
   // Output
   if( numIter < mMaxIter && ds.norm() < mPoseThresh ) {
     _jointPath = temp;
+    _q = q;
     return true;
   } 
   else{
@@ -145,7 +157,7 @@ bool IK::GoToPose( Eigen::VectorXd &_q,
  */
 Eigen::VectorXd IK::GetPose( Eigen::VectorXd _q ) {
 
-  Eigen::VectorXd temp;
+  Eigen::VectorXd temp(6);
   Eigen::VectorXd s;
 
   mWorld->mRobots[mRobotId]->setDofs( _q, mLinks );
@@ -156,7 +168,6 @@ Eigen::VectorXd IK::GetPose( Eigen::VectorXd _q ) {
   Eigen::Vector3d rpy; rpy = utils::rotation::matrixToEuler( Rot, utils::rotation::XYZ ); 
 
   temp << Tw(0,3), Tw(1,3), Tw(2,3), rpy(0), rpy(1), rpy(2);
-
   // Return the constrained variables
   s.resize(mNumConstraints);
 
@@ -183,6 +194,7 @@ Eigen::VectorXd IK::GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 ) {
  */
 Eigen::VectorXd IK::GetGeneralIK( Eigen::VectorXd _q, Eigen::VectorXd _ds ) {
   Eigen::VectorXd dq;
+  mWorld->mRobots[mRobotId]->update();
   dq = GetJps(_q)*_ds;
   return dq;
 }
@@ -191,8 +203,8 @@ Eigen::VectorXd IK::GetGeneralIK( Eigen::VectorXd _q, Eigen::VectorXd _ds ) {
  * @function GetJ
  */
 Eigen::MatrixXd IK::GetJ( const Eigen::VectorXd &_q ) {
-  Eigen::MatrixXd Jlin = mEENode->getJacobianLinear();
-  Eigen::MatrixXd Jang = mEENode->getJacobianAngular();
+  Eigen::MatrixXd Jlin = mEENode->getJacobianLinear().topRightCorner( 3, mLinks.size() );
+  Eigen::MatrixXd Jang = mEENode->getJacobianAngular().topRightCorner( 3, mLinks.size() );
   
   Eigen::MatrixXd J( mNumConstraints, mNumLinks );
 
@@ -205,16 +217,16 @@ Eigen::MatrixXd IK::GetJ( const Eigen::VectorXd &_q ) {
     }
   } 
 
-  return J;
+  return Jlin;
 }
 
 /**
  * @function GetJps
  */
-Eigen::VectorXd IK::GetJps( const Eigen::MatrixXd _q ) {
-  
-  Eigen::VectorXd J = GetJ(_q);
-  Eigen::VectorXd Jps;
+Eigen::MatrixXd IK::GetJps( const Eigen::VectorXd _q ) {
+    mWorld->mRobots[mRobotId]->update();
+  Eigen::MatrixXd J = GetJ(_q);
+  Eigen::MatrixXd Jps;
   Eigen::MatrixXd Jt = J.transpose();
   Jps = Jt*( (J*Jt).inverse() );
 
