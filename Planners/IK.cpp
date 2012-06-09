@@ -1,5 +1,8 @@
 /**
  * @file IK.cpp
+ * @author A. Huaman
+ * @brief Implementation of IK functions
+ * @date 2012-06-08
  */
 
 #include <planning/Robot.h>
@@ -34,7 +37,7 @@ IK::IK( planning::World &_world,
 
   /** CHANGE THIS ACCORDING TO THE PROBLEM */
   mPoseThresh = 0.01;
-  mMaxIter = 5;
+  mMaxIter = 3;
 }
 
 /**
@@ -58,7 +61,7 @@ std::vector< Eigen::VectorXd > IK::Track( int _robotId,
 					  const std::vector<Eigen::VectorXd> _WSPath ) {
 
   //-- Get robot information
-  printf("Robot information \n");
+  printf("*** Robot information *** \n");
   mRobotId = _robotId;
   mLinks = _links;
   mNumLinks = mLinks.size();
@@ -67,39 +70,38 @@ std::vector< Eigen::VectorXd > IK::Track( int _robotId,
  
 
   //-- Get constraints information
-  printf("Constraint information \n");
+  printf("*** Constraint information *** \n");
   mConstraints.resize(0);
-  for( size_t i = 0; i < _constraints.size(); ++i ) {
+  for( int i = 0; i < _constraints.size(); ++i ) {
     if( _constraints[i] != 0 ) {
       mConstraints.push_back( i );
     }
   }
 
- mNumConstraints = mConstraints.size();
+  mNumConstraints = mConstraints.size();
     
   //-- Track path
-  printf("Track Path \n");
+  printf("*** Track Path *** \n");
   std::vector< Eigen::VectorXd > jointPath;
   Eigen::VectorXd q;
   
   int numPoints = _WSPath.size();
   
-  //-- Initialize	
+  //.. Initialize	
   q = _start;
   
   for( int i = 1; i < numPoints; ++i ) { 
     try{
-      printf("Trying %d \n", i);
       if( GoToPose( q, _WSPath[i], jointPath ) == false ) {
 	throw "GoToPose returned false"; 
       }
     } catch(const char *msg) {
-      std::cout << "--MESSAGE: " << msg << endl;
+      std::cout << "--Exception!: " << msg << endl;
     }
       
   } 
   
-  printf(" ----- Track End ----- \n");
+  printf(" *** Track End *** \n");
   return jointPath;
   
 }
@@ -111,41 +113,34 @@ bool IK::GoToPose( Eigen::VectorXd &_q,
 		   Eigen::VectorXd _targetPose, 
 		   std::vector<Eigen::VectorXd> &_jointPath ) {
   
-  Eigen::VectorXd q; // curent config
+  Eigen::VectorXd q; // current config
   Eigen::VectorXd dq;
-  Eigen::VectorXd s; // current pose
   Eigen::VectorXd ds; // pose error
   std::vector<Eigen::VectorXd> temp;
   int numIter;
 
   // Initialize
   q = _q;
-  s = GetPose( q );
-  ds = GetPoseError( s, _targetPose );
-  std::cout << "Target pose:  " << _targetPose.transpose() << std::endl;
-  std::cout << "s:" << s.transpose() << std::endl;
-  std::cout << "ds:" << ds.transpose() << "norm: "<< ds.norm() << std::endl;
+  ds = GetPoseError( GetPose( q ), _targetPose );
   numIter = 0;
 
   while( ds.norm() > mPoseThresh && numIter < mMaxIter ) {
-  mWorld->mRobots[mRobotId]->update();
+
     dq = GetGeneralIK( q, ds );
-    q += dq; 
+    q = q + dq; 
     temp.push_back( q );
-    s = GetPose(q);
-    ds = GetPoseError( s, _targetPose );
-    std::cout << "ds:" << ds.transpose() << "norm: "<< ds.norm() << std::endl;
+    ds = GetPoseError( GetPose(q), _targetPose );
     numIter++;
   };
   
-  printf("-- Num iter: %d / Norm ds: %.3f \n", numIter, ds.norm() );
   // Output
   if( numIter < mMaxIter && ds.norm() < mPoseThresh ) {
-    _jointPath = temp;
+    _jointPath.insert( _jointPath.end(), temp.begin(), temp.end() );
     _q = q;
     return true;
   } 
   else{
+    printf("-- ERROR GoToPose: Iterations: %d -- ds.norm(): %.3f \n", numIter, ds.norm() );
     return false;
   }
 
@@ -153,7 +148,7 @@ bool IK::GoToPose( Eigen::VectorXd &_q,
 
 /**
  * @function GetPose
- * @brief Get x,y,z,r,p,y (only the ones specified in your constraint
+ * @brief Get x,y,z,r,p,y (only the ones specified in your constraint)
  */
 Eigen::VectorXd IK::GetPose( Eigen::VectorXd _q ) {
 
@@ -184,7 +179,7 @@ Eigen::VectorXd IK::GetPose( Eigen::VectorXd _q ) {
  */
 Eigen::VectorXd IK::GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 ) {
   Eigen::VectorXd ds;
-  ds = ( _s1 - _s2 );
+  ds = ( _s2 - _s1 );
 
   return ds;
 }
@@ -193,44 +188,40 @@ Eigen::VectorXd IK::GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 ) {
  * @function GetGeneralIK
  */
 Eigen::VectorXd IK::GetGeneralIK( Eigen::VectorXd _q, Eigen::VectorXd _ds ) {
-  Eigen::VectorXd dq;
-  mWorld->mRobots[mRobotId]->update();
-  dq = GetJps(_q)*_ds;
-  return dq;
+  return GetJps(_q)*_ds;
 }
 
 /**
  * @function GetJ
+ * @brief Calculate Jacobian
  */
 Eigen::MatrixXd IK::GetJ( const Eigen::VectorXd &_q ) {
-  Eigen::MatrixXd Jlin = mEENode->getJacobianLinear().topRightCorner( 3, mLinks.size() );
-  Eigen::MatrixXd Jang = mEENode->getJacobianAngular().topRightCorner( 3, mLinks.size() );
-  
-  Eigen::MatrixXd J( mNumConstraints, mNumLinks );
 
+  mWorld->mRobots[mRobotId]->update();
+  
+  Eigen::MatrixXd J( 6, mNumLinks );
+  Eigen::MatrixXd Jc( mNumConstraints, mNumLinks );
+
+  J.topLeftCorner( 3, mNumLinks ) = mEENode->getJacobianLinear().topRightCorner( 3, mNumLinks );
+  J.bottomLeftCorner( 3, mNumLinks ) = mEENode->getJacobianAngular().topRightCorner( 3, mNumLinks );
+  
   for( size_t i = 0; i < mNumConstraints; ++i ) {
-    if( mConstraints[i] < 3 ) {
-      J.row(i) = Jlin.row(i);
-    }
-    else {
-      J.row(i) = Jang.row( mConstraints[i] - 3 );
-    }
+      Jc.row(i) = J.row( mConstraints[i] );
   } 
 
-  return Jlin;
+  return Jc;
 }
 
 /**
  * @function GetJps
+ * @brief Calculate Pseudo-Inverse Jacobian
  */
 Eigen::MatrixXd IK::GetJps( const Eigen::VectorXd _q ) {
-    mWorld->mRobots[mRobotId]->update();
-  Eigen::MatrixXd J = GetJ(_q);
-  Eigen::MatrixXd Jps;
-  Eigen::MatrixXd Jt = J.transpose();
-  Jps = Jt*( (J*Jt).inverse() );
 
-  return Jps;
+  Eigen::MatrixXd J = GetJ(_q);
+  Eigen::MatrixXd Jt = J.transpose();
+
+  return Jt*( (J*Jt).inverse() );
 }									    
 									   
 

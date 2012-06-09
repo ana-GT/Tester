@@ -18,7 +18,9 @@ enum TrackerTabEvents {
   checkbox_JvmS,
   checkbox_JraS,
   button_TrackG,
-  button_TrackS
+  button_TrackS,
+  button_ExecuteG,
+  button_ExecuteS
 };
 
 //-- Sizer for TrackerTab
@@ -55,6 +57,8 @@ GRIPTab( parent, id, pos, size, style ) {
   wxBoxSizer *GButtonSizer = new wxBoxSizer( wxVERTICAL );
   GButtonSizer->Add( new wxButton( this, button_TrackG, _T("Track") ),
 		     1, wxALIGN_NOT );
+  GButtonSizer->Add( new wxButton( this, button_ExecuteG, _T("Execute") ),
+		     1, wxALIGN_NOT );
  
   // Add sizers to GBoxSizer 
   GBoxSizer->Add( GCheckSizer, 1, wxALIGN_NOT, 0 );
@@ -79,6 +83,8 @@ GRIPTab( parent, id, pos, size, style ) {
   wxBoxSizer *SButtonSizer = new wxBoxSizer( wxVERTICAL );
   SButtonSizer->Add( new wxButton( this, button_TrackS, _T("Track") ),
 		     1, wxALIGN_NOT );
+  SButtonSizer->Add( new wxButton( this, button_ExecuteS, _T("Execute") ),
+		     1, wxALIGN_NOT );
  
   // Add sizers to GBoxSizer 
   SBoxSizer->Add( SCheckSizer, 1, wxALIGN_NOT, 0 );
@@ -91,9 +97,13 @@ GRIPTab( parent, id, pos, size, style ) {
 }
 
 /**
- * 
+ * @function ~TrackerTab
+ * @brief Destructor
  */
 TrackerTab::~TrackerTab() {
+  if( mIk != NULL ){
+    delete mIk;
+  }
 }
 
 /**
@@ -130,8 +140,8 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   int button_num = evt.GetId();
   
   switch  (button_num) {
-  case button_TrackG: {
-
+    
+  case button_TrackS: {
     std::vector<int> constraints(6); 
     constraints[0] = 1;
     constraints[1] = 1;
@@ -139,17 +149,39 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     constraints[3] = 0;
     constraints[4] = 0;
     constraints[5] = 0;
-
-    std::vector<Eigen::VectorXd> jointPath;
-
+    mIk = new IKSearch( *mWorld, mCollision );
+    mExecutePath = mIk->Track( gRobotId,
+			       gLinks,
+			       gStartConf,
+			       gEEName,
+			       gEEId,
+			       constraints,
+			       gPosePath );
+  }
+    break;
+    
+  case button_TrackG: {
+    std::vector<int> constraints(6); 
+    constraints[0] = 1;
+    constraints[1] = 1;
+    constraints[2] = 1;
+    constraints[3] = 0;
+    constraints[4] = 0;
+    constraints[5] = 0;
+    
     mIk = new IK( *mWorld, mCollision );
-    jointPath = mIk->Track( gRobotId, 
-		gLinks,
-		gStartConf,
-		gEEName,
-		gEEId,
-		constraints,
-		gPosePath );
+    mExecutePath = mIk->Track( gRobotId, 
+			       gLinks,
+			       gStartConf,
+			       gEEName,
+			       gEEId,
+			       constraints,
+			       gPosePath );
+  }
+    break;
+    
+  case button_ExecuteS: {
+    SetTimeline( mExecutePath, 5.0 );
   }
     break;
   }

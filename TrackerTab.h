@@ -1,3 +1,9 @@
+/**
+ * @file TrackerTab.h
+ * @author A. Huaman
+ * @date June 8, 2012
+ */
+
 #ifndef _TRACKER_TAB_H_
 #define _TRACKER_TAB_H_
 
@@ -16,10 +22,14 @@
 #include <list>
 
 #include "Planners/IK.h"
+#include "Planners/IKSearch.h"
 #include "globalStuff.h"
 
 using namespace std;
 
+/**
+ * @class TrackerTab
+ */
 class TrackerTab : public GRIPTab 
 {
  public:
@@ -36,7 +46,8 @@ class TrackerTab : public GRIPTab
 
   // Key variables
   IK *mIk;
-  
+  std::vector<Eigen::VectorXd> mExecutePath;  
+
   // Variables
   bool oManipG;
   bool oJointsG;

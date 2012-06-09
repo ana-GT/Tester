@@ -58,3 +58,30 @@ Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q ) {
     return xyz;
 }
 
+/**
+ * @function SetTimeline
+ */
+void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time ) {
+
+  if( mWorld == NULL || _path.size() == 0 ) {
+    std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
+    return;
+  }  
+  
+  int numsteps = _path.size(); printf("NUm steps: %d \n", numsteps);
+  double increment = _time / (double)numsteps;
+  
+  cout << "-->(+) Updating Timeline - Increment: " << increment << " Total T: " << _time << " Steps: " << numsteps << endl;
+  
+  frame->InitTimer( string("Plan"),increment );
+  
+  
+  Eigen::VectorXd vals( gLinks.size() );
+  
+  for( size_t i = 0; i < numsteps; ++i ) {
+    mWorld->mRobots[gRobotId]->setDofs( _path[i], gLinks );
+    mWorld->mRobots[gRobotId]->update();
+    
+    frame->AddWorld( mWorld );
+  }
+}

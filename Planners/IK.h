@@ -14,6 +14,7 @@
 
 /**
  * @class IK
+ * @brief Generic IK class
  */
 class IK {
 
@@ -23,7 +24,7 @@ class IK {
   IK();
   IK( planning::World &_world,
       Collision *_collision );
-  ~IK();
+  virtual ~IK();
   std::vector<Eigen::VectorXd> Track( int _robotId,
 				      const Eigen::VectorXi &_links,
 				      const Eigen::VectorXd &_start,
