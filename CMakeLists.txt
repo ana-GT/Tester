@@ -59,6 +59,9 @@ set( SRC_FILES   TesterTabApp.cpp
 			       
 set ( HDR_FILES  ConfigTab.h PlannerTab.h TrackerTab.h globalStuff.h )
 
+set( SRC_PLOT Plot/Plot.cpp )
+set( HDR_PLOT Plot/Plot.h )
+
 set (wxWidgets_USE_LIBS base core gl)
 find_package (wxWidgets)
 if (wxWidgets_FOUND)
@@ -66,7 +69,7 @@ if (wxWidgets_FOUND)
   include_directories(${DART_HEADERS} ${GRIP_HEADERS} ${WXWIDGETS_SHARED_INCLUDE_DIRS})
   link_directories(${CMAKE_SOURCE_DIR}/lib ${GRIP_LIBDIR} ${WXWIDGETS_SHARED_LIBRARY_DIRS} )
   
-  add_executable ( TesterTab  ${HDR_FILES} ${SRC_FILES} ${SRC_PLANNERS} ${HDR_PLANNERS} ${HDR_IK} ${SRC_IK} )
+  add_executable ( TesterTab  ${HDR_FILES} ${SRC_FILES} ${SRC_PLANNERS} ${HDR_PLANNERS} ${HDR_IK} ${SRC_IK} ${SRC_PLOT} ${HDR_PLOT} )
   target_link_libraries( TesterTab ${PCL_LIBRARIES}
     ${GRIP_LIBRARIES} 
     ${DART_LIBRARIES} 

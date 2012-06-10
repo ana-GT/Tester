@@ -73,7 +73,54 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 	    
 	    // Check collisions
 	    if( CheckCollisionConfig( _q + qtemp ) == false && GetPoseError(_s, GetPose(_q + qtemp)).norm() <  mPoseThresh) {  
-	      printf("Found it! -- \n");
+	      printf("Found it! -- a: %d b: %d c: %d d: %d \n", a, b, c, d );
+	      return qtemp;
+	    }
+	  } // for a
+	} // for b
+      } // for c
+    } // for d
+    printf("Did not find it, using min norm dq \n");
+    return qp;
+  }
+ 
+}
+
+/**
+ * @function Getdq2
+ */
+Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
+
+  //-- Direct search
+  Eigen::VectorXd qp;
+  Eigen::VectorXd qtemp;
+  Eigen::MatrixXd ns;
+
+  Eigen::VectorXd ds; // pose error
+  ds = GetPoseError( GetPose( _q ), _s );
+
+  qp = GetGeneralIK(_q, ds);
+  ns = GetNS_Basis( GetJ(_q) );
+  
+  //-- Check if this guy works
+  if( CheckCollisionConfig( _q + qp ) == false ) {
+    return qp;
+  }
+  
+  //-- If not, search the nullspace
+  else{
+    std::cout<< "Search nullspace" << std::endl;
+    for( int a = 0; a < sNumCoeff; ++a ) {
+      for( int b = 0; b < sNumCoeff; ++b ) {
+	for( int c = 0; c < sNumCoeff; ++c ) {
+	  for( int d = 0; d < sNumCoeff; ++d ) {
+	    // Coeff
+	    Eigen::VectorXd coeff(4); coeff << sCoeff[a], sCoeff[b], sCoeff[c], sCoeff[d];
+	    qtemp = qp + ns*coeff ;
+	    
+	    // Check collisions
+	    if( CheckCollisionConfig( _q + qtemp ) == false && GetPoseError(_s, GetPose(_q + qtemp)).norm() <  mPoseThresh) {  
+	      printf("Found it! -- a: %d b: %d c: %d d: %d \n", a, b, c, d );
 	      return qtemp;
 	    }
 	  } // for a

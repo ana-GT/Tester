@@ -27,6 +27,7 @@ class IKSearch : public IK {
 	    Collision *_collision );
   virtual ~IKSearch();
   virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
+  virtual Eigen::VectorXd Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s );
   Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
 
   // Member

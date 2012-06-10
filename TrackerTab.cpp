@@ -8,6 +8,7 @@
 #include <iostream>
 #include <GRIPApp.h>
 #include "TrackerTab.h"
+#include "Plot/Plot.h"
 
 using namespace std;
 
@@ -20,7 +21,8 @@ enum TrackerTabEvents {
   button_TrackG,
   button_TrackS,
   button_ExecuteG,
-  button_ExecuteS
+  button_ExecuteS,
+  button_Plot1S
 };
 
 //-- Sizer for TrackerTab
@@ -80,12 +82,14 @@ GRIPTab( parent, id, pos, size, style ) {
   SCheckSizer->Add( new wxCheckBox( this, checkbox_JraS, _T("JRA") ),
 		    1, wxALIGN_NOT );
 
-  wxBoxSizer *SButtonSizer = new wxBoxSizer( wxVERTICAL );
+  wxBoxSizer *SButtonSizer = new wxBoxSizer( wxHORIZONTAL );
   SButtonSizer->Add( new wxButton( this, button_TrackS, _T("Track") ),
 		     1, wxALIGN_NOT );
   SButtonSizer->Add( new wxButton( this, button_ExecuteS, _T("Execute") ),
 		     1, wxALIGN_NOT );
- 
+   SButtonSizer->Add( new wxButton( this, button_Plot1S, _T("Plot") ),
+		     1, wxALIGN_NOT );
+
   // Add sizers to GBoxSizer 
   SBoxSizer->Add( SCheckSizer, 1, wxALIGN_NOT, 0 );
   SBoxSizer->Add( SButtonSizer, 1, wxALIGN_NOT, 0 );
@@ -182,6 +186,11 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     
   case button_ExecuteS: {
     SetTimeline( mExecutePath, 5.0 );
+  }
+    break;
+
+  case button_Plot1S: {
+    plotVariables_d1( mExecutePath, "t", "joint", "Joint", "Vel vs t" );
   }
     break;
   }
