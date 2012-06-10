@@ -38,10 +38,17 @@ class IK {
 		 std::vector<Eigen::VectorXd> &_jointPath );
   Eigen::VectorXd GetPose( Eigen::VectorXd _q );
   Eigen::VectorXd GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 );
+  virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
   Eigen::VectorXd GetGeneralIK( Eigen::VectorXd _q, Eigen::VectorXd _ds );
   Eigen::MatrixXd GetJ( const Eigen::VectorXd &_q );
   Eigen::MatrixXd GetJps( const Eigen::VectorXd _q );
-
+  void GetGeneralInfo( int _robotId,
+		       const Eigen::VectorXi &_links,
+		       const Eigen::VectorXd &_start,
+		       std::string _EEName,
+		       int _EEId,
+		       std::vector<int> _constraints );
+		       
 
   /// Member variables
   planning::World *mWorld;

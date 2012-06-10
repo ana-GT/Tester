@@ -13,6 +13,7 @@
 #include <planning/World.h>
 #include <Tools/Collision.h>
 
+#include "globalStuff.h"
 #include "IK.h"
 
 /**
@@ -25,13 +26,20 @@ class IKSearch : public IK {
   IKSearch( planning::World &_world,
 	    Collision *_collision );
   virtual ~IKSearch();
-  std::vector<Eigen::VectorXd> Track( int _robotId,
-				      const Eigen::VectorXi &_links,
-				      const Eigen::VectorXd &_start,
-				      std::string _EEName,
-				      int _EEId,
-				      std::vector<int> _constraints,
-				      const std::vector<Eigen::VectorXd> _WSPath );
+  virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
+  Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
+
+  // Member
+  double mNSNorm;
+
+  /// Constants for class
+  static const double sMinCoeff;
+  static const double sMaxCoeff;
+  static const int sNumCoeff;
+  static const double sdCoeff;
+  
+  /// Keep going
+  double* sCoeff;
 };
 
 #endif /** _IK_SEARCH_ */

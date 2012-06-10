@@ -48,5 +48,5 @@ extern std::vector<Eigen::VectorXd> gPosePath;
 //-- General functions
 Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q );
 void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time = 5.0 );
-
+bool CheckCollisionConfig( Eigen::VectorXd _q );
 #endif /** _GLOBAL_STUFF_H_ */

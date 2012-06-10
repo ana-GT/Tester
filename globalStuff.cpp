@@ -85,3 +85,13 @@ void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time ) {
     frame->AddWorld( mWorld );
   }
 }
+
+/**
+ * @function CheckCollisionConfig
+ * @brief Check if there is a collision in the specified manipulator config
+ */
+bool CheckCollisionConfig( Eigen::VectorXd _q ) {
+  mWorld->mRobots[gRobotId]->setDofs( _q, gLinks );
+  mWorld->mRobots[gRobotId]->update();
+  return mCollision->CheckCollisions();  
+}

@@ -60,25 +60,8 @@ std::vector< Eigen::VectorXd > IK::Track( int _robotId,
 					  std::vector<int> _constraints,
 					  const std::vector<Eigen::VectorXd> _WSPath ) {
 
-  //-- Get robot information
-  printf("*** Robot information *** \n");
-  mRobotId = _robotId;
-  mLinks = _links;
-  mNumLinks = mLinks.size();
-  mEENode = mWorld->mRobots[mRobotId]->getNode( _EEName.c_str() );
-  mEEId = _EEId;
- 
-
-  //-- Get constraints information
-  printf("*** Constraint information *** \n");
-  mConstraints.resize(0);
-  for( int i = 0; i < _constraints.size(); ++i ) {
-    if( _constraints[i] != 0 ) {
-      mConstraints.push_back( i );
-    }
-  }
-
-  mNumConstraints = mConstraints.size();
+  //-- Get Robot and constraints info
+  GetGeneralInfo( _robotId, _links, _start,_EEName, _EEId, _constraints );
     
   //-- Track path
   printf("*** Track Path *** \n");
@@ -126,7 +109,7 @@ bool IK::GoToPose( Eigen::VectorXd &_q,
 
   while( ds.norm() > mPoseThresh && numIter < mMaxIter ) {
 
-    dq = GetGeneralIK( q, ds );
+    dq = Getdq( q, _targetPose );
     q = q + dq; 
     temp.push_back( q );
     ds = GetPoseError( GetPose(q), _targetPose );
@@ -185,6 +168,18 @@ Eigen::VectorXd IK::GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 ) {
 }
 
 /**
+ * @function Getdq
+ */
+Eigen::VectorXd IK::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
+
+  Eigen::VectorXd ds; // pose error
+  ds = GetPoseError( GetPose( _q ), _s );
+
+  //-- Naive case
+  return GetGeneralIK(_q, _s);
+}
+
+/**
  * @function GetGeneralIK
  */
 Eigen::VectorXd IK::GetGeneralIK( Eigen::VectorXd _q, Eigen::VectorXd _ds ) {
@@ -222,7 +217,38 @@ Eigen::MatrixXd IK::GetJps( const Eigen::VectorXd _q ) {
   Eigen::MatrixXd Jt = J.transpose();
 
   return Jt*( (J*Jt).inverse() );
-}									    
+}
+							
+/**
+ * @function GetGeneralInfo
+ * @brief Get information of the robot and constraints
+ */		    
+void IK::GetGeneralInfo( int _robotId,
+			 const Eigen::VectorXi &_links,
+			 const Eigen::VectorXd &_start,
+			 std::string _EEName,
+			 int _EEId,
+			 std::vector<int> _constraints ) {
+  //-- Get robot information
+  printf("*** Robot information *** \n");
+  mRobotId = _robotId;
+  mLinks = _links;
+  mNumLinks = mLinks.size();
+  mEENode = mWorld->mRobots[mRobotId]->getNode( _EEName.c_str() );
+  mEEId = _EEId;
+  
+  
+  //-- Get constraints information
+  printf("*** Constraint information *** \n");
+  mConstraints.resize(0);
+  for( int i = 0; i < _constraints.size(); ++i ) {
+    if( _constraints[i] != 0 ) {
+      mConstraints.push_back( i );
+    }
+  }  
+  mNumConstraints = mConstraints.size();
+
+}
 									   
 
 
