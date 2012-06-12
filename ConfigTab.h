@@ -84,12 +84,18 @@ class ConfigTab : public GRIPTab
 	     long style = wxTAB_TRAVERSAL);
   virtual ~ConfigTab();
   
-  void OnSlider(wxCommandEvent &evt);
   void OnRadio(wxCommandEvent &evt);
   void OnButton(wxCommandEvent &evt);
   void OnCheckBox(wxCommandEvent &evt);
     
   void GRIPStateChange();
+
+  wxTextCtrl *mTargetX_Text;
+  wxTextCtrl *mTargetY_Text;
+  wxTextCtrl *mTargetZ_Text;
+  wxTextCtrl *mTargetRoll_Text;
+  wxTextCtrl *mTargetPitch_Text;
+  wxTextCtrl *mTargetYaw_Text;
 
   wxTextCtrl *mSizeXText;
   wxTextCtrl *mSizeYText;
@@ -102,14 +108,7 @@ class ConfigTab : public GRIPTab
   wxTextCtrl *mPaddingText;
   wxTextCtrl *mResolText;
 
-  GRIPSlider* mSlider_PosX;
-  GRIPSlider* mSlider_PosY;
-  GRIPSlider* mSlider_PosZ;
-
-  GRIPSlider* mSlider_Roll;
-  GRIPSlider* mSlider_Pitch;
-  GRIPSlider* mSlider_Yaw;            
-
+        
   DECLARE_DYNAMIC_CLASS( LJM2Tab )
     DECLARE_EVENT_TABLE()
     };

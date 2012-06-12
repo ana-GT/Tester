@@ -52,7 +52,7 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
   Eigen::VectorXd ds; // pose error
   ds = GetPoseError( GetPose( _q ), _s );
 
-  qp = GetGeneralIK(_q, ds);
+  qp = GetJps(_q)*ds;
   ns = GetNS_Basis( GetJ(_q) );
   
   //-- Check if this guy works
@@ -89,7 +89,7 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 /**
  * @function Getdq2
  */
-Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
+Eigen::VectorXd IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 
   //-- Direct search
   Eigen::VectorXd qp;
@@ -99,7 +99,7 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
   Eigen::VectorXd ds; // pose error
   ds = GetPoseError( GetPose( _q ), _s );
 
-  qp = GetGeneralIK(_q, ds);
+  qp = GetJps(_q)*ds;
   ns = GetNS_Basis( GetJ(_q) );
   
   //-- Check if this guy works

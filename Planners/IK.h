@@ -25,29 +25,31 @@ class IK {
   IK( planning::World &_world,
       Collision *_collision );
   virtual ~IK();
-  std::vector<Eigen::VectorXd> Track( int _robotId,
-				      const Eigen::VectorXi &_links,
-				      const Eigen::VectorXd &_start,
-				      std::string _EEName,
-				      int _EEId,
-				      std::vector<int> _constraints,
-				      const std::vector<Eigen::VectorXd> _WSPath );
-
+  virtual std::vector<Eigen::VectorXd> Track( int _robotId,
+					      const Eigen::VectorXi &_links,
+					      const Eigen::VectorXd &_start,
+					      std::string _EEName,
+					      int _EEId,
+					      std::vector<int> _constraints,
+					      const std::vector<Eigen::VectorXd> _WSPath );
+  
   bool GoToPose( Eigen::VectorXd &_q, 
 		 Eigen::VectorXd _targetPose, 
 		 std::vector<Eigen::VectorXd> &_jointPath );
   Eigen::VectorXd GetPose( Eigen::VectorXd _q );
   Eigen::VectorXd GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 );
   virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
-  Eigen::VectorXd GetGeneralIK( Eigen::VectorXd _q, Eigen::VectorXd _ds );
   Eigen::MatrixXd GetJ( const Eigen::VectorXd &_q );
-  Eigen::MatrixXd GetJps( const Eigen::VectorXd _q );
+  Eigen::MatrixXd GetJps( const Eigen::VectorXd &_q );
+  Eigen::MatrixXd GetJps( const Eigen::MatrixXd &_J );
   void GetGeneralInfo( int _robotId,
 		       const Eigen::VectorXi &_links,
 		       const Eigen::VectorXd &_start,
 		       std::string _EEName,
 		       int _EEId,
 		       std::vector<int> _constraints );
+  void GetJointLimits( Eigen::VectorXd &_jm, 
+		       Eigen::VectorXd &_jM );
 		       
 
   /// Member variables
@@ -65,6 +67,9 @@ class IK {
   int mNumConstraints;
   double mPoseThresh;
   int mMaxIter;
+
+  Eigen::VectorXd mJointsMin;
+  Eigen::VectorXd mJointsMax;
   
 
 };

@@ -37,7 +37,7 @@ IK::IK( planning::World &_world,
 
   /** CHANGE THIS ACCORDING TO THE PROBLEM */
   mPoseThresh = 0.01;
-  mMaxIter = 3;
+  mMaxIter = 5;
 }
 
 /**
@@ -64,7 +64,7 @@ std::vector< Eigen::VectorXd > IK::Track( int _robotId,
   GetGeneralInfo( _robotId, _links, _start,_EEName, _EEId, _constraints );
     
   //-- Track path
-  printf("*** Track Path *** \n");
+  printf("*** Track Path IK Basic*** \n");
   std::vector< Eigen::VectorXd > jointPath;
   Eigen::VectorXd q;
   
@@ -176,15 +176,9 @@ Eigen::VectorXd IK::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
   ds = GetPoseError( GetPose( _q ), _s );
 
   //-- Naive case
-  return GetGeneralIK(_q, _s);
+  return GetJps(_q)*ds;
 }
 
-/**
- * @function GetGeneralIK
- */
-Eigen::VectorXd IK::GetGeneralIK( Eigen::VectorXd _q, Eigen::VectorXd _ds ) {
-  return GetJps(_q)*_ds;
-}
 
 /**
  * @function GetJ
@@ -211,7 +205,18 @@ Eigen::MatrixXd IK::GetJ( const Eigen::VectorXd &_q ) {
  * @function GetJps
  * @brief Calculate Pseudo-Inverse Jacobian
  */
-Eigen::MatrixXd IK::GetJps( const Eigen::VectorXd _q ) {
+Eigen::MatrixXd IK::GetJps( const Eigen::MatrixXd &_J ) {
+
+  Eigen::MatrixXd Jt = _J.transpose();
+
+  return Jt*( (_J*Jt).inverse() );
+}
+
+/**
+ * @function GetJps
+ * @brief Calculate Pseudo-Inverse Jacobian
+ */
+Eigen::MatrixXd IK::GetJps( const Eigen::VectorXd &_q ) {
 
   Eigen::MatrixXd J = GetJ(_q);
   Eigen::MatrixXd Jt = J.transpose();
@@ -248,6 +253,24 @@ void IK::GetGeneralInfo( int _robotId,
   }  
   mNumConstraints = mConstraints.size();
 
+  //-- Get joint limit information
+  GetJointLimits( mJointsMin, mJointsMax );
+
+}
+
+/**
+ * @function GetJointLimits
+ */
+void IK::GetJointLimits( Eigen::VectorXd &_jm, 
+			 Eigen::VectorXd &_jM ) {
+  _jm.resize( mNumLinks );
+  _jM.resize( mNumLinks );
+  
+  for( size_t i = 0; i < mNumLinks; ++i ) {
+    _jm(i) = mWorld->mRobots[mRobotId]->getDof( mLinks[i] )->getMin();
+    _jM(i) = mWorld->mRobots[mRobotId]->getDof( mLinks[i] )->getMax();
+  }
+  
 }
 									   
 

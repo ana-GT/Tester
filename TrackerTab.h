@@ -23,6 +23,7 @@
 
 #include "Planners/IK.h"
 #include "Planners/IKSearch.h"
+#include "Planners/IKGradient.h"
 #include "globalStuff.h"
 
 using namespace std;
@@ -42,18 +43,17 @@ class TrackerTab : public GRIPTab
 
   //Functions
   void OnButton( wxCommandEvent &evt );
-  void OnCheckbox( wxCommandEvent &evt );
 
   // Key variables
   IK *mIk;
   std::vector<Eigen::VectorXd> mExecutePath;  
 
-  // Variables
-  bool oManipG;
-  bool oJointsG;
-  bool oDexterityS;
-  bool oJvmS;
-  bool oJraS;
+  wxTextCtrl *mW_ManipG;
+  wxTextCtrl *mW_JraG;
+  wxTextCtrl *mW_DexterityS;
+  wxTextCtrl *mW_JraS;
+  wxTextCtrl *mW_JvmS;
+
 
   // ***************************************
   // NEVER FORGET THIS!

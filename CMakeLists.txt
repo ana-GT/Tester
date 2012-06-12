@@ -50,9 +50,11 @@ set( SRC_LJM2 LJM2/LJM2.cpp
 set( HDR_LJM2 LJM2/LJM2.h )
 
 set( SRC_IK Planners/IK.cpp
-  Planners/IKSearch.cpp)
+  Planners/IKSearch.cpp
+  Planners/IKGradient.cpp)
 set( HDR_IK Planners/IK.h 
-  Planners/IKSearch.h)
+  Planners/IKSearch.h
+  Planners/IKGradient.h)
 
 set( SRC_FILES   TesterTabApp.cpp
   ConfigTab.cpp PlannerTab.cpp TrackerTab.cpp globalStuff.cpp )
