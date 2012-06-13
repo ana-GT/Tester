@@ -40,6 +40,87 @@ IKSearch::~IKSearch() {
 }
 
 /**
+ * @function Track
+ * @brief Main function
+ */
+std::vector< Eigen::VectorXd > IKSearch::Track( int _robotId,
+						const Eigen::VectorXi &_links,
+						const Eigen::VectorXd &_start,  
+						std::string _EEName,
+						int _EEId,
+						std::vector<int> _constraints,
+						const std::vector<Eigen::VectorXd> _WSPath ) {
+
+  //-- Get Robot and constraints info
+  GetGeneralInfo( _robotId, _links, _start,_EEName, _EEId, _constraints );
+    
+  //-- Track path
+  printf("*** Track Start -- IK Search *** \n");
+  std::vector< Eigen::VectorXd > jointPath;
+  Eigen::VectorXd q;
+  
+  int numPoints = _WSPath.size();
+  
+  //.. Initialize	
+  q = _start;
+  
+  for( int i = 1; i < numPoints; ++i ) { 
+    try{
+      if( GoToPose( q, _WSPath[i], jointPath ) == false ) {
+	throw "GoToPose returned false"; 
+      }
+    } catch(const char *msg) {
+      std::cout << "--Exception!: " << msg << endl;
+    }
+      
+  } 
+  
+  printf(" *** Track End -- IK Search *** \n");
+  return jointPath;
+  
+}
+
+/**
+ * @function GoToPose
+ */
+bool IKSearch::GoToPose( Eigen::VectorXd &_q, 
+			 Eigen::VectorXd _targetPose, 
+			 std::vector<Eigen::VectorXd> &_jointPath ) {
+  
+  Eigen::VectorXd q; // current config
+  Eigen::VectorXd dq;
+  Eigen::VectorXd ds; // pose error
+  std::vector<Eigen::VectorXd> temp;
+  int numIter;
+  
+  // Initialize
+  q = _q;
+  ds = GetPoseError( GetPose( q ), _targetPose );
+  numIter = 0;
+  
+  while( ds.norm() > mPoseThresh && numIter < mMaxIter ) {
+
+    dq = Getdq( q, _targetPose );
+    q = q + dq; 
+    temp.push_back( q );
+    ds = GetPoseError( GetPose(q), _targetPose );
+    numIter++;
+  };
+  
+  // Output
+  if( numIter < mMaxIter && ds.norm() < mPoseThresh ) {
+    _jointPath.insert( _jointPath.end(), temp.begin(), temp.end() );
+    _q = q;
+    return true;
+  } 
+  else{
+    printf("-- ERROR GoToPose: Iterations: %d -- ds.norm(): %.3f \n", numIter, ds.norm() );
+    return false;
+  }
+}  
+
+
+/**
  * @function Getdq
  */
 Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
@@ -85,6 +166,8 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
   }
  
 }
+ 
+// ** PARTICULAR FUNCTIONS **
 
 /**
  * @function Getdq2

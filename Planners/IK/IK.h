@@ -33,12 +33,14 @@ class IK {
 					      std::vector<int> _constraints,
 					      const std::vector<Eigen::VectorXd> _WSPath );
   
-  bool GoToPose( Eigen::VectorXd &_q, 
-		 Eigen::VectorXd _targetPose, 
-		 std::vector<Eigen::VectorXd> &_jointPath );
+  virtual bool GoToPose( Eigen::VectorXd &_q, 
+			 Eigen::VectorXd _targetPose, 
+			 std::vector<Eigen::VectorXd> &_jointPath );
+  virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
+
+  // ** Constant functions **
   Eigen::VectorXd GetPose( Eigen::VectorXd _q );
   Eigen::VectorXd GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 );
-  virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
   Eigen::MatrixXd GetJ( const Eigen::VectorXd &_q );
   Eigen::MatrixXd GetJps( const Eigen::VectorXd &_q );
   Eigen::MatrixXd GetJps( const Eigen::MatrixXd &_J );
@@ -52,7 +54,7 @@ class IK {
 		       Eigen::VectorXd &_jM );
 		       
 
-  /// Member variables
+  // ** Member variables **
   planning::World *mWorld;
   Collision *mCollision;
   int mRobotId;

@@ -21,9 +21,9 @@
 #include <iostream>
 #include <list>
 
-#include "Planners/IK.h"
-#include "Planners/IKSearch.h"
-#include "Planners/IKGradient.h"
+#include "Planners/IK/IK.h"
+#include "Planners/IK/IKSearch.h"
+#include "Planners/IK/IKGradient.h"
 #include "globalStuff.h"
 
 using namespace std;

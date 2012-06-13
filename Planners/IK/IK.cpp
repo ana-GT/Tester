@@ -64,7 +64,7 @@ std::vector< Eigen::VectorXd > IK::Track( int _robotId,
   GetGeneralInfo( _robotId, _links, _start,_EEName, _EEId, _constraints );
     
   //-- Track path
-  printf("*** Track Path IK Basic*** \n");
+  printf("*** Track Start -- IK *** \n");
   std::vector< Eigen::VectorXd > jointPath;
   Eigen::VectorXd q;
   
@@ -84,7 +84,7 @@ std::vector< Eigen::VectorXd > IK::Track( int _robotId,
       
   } 
   
-  printf(" *** Track End *** \n");
+  printf(" *** Track End -- IK *** \n");
   return jointPath;
   
 }
@@ -126,8 +126,21 @@ bool IK::GoToPose( Eigen::VectorXd &_q,
     printf("-- ERROR GoToPose: Iterations: %d -- ds.norm(): %.3f \n", numIter, ds.norm() );
     return false;
   }
-
 }  
+
+/**
+ * @function Getdq
+ */
+Eigen::VectorXd IK::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
+
+  Eigen::VectorXd ds; // pose error
+  ds = GetPoseError( GetPose( _q ), _s );
+
+  //-- Naive case
+  return GetJps(_q)*ds;
+}
+
+// CONSTANT FUNCTIONS //
 
 /**
  * @function GetPose
@@ -168,19 +181,6 @@ Eigen::VectorXd IK::GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 ) {
 }
 
 /**
- * @function Getdq
- */
-Eigen::VectorXd IK::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
-
-  Eigen::VectorXd ds; // pose error
-  ds = GetPoseError( GetPose( _q ), _s );
-
-  //-- Naive case
-  return GetJps(_q)*ds;
-}
-
-
-/**
  * @function GetJ
  * @brief Calculate Jacobian
  */
@@ -205,23 +205,23 @@ Eigen::MatrixXd IK::GetJ( const Eigen::VectorXd &_q ) {
  * @function GetJps
  * @brief Calculate Pseudo-Inverse Jacobian
  */
-Eigen::MatrixXd IK::GetJps( const Eigen::MatrixXd &_J ) {
-
-  Eigen::MatrixXd Jt = _J.transpose();
-
-  return Jt*( (_J*Jt).inverse() );
-}
-
-/**
- * @function GetJps
- * @brief Calculate Pseudo-Inverse Jacobian
- */
 Eigen::MatrixXd IK::GetJps( const Eigen::VectorXd &_q ) {
 
   Eigen::MatrixXd J = GetJ(_q);
   Eigen::MatrixXd Jt = J.transpose();
 
   return Jt*( (J*Jt).inverse() );
+}
+
+/**
+ * @function GetJps
+ * @brief Calculate Pseudo-Inverse Jacobian
+ */
+Eigen::MatrixXd IK::GetJps( const Eigen::MatrixXd &_J ) {
+
+  Eigen::MatrixXd Jt = _J.transpose();
+
+  return Jt*( (_J*Jt).inverse() );
 }
 							
 /**

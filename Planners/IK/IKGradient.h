@@ -26,9 +26,6 @@ class IKGradient : public IK {
   IKGradient( planning::World &_world,
 	      Collision *_collision );
   virtual ~IKGradient();
-  virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
-  Eigen::VectorXd dJRA( Eigen::VectorXd _conf );
-  void GetCoeff_dJRA();
   virtual std::vector<Eigen::VectorXd> Track( int _robotId,
 					      const Eigen::VectorXi &_links,
 					      const Eigen::VectorXd &_start,
@@ -38,6 +35,14 @@ class IKGradient : public IK {
 					      const std::vector<Eigen::VectorXd> _WSPath,
 					      double _wJRA = 0.0,
 					      double _wManip = 0.0 );
+  virtual bool GoToPose( Eigen::VectorXd &_q, 
+			 Eigen::VectorXd _targetPose, 
+			 std::vector<Eigen::VectorXd> &_jointPath );
+  virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
+  // ** Specific functions **
+  Eigen::VectorXd dJRA( Eigen::VectorXd _conf );
+  void GetCoeff_dJRA();
+
   
   /// Constants for class
   double mW_JRA;

@@ -26,8 +26,20 @@ class IKSearch : public IK {
   IKSearch( planning::World &_world,
 	    Collision *_collision );
   virtual ~IKSearch();
+  virtual std::vector<Eigen::VectorXd> Track( int _robotId,
+					      const Eigen::VectorXi &_links,
+					      const Eigen::VectorXd &_start,
+					      std::string _EEName,
+					      int _EEId,
+					      std::vector<int> _constraints,
+					      const std::vector<Eigen::VectorXd> _WSPath );
+  
+  virtual bool GoToPose( Eigen::VectorXd &_q, 
+			 Eigen::VectorXd _targetPose, 
+			 std::vector<Eigen::VectorXd> &_jointPath );
   virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
-  virtual Eigen::VectorXd Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s );
+  // ** Specific functions **
+  Eigen::VectorXd Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s );
   Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
 
   // Member
