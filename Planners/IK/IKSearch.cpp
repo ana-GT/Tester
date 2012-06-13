@@ -66,7 +66,8 @@ std::vector< Eigen::VectorXd > IKSearch::Track( int _robotId,
   
   for( int i = 1; i < numPoints; ++i ) { 
     try{
-      if( GoToPose( q, _WSPath[i], jointPath ) == false ) {
+      printf(" -- GoToPose %d \n", i );
+      if( GoToPose2( q, _WSPath[i], jointPath ) == false ) {
 	throw "GoToPose returned false"; 
       }
     } catch(const char *msg) {
@@ -170,12 +171,55 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 // ** PARTICULAR FUNCTIONS **
 
 /**
+ * @function GoToPose
+ */
+bool IKSearch::GoToPose2( Eigen::VectorXd &_q, 
+			  Eigen::VectorXd _targetPose, 
+			  std::vector<Eigen::VectorXd> &_jointPath ) {
+  
+  Eigen::VectorXd q; // current config
+  std::vector<Eigen::VectorXd> dq;
+  Eigen::VectorXd ds; // pose error
+  std::vector<Eigen::VectorXd> temp;
+  int numIter;
+  
+  // Initialize
+  q = _q;
+  ds = GetPoseError( GetPose( q ), _targetPose );
+  numIter = 0;
+  
+  while( ds.norm() > mPoseThresh && numIter < mMaxIter ) {
+
+    dq = Getdq2( q, _targetPose );
+    for( size_t i = 0; i < dq.size(); ++i ) {
+      temp.push_back( q + dq[i] ); 
+    }
+    q = q + dq[ dq.size()-1 ];
+    ds = GetPoseError( GetPose(q), _targetPose );
+    numIter++;
+  };
+  
+  // Output
+  if( numIter < mMaxIter && ds.norm() < mPoseThresh ) {
+    _jointPath.insert( _jointPath.end(), temp.begin(), temp.end() );
+    _q = q;
+    return true;
+  } 
+  else{
+    printf("-- ERROR GoToPose: Iterations: %d -- ds.norm(): %.3f \n", numIter, ds.norm() );
+    return false;
+  }
+}  
+
+/**
  * @function Getdq2
  */
-Eigen::VectorXd IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
+std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 
   //-- Direct search
+  std::vector<Eigen::VectorXd> dqs;
   Eigen::VectorXd qp;
+  Eigen::VectorXd qh;
   Eigen::VectorXd qtemp;
   Eigen::MatrixXd ns;
 
@@ -184,14 +228,17 @@ Eigen::VectorXd IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 
   qp = GetJps(_q)*ds;
   ns = GetNS_Basis( GetJ(_q) );
+
+  bool found = false;
+  int count = 0;
   
   //-- Check if this guy works
   if( CheckCollisionConfig( _q + qp ) == false ) {
-    return qp;
+    dqs.push_back(qp);
+    return dqs;
   }
-  
   //-- If not, search the nullspace
-  else{
+  else {
     std::cout<< "Search nullspace" << std::endl;
     for( int a = 0; a < sNumCoeff; ++a ) {
       for( int b = 0; b < sNumCoeff; ++b ) {
@@ -202,18 +249,24 @@ Eigen::VectorXd IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 	    qtemp = qp + ns*coeff ;
 	    
 	    // Check collisions
-	    if( CheckCollisionConfig( _q + qtemp ) == false && GetPoseError(_s, GetPose(_q + qtemp)).norm() <  mPoseThresh) {  
-	      printf("Found it! -- a: %d b: %d c: %d d: %d \n", a, b, c, d );
-	      return qtemp;
+	    if( CheckCollisionConfig( _q + qtemp ) == false && 
+		GetPoseError(_s, GetPose(_q + qtemp)).norm() <  mPoseThresh ) {  
+	      found = true; count++;
+	      qh = qtemp;
+	      dqs.push_back( qh );
 	    }
+
 	  } // for a
 	} // for b
       } // for c
     } // for d
-    printf("Did not find it, using min norm dq \n");
-    return qp;
-  }
- 
+    if( found == true ) {
+      printf("Found %d solutions \n", count );}
+    else {
+      printf("Did not find it, using min norm dq \n");
+    }
+    return dqs;
+  } // else  
 }
 
 /**

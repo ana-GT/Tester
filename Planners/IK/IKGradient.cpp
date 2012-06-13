@@ -60,13 +60,11 @@ std::vector<Eigen::VectorXd> IKGradient::Track( int _robotId,
   
   for( int i = 1; i < numPoints; ++i ) { 
     try{
-      if( GoToPose( q, _WSPath[i], jointPath ) == false ) {
-	throw "GoToPose returned false"; 
-      }
-    } catch(const char *msg) {
-      std::cout << "--Exception!: " << msg << endl;
+      GoToPose( q, _WSPath[i], jointPath ); 
+    } catch( const char* _e ) {
+      std::cout << "--Exception: " << _e << std::endl;
     }
-      
+    
   } 
   
   printf(" *** Track End -- IK Gradient *** \n");
@@ -108,7 +106,9 @@ bool IKGradient::GoToPose( Eigen::VectorXd &_q,
     return true;
   } 
   else{
-    printf("-- ERROR GoToPose: Iterations: %d -- ds.norm(): %.3f \n", numIter, ds.norm() );
+    char errorMsg[80];
+    sprintf( errorMsg, "* GoToPose: Iterations: %d - ds.norm(): %.3f \n", numIter, ds.norm() );
+    throw  errorMsg;
     return false;
   }
 }  
