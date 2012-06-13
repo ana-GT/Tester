@@ -53,7 +53,10 @@ std::vector< Eigen::VectorXd > IKSearch::Track( int _robotId,
 
   //-- Get Robot and constraints info
   GetGeneralInfo( _robotId, _links, _start,_EEName, _EEId, _constraints );
-    
+
+  //-- Get coeff for JRM Measurement
+  GetCoeff_JRM();
+
   //-- Track path
   printf("*** Track Start -- IK Search *** \n");
   std::vector< Eigen::VectorXd > jointPath;
@@ -67,7 +70,7 @@ std::vector< Eigen::VectorXd > IKSearch::Track( int _robotId,
   for( int i = 1; i < numPoints; ++i ) { 
     try{
       printf(" -- GoToPose %d \n", i );
-      if( GoToPose( q, _WSPath[i], jointPath ) == false ) {
+      if( GoToPose2( q, _WSPath[i], jointPath ) == false ) {
 	throw "GoToPose returned false"; 
       }
     } catch(const char *msg) {
@@ -154,7 +157,8 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 	    qtemp = qp + ns*coeff ;
 	    
 	    // Check collisions
-	    if( CheckCollisionConfig( _q + qtemp ) == false && GetPoseError(_s, GetPose(_q + qtemp)).norm() <  mPoseThresh) {  
+	    if( CheckCollisionConfig( _q + qtemp ) == false && 
+		GetPoseError(_s, GetPose(_q + qtemp)).norm() <  mPoseThresh ) {  
 	      printf("Found it! -- a: %d b: %d c: %d d: %d \n", a, b, c, d );
 	      return qtemp;
 	    }
@@ -231,6 +235,8 @@ std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::Vector
 
   bool found = false;
   int count = 0;
+  Eigen::VectorXd mindq;
+  double minJRM; double tempJRM;
   
   //-- Check if this guy works
   if( CheckCollisionConfig( _q + qp ) == false ) {
@@ -246,13 +252,25 @@ std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::Vector
 	  for( int d = 0; d < sNumCoeff; ++d ) {
 	    // Coeff
 	    Eigen::VectorXd coeff(4); coeff << sCoeff[a], sCoeff[b], sCoeff[c], sCoeff[d];
-	    qtemp = qp + ns*coeff ;
+	    qh = qp + ns*coeff ;
 	    
 	    // Check collisions
-	    if( CheckCollisionConfig( _q + qtemp ) == false && 
-		GetPoseError(_s, GetPose(_q + qtemp)).norm() <  mPoseThresh ) {  
+	    if( CheckCollisionConfig( _q + qh ) == false && 
+		GetPoseError(_s, GetPose(_q + qh)).norm() <  mPoseThresh ) {  
+
 	      found = true; count++;
-	      qh = qtemp;
+
+	      if( mindq.size() == 0 ) {
+		mindq = qh;
+		minJRM = JRM_Measure( mindq + _q );
+	      }
+	      else {
+		tempJRM = JRM_Measure( _q + qh );
+		if( tempJRM < minJRM ) {
+		  minJRM = tempJRM;
+		  mindq = qh;
+		}
+	      }
 	      dqs.push_back( qh );
 	    }
 
@@ -261,7 +279,8 @@ std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::Vector
       } // for c
     } // for d
     if( found == true ) {
-      printf("Found %d solutions \n", count );}
+      dqs.push_back( mindq );
+      printf("Found %d solutions, choosing last with JRM: %.3f \n", count, minJRM );}
     else {
       dqs.push_back( qp );
       printf("Did not find it, using min norm dq \n");
@@ -289,4 +308,24 @@ Eigen::MatrixXd IKSearch::GetNS_Basis( Eigen::MatrixXd _J ) {
   NS = NS*normCoeff;
 
   return NS;
+}
+
+/**
+ * @function GetCoeff_JRM
+ * @brief Get the coefficients for the JRM_Measure function
+ */
+void IKSearch::GetCoeff_JRM() {
+  mCoeff1_JRM = ( mJointsMin + mJointsMax ) / 2.0;
+  mCoeff2_JRM = ( mJointsMax - mJointsMin ) / 2.0;
+}
+
+
+/**
+ * @function JRM_Measure  
+ */
+double IKSearch::JRM_Measure( Eigen::VectorXd _conf ) {
+  
+  // note, I am omitting the (1/2n) factor - same result and one less operation
+  Eigen::VectorXd val = ( _conf - mCoeff1_JRM ).cwiseQuotient( mCoeff2_JRM );
+  return val.dot(val);
 }

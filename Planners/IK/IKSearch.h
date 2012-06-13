@@ -44,6 +44,10 @@ class IKSearch : public IK {
 		  Eigen::VectorXd _targetPose, 
 		  std::vector<Eigen::VectorXd> &_jointPath );
   Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
+  
+  // ** Specific Auxiliar functions **
+  void GetCoeff_JRM();
+  double JRM_Measure( Eigen::VectorXd _conf );
 
   // Member
   double mNSNorm;
@@ -55,6 +59,8 @@ class IKSearch : public IK {
   static const double sdCoeff;
   
   /// Keep going
+  Eigen::VectorXd mCoeff1_JRM;
+  Eigen::VectorXd mCoeff2_JRM;
   double* sCoeff;
 };
 
