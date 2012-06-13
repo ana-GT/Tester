@@ -67,7 +67,7 @@ std::vector< Eigen::VectorXd > IKSearch::Track( int _robotId,
   for( int i = 1; i < numPoints; ++i ) { 
     try{
       printf(" -- GoToPose %d \n", i );
-      if( GoToPose2( q, _WSPath[i], jointPath ) == false ) {
+      if( GoToPose( q, _WSPath[i], jointPath ) == false ) {
 	throw "GoToPose returned false"; 
       }
     } catch(const char *msg) {
@@ -263,6 +263,7 @@ std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::Vector
     if( found == true ) {
       printf("Found %d solutions \n", count );}
     else {
+      dqs.push_back( qp );
       printf("Did not find it, using min norm dq \n");
     }
     return dqs;
