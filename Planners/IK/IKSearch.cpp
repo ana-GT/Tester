@@ -233,6 +233,7 @@ Eigen::VectorXd IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 
   bool found = false;
   int count = 0;
+  int countvalid = 0;
   Eigen::VectorXd mindq;
   double minJRM; double tempJRM;
   
@@ -251,6 +252,10 @@ Eigen::VectorXd IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 	    // Coeff
 	    Eigen::VectorXd coeff(4); coeff << sCoeff[a], sCoeff[b], sCoeff[c], sCoeff[d];
 	    qh = qp + ns*coeff ;
+
+	      if( GetPoseError(_s, GetPose(_q + qh)).norm() <  mPoseThresh  ) {
+		countvalid++;
+	      }
 	    
 	    // Check collisions
 	    if( CheckCollisionConfig( _q + qh ) == false && 
@@ -277,7 +282,7 @@ Eigen::VectorXd IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
       } // for c
     } // for d
     if( found == true ) {
-      printf("Found %d solutions, choosing last with JRM: %.3f \n", count, minJRM );
+      printf("Found %d solutions, choosing the one with JRM: %.3f - valids: %d  \n", count, minJRM, countvalid );
       return mindq ; 
     } else {
       printf("Did not find it, using min norm dq \n");

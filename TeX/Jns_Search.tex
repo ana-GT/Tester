@@ -18,7 +18,13 @@
 
 \hyphenation{op-tical net-works semi-conduc-tor}
 
+% *********************************************************
+% Math characters shortcuts
+\newcommand{\Jps}{ \ensuremath{J^{\dagger}} }
+\newcommand{\dx}{ \ensuremath{\dot{x}} }
+\newcommand{\dt}{ \ensuremath{\dot{\theta}} }
 
+ 
 \begin{document}
 
 % *********************************************************
@@ -33,9 +39,14 @@
 % *********************************************************
 \begin{abstract}
 %\boldmath
-This paper revisits the most common methods of tracking a path and 
-proposes a semi-local discrete method to find the best available
-configuration path that track the input workspace path.
+Redundant manipulators pose a non-trivial inverse kinematics problem.
+Due to computability restrictions, most of the existing approaches offer
+local optimality guarantees, which is satisfactory for a good range of common 
+manipulating tasks. In this paper, we propose yet another local method based
+on the Jacobian nullspace projection; however our approach offers a 
+different treatment of the nullspace, treating it as a search space rather
+than a mathematical device. We also suggest an intuitive procedure to select
+the joints configuration for the manipulator, based on annealing methods.
 \end{abstract}
 
 % **********************************************************
@@ -46,7 +57,7 @@ its primary goal, such as executing a given workspace path, but
 it also endows the system with multiple ways to execute the same 
 task successfully. Diverse uses of redundancy include obstacle 
 avoidance in cluttered environments, control of joint velocities,
-etc.
+avoidance of singularities, etc.
 
 Although redundancy is advantageous, it comes at a
  cost. The complexity of the manipulator increases, which means
@@ -68,20 +79,38 @@ results of a serie of simulated experiments in section \ref{sec:Experiments}
 and end the paper with conclusions and future work \ref{sec:Conclusions}.
 
 
-
- 
-
 % ***********************************************************
 \section{Related Work}
 \label{sec:RelatedWork}
-The idea of using the Jacobian nullspace to solve the redundancy 
-resolution problem was first presented by Whitney \cite{Whitney-motionRate-1969}.
+The redundance resolution problem has been vastly studied, being the
+pioneering work of Whitney in \emph{Motion Rate Control} (\cite{Whitney-motionRate-1969}) perhaps one of the most influentials in all the methods proposed later. 
+Whitney proposed the use of the \emph{Jacobian pseudoinverse} to obtain
+solutions that minimized the energy spent.  
 Other authors, such as \cite{liegeois-ns-1977} proposed to use
 secondary goal functions to achieve.
+
+An excellent overview of these methods can be found in \cite{siciliano-ns-1990}
 
 % *********************************************************
 \section{Overview}
 \label{sec:Overview}
+
+% ---------------------------------------------------------
+\subsection{The Inverse Kinematic Problem}
+Given a manipulator with $n$ degrees of freedom and a task that
+can be represented by $x$. The direct mapping:
+
+\begin{equation}
+x = f(\theta) 
+\label{eq:DK}
+\end{equation}
+
+\begin{equation}
+\dt = \Jps \dx + (I - \Jps J)^{-1}\dot{q}_{0}
+\label{eq:IK_MinNorm_Solution}
+\end{equation}
+
+
 
 % *********************************************************
 \section{Proposed Algorithm}
