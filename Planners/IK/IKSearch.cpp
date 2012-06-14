@@ -9,7 +9,7 @@
 /***  CONSTS */
 const double IKSearch::sMinCoeff = -10;
 const double IKSearch::sMaxCoeff = 10;
-const int IKSearch::sNumCoeff = 10;
+const int IKSearch::sNumCoeff = 8;
 const double IKSearch::sdCoeff = ( sMaxCoeff - sMinCoeff ) / (1.0*sNumCoeff);
 
 /**
@@ -182,7 +182,7 @@ bool IKSearch::GoToPose2( Eigen::VectorXd &_q,
 			  std::vector<Eigen::VectorXd> &_jointPath ) {
   
   Eigen::VectorXd q; // current config
-  std::vector<Eigen::VectorXd> dq;
+  Eigen::VectorXd dq;
   Eigen::VectorXd ds; // pose error
   std::vector<Eigen::VectorXd> temp;
   int numIter;
@@ -195,10 +195,8 @@ bool IKSearch::GoToPose2( Eigen::VectorXd &_q,
   while( ds.norm() > mPoseThresh && numIter < mMaxIter ) {
 
     dq = Getdq2( q, _targetPose );
-    for( size_t i = 0; i < dq.size(); ++i ) {
-      temp.push_back( q + dq[i] ); 
-    }
-    q = q + dq[ dq.size()-1 ];
+    q = q + dq;
+    temp.push_back( q ); 
     ds = GetPoseError( GetPose(q), _targetPose );
     numIter++;
   };
@@ -218,10 +216,10 @@ bool IKSearch::GoToPose2( Eigen::VectorXd &_q,
 /**
  * @function Getdq2
  */
-std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
+Eigen::VectorXd IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 
   //-- Direct search
-  std::vector<Eigen::VectorXd> dqs;
+  Eigen::VectorXd dq;
   Eigen::VectorXd qp;
   Eigen::VectorXd qh;
   Eigen::VectorXd qtemp;
@@ -239,12 +237,12 @@ std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::Vector
   double minJRM; double tempJRM;
   
   //-- Check if this guy works
-  if( CheckCollisionConfig( _q + qp ) == false ) {
-    dqs.push_back(qp);
-    return dqs;
-  }
+  //if( CheckCollisionConfig( _q + qp ) == false &&
+  //  IsInLim( (_q + qp) ) == true ) {
+  //  return qp;
+  //}
   //-- If not, search the nullspace
-  else {
+  //else {
     std::cout<< "Search nullspace" << std::endl;
     for( int a = 0; a < sNumCoeff; ++a ) {
       for( int b = 0; b < sNumCoeff; ++b ) {
@@ -256,7 +254,8 @@ std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::Vector
 	    
 	    // Check collisions
 	    if( CheckCollisionConfig( _q + qh ) == false && 
-		GetPoseError(_s, GetPose(_q + qh)).norm() <  mPoseThresh ) {  
+		GetPoseError(_s, GetPose(_q + qh)).norm() <  mPoseThresh &&
+		IsInLim( (_q + qh) ) == true ) {  
 
 	      found = true; count++;
 
@@ -271,7 +270,6 @@ std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::Vector
 		  mindq = qh;
 		}
 	      }
-	      dqs.push_back( qh );
 	    }
 
 	  } // for a
@@ -279,14 +277,13 @@ std::vector<Eigen::VectorXd> IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::Vector
       } // for c
     } // for d
     if( found == true ) {
-      dqs.push_back( mindq );
-      printf("Found %d solutions, choosing last with JRM: %.3f \n", count, minJRM );}
-    else {
-      dqs.push_back( qp );
+      printf("Found %d solutions, choosing last with JRM: %.3f \n", count, minJRM );
+      return mindq ; 
+    } else {
       printf("Did not find it, using min norm dq \n");
+      return qp;
     }
-    return dqs;
-  } // else  
+    //} // else  
 }
 
 /**

@@ -52,8 +52,8 @@ class IK {
 		       std::vector<int> _constraints );
   void GetJointLimits( Eigen::VectorXd &_jm, 
 		       Eigen::VectorXd &_jM );
-		       
-
+  bool IsInLim( const Eigen::VectorXd &_val ); 		       
+    
   // ** Member variables **
   planning::World *mWorld;
   Collision *mCollision;

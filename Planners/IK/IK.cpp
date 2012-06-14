@@ -273,5 +273,19 @@ void IK::GetJointLimits( Eigen::VectorXd &_jm,
   
 }
 									   
+/**
+ * @function IsInLim
+ * @brief Check if links values are within limits
+ */
+bool IK::IsInLim( const Eigen::VectorXd &_val ) {
+  
+  int n = _val.size();
+  for( int i = 0; i < n; ++i ) {
+    if( _val(i) < mJointsMin(i) || _val(i) > mJointsMax(i) ) {
+      return false;
+    }
+  }
+  return true;
+}
 
 

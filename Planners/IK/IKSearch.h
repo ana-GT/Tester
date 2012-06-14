@@ -39,7 +39,7 @@ class IKSearch : public IK {
 			 std::vector<Eigen::VectorXd> &_jointPath );
   virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
   // ** Specific functions **
-  std::vector<Eigen::VectorXd> Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s );
+  Eigen::VectorXd Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s );
   bool GoToPose2( Eigen::VectorXd &_q, 
 		  Eigen::VectorXd _targetPose, 
 		  std::vector<Eigen::VectorXd> &_jointPath );
