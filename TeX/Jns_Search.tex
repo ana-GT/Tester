@@ -1,0 +1,115 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[conference]{IEEEtran}
+% \documentclass[conference]{../sty/IEEEtran}
+\IEEEoverridecommandlockouts 
+\usepackage{cite}
+\usepackage[cmex10]{amsmath}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage{mdwmath}
+\usepackage{mdwtab}
+\usepackage{eqparbox}
+\usepackage[tight,footnotesize]{subfigure}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage{fixltx2e}
+\usepackage{stfloats}
+\usepackage{url}
+
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+
+\begin{document}
+
+% *********************************************************
+% Paper Info
+\title{Redundancy Resolution using a Semi-Local Nullspace-based approach}
+\author{Ana Huam\'an Quispe and Mike Stilman% <-this % stops a space
+  \thanks{The authors are with the Center for Robotics and Intelligent
+    Machines at the Georgia Institute of Technology, Atlanta, GA
+    30332, USA. {\tt\small ahuaman3@gatech.edu}, {\tt\small mstilman@cc.gatech.edu}}}
+\maketitle
+
+% *********************************************************
+\begin{abstract}
+%\boldmath
+This paper revisits the most common methods of tracking a path and 
+proposes a semi-local discrete method to find the best available
+configuration path that track the input workspace path.
+\end{abstract}
+
+% **********************************************************
+\section{Introduction}
+Redundancy is a desirable feature in robotic manipulators. The 
+additional degrees of freedom allow the robot to not only achieve
+its primary goal, such as executing a given workspace path, but 
+it also endows the system with multiple ways to execute the same 
+task successfully. Diverse uses of redundancy include obstacle 
+avoidance in cluttered environments, control of joint velocities,
+etc.
+
+Although redundancy is advantageous, it comes at a
+ cost. The complexity of the manipulator increases, which means
+that the solution of the inverse kinematics problem does not have
+a closed-form solution except for simple or known configurations.
+Multiple approaches have been proposed, most of them tailored to
+solve the problem under specific assumptions and assessing different
+success criteria \cite{hooper-ns-1995}. 
+
+The present paper focuses on solving the most commonly encountered
+situation in daily life: To map a desired workspace path to a path in
+configuration space such that it avoids collisions in a static
+environment while reducing the energy spent during the execution. We
+present a brief overview of the current work on the area in section 
+\ref{sec:RelatedWork}. Section \ref{sec:Overview} gives a general overview of
+the inverse kinematics problem and based on it we will explain our
+approach on section \ref{sec:ProposedAlgorithm}. We present the 
+results of a serie of simulated experiments in section \ref{sec:Experiments}
+and end the paper with conclusions and future work \ref{sec:Conclusions}.
+
+
+
+ 
+
+% ***********************************************************
+\section{Related Work}
+\label{sec:RelatedWork}
+The idea of using the Jacobian nullspace to solve the redundancy 
+resolution problem was first presented by Whitney \cite{Whitney-motionRate-1969}.
+Other authors, such as \cite{liegeois-ns-1977} proposed to use
+secondary goal functions to achieve.
+
+% *********************************************************
+\section{Overview}
+\label{sec:Overview}
+
+% *********************************************************
+\section{Proposed Algorithm}
+\label{sec:ProposedAlgorithm}
+
+
+% *********************************************************
+\section{Experiments and Results}
+\label{sec:Experiments}
+
+
+% *********************************************************
+\section{Conclusions and Future Work}
+\label{sec:Conclusions}
+
+
+% *********************************************************
+\section*{Acknowledgments}
+The authors would like to thank all members of the Humanoid Lab
+at Georgia Tech for their insightful feedback.
+
+% *********************************************************
+%\IEEEtriggeratref{8}
+%\IEEEtriggercmd{\enlargethispage{-5in}}
+\bibliographystyle{IEEEtran}
+\bibliography{JnsReferences}
+
+
+\end{document}
+
+
