@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Georgia Tech Research Corporation
+ * Copyright (c) 2012, Georgia Tech Research Corporation
  * All rights reserved.
  *
  * Humanoid Robotics Lab      Georgia Institute of Technology

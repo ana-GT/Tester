@@ -255,27 +255,25 @@ Eigen::VectorXd IKSearch::Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 
 	      if( GetPoseError(_s, GetPose(_q + qh)).norm() <  mPoseThresh  ) {
 		countvalid++;
-	      }
-	    
-	    // Check collisions
-	    if( CheckCollisionConfig( _q + qh ) == false && 
-		GetPoseError(_s, GetPose(_q + qh)).norm() <  mPoseThresh &&
-		IsInLim( (_q + qh) ) == true ) {  
 
-	      found = true; count++;
-
-	      if( mindq.size() == 0 ) {
-		mindq = qh;
-		minJRM = JRM_Measure( mindq + _q );
-	      }
-	      else {
-		tempJRM = JRM_Measure( _q + qh );
-		if( tempJRM < minJRM ) {
-		  minJRM = tempJRM;
-		  mindq = qh;
-		}
-	      }
-	    }
+		// Check collisions
+		if( CheckCollisionConfig( _q + qh ) == false && 
+		    IsInLim( (_q + qh) ) == true ) {  
+		  found = true; count++;
+		  if( mindq.size() == 0 ) {
+		    mindq = qh;
+		    minJRM = JRM_Measure( mindq + _q );
+		  }
+		  else {
+		    tempJRM = JRM_Measure( _q + qh );
+		    if( tempJRM < minJRM ) {
+		      minJRM = tempJRM;
+		      mindq = qh;
+		    }
+		  }
+ 
+		} // end if Collision	
+	      } // end if GetPoseError
 
 	  } // for a
 	} // for b
