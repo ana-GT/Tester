@@ -19,7 +19,11 @@ enum TrackerTabEvents {
   button_ExecuteB,
   button_ExecuteG,
   button_ExecuteS,
-  button_Plot1S
+  button_Plot1S,
+  button_SearchNS,
+  button_ShowNS,
+  button_PlotNS,
+  button_SetPoseNS
 };
 
 //-- Sizer for TrackerTab
@@ -55,7 +59,7 @@ GRIPTab( parent, id, pos, size, style ) {
   BBoxSizer->Add( BButtonSizer, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
-  sizerFullTab->Add( BBoxSizer, 1, wxEXPAND |wxALL, 3 );
+  sizerFullTab->Add( BBoxSizer, 1, wxEXPAND |wxALL, 4 );
 
   // ** GBOX **
   wxStaticBox *GBox = new wxStaticBox( this, -1, wxT("Gradient Method") );
@@ -95,7 +99,7 @@ GRIPTab( parent, id, pos, size, style ) {
   GBoxSizer->Add( GButtonSizer, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
-  sizerFullTab->Add( GBoxSizer, 1, wxEXPAND |wxALL, 3 );
+  sizerFullTab->Add( GBoxSizer, 1, wxEXPAND |wxALL, 4 );
 
   // ** SBOX **
   wxStaticBox *SBox = new wxStaticBox( this, -1, wxT("Search") );
@@ -149,7 +153,66 @@ GRIPTab( parent, id, pos, size, style ) {
   SBoxSizer->Add( SButtonSizer, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
-  sizerFullTab->Add( SBoxSizer, 1, wxEXPAND |wxALL, 3 );
+  sizerFullTab->Add( SBoxSizer, 1, wxEXPAND |wxALL, 4 );
+
+  // ** NS Box **
+  wxStaticBox *NSBox = new wxStaticBox( this, -1, wxT("Nullspace") );
+  wxStaticBoxSizer *NSBoxSizer = new wxStaticBoxSizer( NSBox, wxVERTICAL );
+  
+  wxBoxSizer *NSConfigSizer = new wxBoxSizer( wxHORIZONTAL );
+  wxBoxSizer *NSSearchSizer = new wxBoxSizer( wxHORIZONTAL );
+  NSConfigSizer->Add( new wxButton( this, button_SetPoseNS, _T("Set Pose") ),
+		      1, wxALIGN_NOT );
+
+  NSSearchSizer->Add( new wxButton( this, button_SearchNS, _T("Search") ),
+		      1, wxALIGN_NOT );
+  NSSearchSizer->Add( new wxButton( this, button_ShowNS, _T("Show") ),
+		      1, wxALIGN_NOT );
+  NSSearchSizer->Add( new wxButton( this, button_PlotNS, _T("Plot") ),
+		      1, wxALIGN_NOT );
+
+
+  // ** Coeff **
+  wxBoxSizer *NSCoeffSizer = new wxBoxSizer( wxHORIZONTAL );
+
+  // Num coeff
+  wxBoxSizer *NSNumCoeff_Sizer = new wxBoxSizer(wxHORIZONTAL);
+  wxStaticText *NSNumCoeff_Label = new wxStaticText( this, 1013, wxT("# coeff:") );
+  mNS_NumCoeff = new wxTextCtrl(this,1014,wxT("10"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);
+
+  NSNumCoeff_Sizer->Add( NSNumCoeff_Label, 0, wxALL, 1 );  
+  NSNumCoeff_Sizer->Add( mNS_NumCoeff, 0, wxALL, 1 );
+
+  NSCoeffSizer->Add( NSNumCoeff_Sizer, 1, wxALIGN_NOT );
+
+  // Min Coeff
+  wxBoxSizer *NSMinCoeff_Sizer = new wxBoxSizer(wxHORIZONTAL);
+  wxStaticText *NSMinCoeff_Label = new wxStaticText( this, 1013, wxT("Min:") );
+  mNS_MinCoeff = new wxTextCtrl(this,1014,wxT("-10.0"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);
+
+  NSMinCoeff_Sizer->Add( NSMinCoeff_Label, 0, wxALL, 1 );  
+  NSMinCoeff_Sizer->Add( mNS_MinCoeff, 0, wxALL, 1 );
+
+  NSCoeffSizer->Add( NSMinCoeff_Sizer, 1, wxALIGN_NOT );
+
+  // Max coeff
+  wxBoxSizer *NSMaxCoeff_Sizer = new wxBoxSizer(wxHORIZONTAL);
+  wxStaticText *NSMaxCoeff_Label = new wxStaticText( this, 1013, wxT("Max:") );
+  mNS_MaxCoeff = new wxTextCtrl(this,1014,wxT("10.0"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);
+
+  NSMaxCoeff_Sizer->Add( NSMaxCoeff_Label, 0, wxALL, 1 );  
+  NSMaxCoeff_Sizer->Add( mNS_MaxCoeff, 0, wxALL, 1 );
+
+  NSCoeffSizer->Add( NSMaxCoeff_Sizer, 1, wxALIGN_NOT );
+
+ 
+  // Add sizers to NSBoxSizer 
+  NSBoxSizer->Add( NSConfigSizer, 1, wxALIGN_NOT, 0 );
+  NSBoxSizer->Add( NSCoeffSizer, 1, wxALIGN_NOT, 0 );
+  NSBoxSizer->Add( NSSearchSizer, 1, wxALIGN_NOT, 0 );
+
+  // Set the general sizer
+  sizerFullTab->Add( NSBoxSizer, 1, wxEXPAND |wxALL, 4 );
 
   SetSizer( sizerFullTab );
 }
@@ -272,8 +335,61 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
 
     /** Plot Joint evolution vs step */
   case button_Plot1S: {
-    plotVariables( mExecutePath, "t", "joint", "Joint", "Vel vs t" );
-  }
-    break;
+    plotVariables( mExecutePath, "t", "joint", "Joint", "Joints vs t" );
+  } break;
+
+    /** Set Pose for NS Evaluation */
+  case button_SetPoseNS: {
+
+      std::cout << "--(i) Setting NS Pose for " << mWorld->mRobots[gRobotId]->getName() << ":" << std::endl;
+      
+      mNSConf = mWorld->mRobots[gRobotId]->getDofs( gLinks );      
+      std::cout << "NS Pose: " << mNSConf.transpose() << std::endl;
+    
+  } break;
+
+    /** Search NS Evaluation */
+  case button_SearchNS: {
+
+    std::vector<int> constraints(6); 
+    constraints[0] = 1;
+    constraints[1] = 1;
+    constraints[2] = 1;
+    constraints[3] = 0;
+    constraints[4] = 0;
+    constraints[5] = 0;
+  
+
+    double numCoeff;
+    double maxCoeff; double minCoeff;
+    mNS_NumCoeff->GetValue().ToDouble( &numCoeff );
+    mNS_MaxCoeff->GetValue().ToDouble( &maxCoeff );
+    mNS_MinCoeff->GetValue().ToDouble( &minCoeff );
+
+    IKSearch* ik = new IKSearch( *mWorld, mCollision );
+    mExecutePath = ik->NS_ChainSearch( gRobotId,
+				       gLinks,
+				       mNSConf,
+				       gEEName,
+				       gEEId,
+				       constraints,
+				       10,
+				       (int) numCoeff, 
+				       minCoeff, 
+				       maxCoeff);
+    delete ik;
+
+  } break;
+
+    /** Show all NS Solutions found */
+  case button_ShowNS: {
+    SetTimeline( mExecutePath, 5.0 );
+  } break;
+
+    /** Plot solution joints */
+  case button_PlotNS: {
+    plotVariables( mExecutePath, "t", "joint", "Joint", "Joint vs t" );
+  } break;
+
   }
 }
