@@ -373,7 +373,7 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
 				       gEEName,
 				       gEEId,
 				       constraints,
-				       10,
+				       20,
 				       (int) numCoeff, 
 				       minCoeff, 
 				       maxCoeff);

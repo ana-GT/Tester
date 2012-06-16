@@ -343,7 +343,7 @@ std::vector<Eigen::VectorXd> IKSearch::NS_ChainSearch( int _robotId,
     }
     chain.push_back( q );
   }
-
+ 
   printf("Happy Chain End!!! \n");
   return chain;
 }
