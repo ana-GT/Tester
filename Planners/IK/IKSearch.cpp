@@ -426,6 +426,147 @@ std::vector<Eigen::VectorXd> IKSearch::NS_Search( Eigen::VectorXd &_q,
   return NSConfigs;
 }
 
+
+///////////////////////////
+// TEMPORAL GUYS //
+
+/**
+ */
+std::vector<Eigen::VectorXd> IKSearch::NS_ChainSearchTest( int _robotId, 
+							   const Eigen::VectorXi &_links,
+							   const Eigen::VectorXd _NSConf,
+							   std::string _EEName,
+							   int _EEId,
+							   std::vector<int> _constraints,
+							   int _maxChain,
+							   int _numCoeff,
+							   double _minCoeff,
+							   double _maxCoeff ) {
+  std::vector<Eigen::VectorXd> chain;
+
+  //-- Get Robot and constraints info
+  GetGeneralInfo( _robotId, _links, _NSConf,_EEName, _EEId, _constraints );
+
+  //-- Get coeff info
+  GetCoeff( _numCoeff, _minCoeff, _maxCoeff );
+
+  //-- Get coeff for JRM Measurement
+  GetCoeff_JRM();
+
+  //-- Initialize
+  Eigen::VectorXd q = _NSConf;
+  chain.push_back( q );
+
+  Eigen::VectorXd coeff;
+  std::vector<Eigen::VectorXd> coeffSet;
+  std::vector<Eigen::VectorXd> qSet;
+  qSet = NS_SearchTest( q, coeff, coeffSet );
+
+
+  for( size_t i = 0; i < qSet.size(); ++i ) {
+    Eigen::VectorXd qtemp = qSet[i];
+    chain.push_back( qtemp ); 
+    for( size_t j = 0; j < _maxChain; ++j ) {      
+      if( NS_GetSample( qtemp, coeffSet[i] ) == false ) {
+	printf("[%d] Stopped chain at %d because of collision or limits \n", i, j );
+	break;
+      }
+      chain.push_back( qtemp );
+    }
+  }
+ 
+  printf("Happy Chain End!!! \n");
+  return chain;
+  
+}
+
+/**
+ * @function NS_SearchTest
+ */
+std::vector<Eigen::VectorXd> IKSearch::NS_SearchTest( Eigen::VectorXd &_q,
+						      Eigen::VectorXd &_coeff,
+						      std::vector<Eigen::VectorXd> &_coeffSet ) {
+
+  //-- Search
+  printf("*** Start - NS Search Test *** \n");
+  std::vector< Eigen::VectorXd > NSConfigs;
+  Eigen::VectorXd q;
+  Eigen::VectorXd p;
+  Eigen::VectorXd qh;
+  Eigen::VectorXd qtemp;
+  Eigen::MatrixXd J;
+  Eigen::MatrixXd ns;
+
+  Eigen::VectorXd mindq;
+  double minJRM; double tempJRM;
+  Eigen::VectorXd minCoeff;
+
+  //.. Initialize
+  q = _q;
+  p = GetPose(q);
+  J = GetJ( q );
+  ns = GetNS_Basis( J );
+  
+  int countvalid = 0;
+  int count = 0;
+  
+  std::cout<< "Search nullspace" << std::endl;
+  for( int a = 0; a < mNumCoeff; ++a ) {
+    for( int b = 0; b < mNumCoeff; ++b ) {
+      for( int c = 0; c < mNumCoeff; ++c ) {
+	for( int d = 0; d < mNumCoeff; ++d ) {
+	  // Coeff
+	  Eigen::VectorXd coeff(4); coeff << mCoeff[a], mCoeff[b], mCoeff[c], mCoeff[d];
+	  qh =  ns*coeff ;
+	  qtemp = q + qh;
+	  if( GetPoseError( p, GetPose( qtemp )).norm() <  0.0025  ) {
+	    countvalid++;
+	    
+	    // Check collisions and lim
+		if( CheckCollisionConfig( qtemp ) == false && 
+		    IsInLim( qtemp ) == true ) {  
+		  count++;
+		  NSConfigs.push_back( qtemp );
+		  _coeffSet.push_back( coeff );
+		  
+		  if( mindq.size() == 0 && qh.norm() != 0 ) {
+		    mindq = qh;
+		    minJRM = JRM_Measure( qtemp );
+		    minCoeff = coeff;
+		  }
+		  else {
+		    tempJRM = JRM_Measure( qtemp );
+		    if( tempJRM < minJRM && qh.norm() != 0 ) {
+		      minJRM = tempJRM;
+		      mindq = qh;
+		      minCoeff = coeff;
+		    }
+		  }
+
+		} // end if Collision	
+	  } // end if GetPoseError
+	  
+	} // for a
+      } // for b
+    } // for c
+  } // for d
+  printf("Found %d solutions - valids: %d  \n", count, countvalid );
+  _q = q + mindq;
+  _coeff = minCoeff;
+  std::cout << "New q:" << _q.transpose() << std::endl;
+  std::cout << "min dq:" << mindq.transpose() << std::endl;
+  std::cout << "min Coeff: " << _coeff.transpose() << std::endl;
+  return NSConfigs;
+}
+
+//////////////////////////
+
+
+
+
+
+
+
 /**
  * @function NS_GetSample
  * @brief Input the coeff of the 
@@ -452,11 +593,16 @@ bool  IKSearch::NS_GetSample( Eigen::VectorXd &_q,
 
   qh =  ns*_coeff ;
   _q = q + qh;
-  std::cout << "[GetSample] New q:" << _q.transpose() << std::endl;
-  std::cout << "[GetSample] min dq:" << qh.transpose() << std::endl;
+  //std::cout << "[GetSample] New q:" << _q.transpose() << std::endl;
+  //std::cout << "[GetSample] min dq:" << qh.transpose() << std::endl;
+
+    if( GetPoseError( p, GetPose( _q )).norm() >  0.0025 )
+      { printf("NS Sample got a error pose, send false \n");
+	return false; }
 
   if( CheckCollisionConfig( _q ) == true || 
       IsInLim( _q ) == false ) {
+
     return false;
   }
   return true;

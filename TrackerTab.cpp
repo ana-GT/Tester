@@ -367,7 +367,7 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     mNS_MinCoeff->GetValue().ToDouble( &minCoeff );
 
     IKSearch* ik = new IKSearch( *mWorld, mCollision );
-    mExecutePath = ik->NS_ChainSearch( gRobotId,
+    mExecutePath = ik->NS_ChainSearchTest( gRobotId,
 				       gLinks,
 				       mNSConf,
 				       gEEName,
