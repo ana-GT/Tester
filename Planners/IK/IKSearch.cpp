@@ -460,9 +460,10 @@ std::vector<Eigen::VectorXd> IKSearch::NS_ChainSearchTest( int _robotId,
   Eigen::VectorXd coeff;
   std::vector<Eigen::VectorXd> coeffSet;
   std::vector<Eigen::VectorXd> qSet;
+  
   qSet = NS_SearchTest( q, coeff, coeffSet );
 
-
+  /*
   for( size_t i = 0; i < qSet.size(); ++i ) {
     Eigen::VectorXd qtemp = qSet[i];
     chain.push_back( qtemp ); 
@@ -474,10 +475,11 @@ std::vector<Eigen::VectorXd> IKSearch::NS_ChainSearchTest( int _robotId,
       chain.push_back( qtemp );
     }
   }
- 
+  
   printf("Happy Chain End!!! \n");
   return chain;
-  
+  */
+  return coeffSet;
 }
 
 /**
