@@ -38,14 +38,9 @@ class IKSearch : public IK {
 			 Eigen::VectorXd _targetPose, 
 			 std::vector<Eigen::VectorXd> &_jointPath );
   virtual Eigen::VectorXd Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s );
-  // ** Specific functions **
-  Eigen::VectorXd Getdq2( Eigen::VectorXd _q, Eigen::VectorXd _s );
-  bool GoToPose2( Eigen::VectorXd &_q, 
-		  Eigen::VectorXd _targetPose, 
-		  std::vector<Eigen::VectorXd> &_jointPath );
-  Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
   
   // ** NS Specific functions **
+  Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
   std::vector<Eigen::VectorXd> NS_ChainSearch( int _robotId, 
 					       const Eigen::VectorXi &_links,
 					       const Eigen::VectorXd _NSConf,
@@ -53,35 +48,21 @@ class IKSearch : public IK {
 					       int _EEId,
 					       std::vector<int> _constraints,
 					       int _maxChain = 10,
-					       int _numCoeff = 10,
+					       int _numCoeff = 11,
 					       double _minCoeff = -10.0,
 					       double _maxCoeff = 10.0 );
 
-  std::vector<Eigen::VectorXd> NS_Search( Eigen::VectorXd &_q,
-					  Eigen::VectorXd &_coeff );
+void NS_Search( Eigen::VectorXd &_q,
+			  Eigen::VectorXd &_coeff,
+			  std::vector<Eigen::VectorXd> &_configSet,
+			  std::vector<Eigen::VectorXd> &_coeffSet );
 
-  ///// TEST FUNCTIONS - TEMPORAL //////////////
-  std::vector<Eigen::VectorXd> NS_ChainSearchTest( int _robotId, 
-						   const Eigen::VectorXi &_links,
-						   const Eigen::VectorXd _NSConf,
-						   std::string _EEName,
-						   int _EEId,
-						   std::vector<int> _constraints,
-						   int _maxChain = 10,
-						   int _numCoeff = 10,
-						   double _minCoeff = -10.0,
-						   double _maxCoeff = 10.0 );
-
-  std::vector<Eigen::VectorXd> NS_SearchTest( Eigen::VectorXd &_q,
-					      Eigen::VectorXd &_coeff,
-					      std::vector<Eigen::VectorXd> &_coeffSet );
-
-  /////////////////
 
   bool NS_GetSample( Eigen::VectorXd &_q, 
 		     Eigen::VectorXd _coeff );
+
   // ** Specific Auxiliar functions **
-  void GetCoeff( int _numCoeff = 10, 
+  void GetCoeff( int _numCoeff = 11, 
 		 double _minCoeff = -10.0,
 		 double _maxCoeff = 10.0 );
   void GetCoeff_JRM();

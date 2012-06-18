@@ -178,7 +178,7 @@ GRIPTab( parent, id, pos, size, style ) {
   // Num coeff
   wxBoxSizer *NSNumCoeff_Sizer = new wxBoxSizer(wxHORIZONTAL);
   wxStaticText *NSNumCoeff_Label = new wxStaticText( this, 1013, wxT("# coeff:") );
-  mNS_NumCoeff = new wxTextCtrl(this,1014,wxT("10"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);
+  mNS_NumCoeff = new wxTextCtrl(this,1014,wxT("11"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);
 
   NSNumCoeff_Sizer->Add( NSNumCoeff_Label, 0, wxALL, 1 );  
   NSNumCoeff_Sizer->Add( mNS_NumCoeff, 0, wxALL, 1 );
@@ -367,7 +367,7 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     mNS_MinCoeff->GetValue().ToDouble( &minCoeff );
 
     IKSearch* ik = new IKSearch( *mWorld, mCollision );
-    mExecutePath = ik->NS_ChainSearchTest( gRobotId,
+    mExecutePath = ik->NS_ChainSearch( gRobotId,
 				       gLinks,
 				       mNSConf,
 				       gEEName,

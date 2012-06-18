@@ -274,7 +274,7 @@ GRIPTab( _parent, _id, _pos, _size, _style ) {
     // z
     wxBoxSizer *originZSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText *originZLabel = new wxStaticText( this, 1017, wxT(" z:") );
-    mOriginZText = new wxTextCtrl(this,1018,wxT("0.0"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);//,wxTE_PROCESS_ENTER | wxTE_RIGHT);
+    mOriginZText = new wxTextCtrl(this,1018,wxT("0.05"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);//,wxTE_PROCESS_ENTER | wxTE_RIGHT);
 
     originZSizer->Add( originZLabel, 0, wxALL, 1 );
     originZSizer->Add( mOriginZText, 0, wxALL, 1 );
@@ -301,7 +301,7 @@ GRIPTab( _parent, _id, _pos, _size, _style ) {
     // inflated
     wxBoxSizer *paddingSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText *paddingLabel = new wxStaticText( this, 1021, wxT(" Pad:") );
-    mPaddingText = new wxTextCtrl(this,1022,wxT("3"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);//,wxTE_PROCESS_ENTER | wxTE_RIGHT);
+    mPaddingText = new wxTextCtrl(this,1022,wxT("1"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);//,wxTE_PROCESS_ENTER | wxTE_RIGHT);
 
     paddingSizer->Add( paddingLabel, 0, wxALL, 1 );
     paddingSizer->Add( mPaddingText, 0, wxALL, 1 );
