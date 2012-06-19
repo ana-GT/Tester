@@ -274,15 +274,25 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     mW_JraS->GetValue().ToDouble(&w_jra);
     mW_JvmS->GetValue().ToDouble(&w_jvm);
 
+    double numCoeff;
+    double maxCoeff; double minCoeff;
+    mNS_NumCoeff->GetValue().ToDouble( &numCoeff );
+    mNS_MaxCoeff->GetValue().ToDouble( &maxCoeff );
+    mNS_MinCoeff->GetValue().ToDouble( &minCoeff );
+
+
     IKSearch* ik = new IKSearch( *mWorld, mCollision );
-    mExecutePath = ik->Track( gRobotId,
-			      gLinks,
-			      gStartConf,
-			      gEEName,
-			      gEEId,
-			      constraints,
-			      gPosePath );
-    //w_dexterity, w_jra, w_jvm );
+    mExecutePath = ik->Track_LJM( gRobotId,
+				  gLinks,
+				  gStartConf,
+				  gEEName,
+				  gEEId,
+				  constraints,
+				  gPosePath,
+				  10, // maxChain
+				  numCoeff,
+				  minCoeff,
+				  maxCoeff );
     delete ik;
   }
     break;

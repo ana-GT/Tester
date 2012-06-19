@@ -137,14 +137,10 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
   double minJRM; double tempJRM;
   
   std::cout<< "Search nullspace" << std::endl;
-//  for( int a = 0; a < mNumCoeff; ++a ) {
-//    for( int b = 0; b < mNumCoeff; ++b ) {
-//      for( int c = 0; c < mNumCoeff; ++c ) {
-//	for( int d = 0; d < mNumCoeff; ++d ) {
   for( int a = 0; a < mNumCoeff; ++a ) {
     for( int b = 0; b < mNumCoeff; ++b ) {
       for( int c = 0; c < mNumCoeff; ++c ) {
-	for( int d = 0; d < 1; ++d ) {
+	for( int d = 0; d < 1; ++d ) { // *** TRIAL!! ***
 	  // Coeff
 	  Eigen::VectorXd coeff(4); coeff << mCoeff[a], mCoeff[b], mCoeff[c], mCoeff[d];
 	  qh = qp + ns*coeff ;
@@ -204,6 +200,7 @@ Eigen::MatrixXd IKSearch::GetNS_Basis( Eigen::MatrixXd _J ) {
   
   return NS;
 }
+
 
 /**
  * @function NS_ChainSearch
@@ -299,14 +296,11 @@ void IKSearch::NS_Search( Eigen::VectorXd &_q,
   int count = 0;
   
   std::cout<< "Search nullspace" << std::endl;
-//  for( int a = 0; a < mNumCoeff; ++a ) {
-//    for( int b = 0; b < mNumCoeff; ++b ) {
-//      for( int c = 0; c < mNumCoeff; ++c ) {
-//	for( int d = 0; d < mNumCoeff; ++d ) {
+
   for( int a = 0; a < mNumCoeff; ++a ) {
     for( int b = 0; b < mNumCoeff; ++b ) {
       for( int c = 0; c < mNumCoeff; ++c ) {
-	for( int d = 0; d < 1; ++d ) {
+	for( int d = 0; d < 1; ++d ) { // **** TRIAL!!! ***
 	  // Coeff
 	  Eigen::VectorXd coeff(4); coeff << mCoeff[a], mCoeff[b], mCoeff[c], mCoeff[d];
 	  qh =  ns*coeff ;

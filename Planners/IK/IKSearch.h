@@ -33,7 +33,7 @@ class IKSearch : public IK {
 					      int _EEId,
 					      std::vector<int> _constraints,
 					      const std::vector<Eigen::VectorXd> _WSPath );
-  
+
   virtual bool GoToPose( Eigen::VectorXd &_q, 
 			 Eigen::VectorXd _targetPose, 
 			 std::vector<Eigen::VectorXd> &_jointPath );
@@ -41,6 +41,31 @@ class IKSearch : public IK {
   
   // ** NS Specific functions **
   Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
+
+  //------- My function -------//
+  std::vector<Eigen::VectorXd> Track_LJM( int _robotId,
+					  const Eigen::VectorXi &_links,
+					  const Eigen::VectorXd &_start,
+					  std::string _EEName,
+					  int _EEId,
+					  std::vector<int> _constraints,
+					  const std::vector<Eigen::VectorXd> _WSPath,
+					  int _maxChain = 10,
+					  int _numCoeff = 11,
+					  double _minCoeff = -10.0,
+					  double _maxCoeff = 10.0 );  
+
+
+  bool GoToPose_LJM( Eigen::VectorXd &_q, 
+		     std::vector<Eigen::VectorXd> _targetWindow, 
+		     std::vector<Eigen::VectorXd> &_jointPath );
+  bool Getdq_LJM( Eigen::VectorXd _q, 
+		  Eigen::VectorXd _s,
+		  std::vector<Eigen::VectorXd> &_configSet,
+		  std::vector<Eigen::VectorXd> &_coeffSet );
+  
+  //------------------------------//
+  
   std::vector<Eigen::VectorXd> NS_ChainSearch( int _robotId, 
 					       const Eigen::VectorXi &_links,
 					       const Eigen::VectorXd _NSConf,
@@ -52,15 +77,14 @@ class IKSearch : public IK {
 					       double _minCoeff = -10.0,
 					       double _maxCoeff = 10.0 );
 
-void NS_Search( Eigen::VectorXd &_q,
-			  Eigen::VectorXd &_coeff,
-			  std::vector<Eigen::VectorXd> &_configSet,
-			  std::vector<Eigen::VectorXd> &_coeffSet );
-
-
+  void NS_Search( Eigen::VectorXd &_q,
+		  Eigen::VectorXd &_coeff,
+		  std::vector<Eigen::VectorXd> &_configSet,
+		  std::vector<Eigen::VectorXd> &_coeffSet );
+  
   bool NS_GetSample( Eigen::VectorXd &_q, 
 		     Eigen::VectorXd _coeff );
-
+  
   // ** Specific Auxiliar functions **
   void GetCoeff( int _numCoeff = 11, 
 		 double _minCoeff = -10.0,

@@ -51,6 +51,7 @@ set( HDR_LJM2 LJM2/LJM2.h )
 
 set( SRC_IK Planners/IK/IK.cpp
   Planners/IK/IKSearch.cpp
+  Planners/IK/IKSearch_LJM.cpp
   Planners/IK/IKGradient.cpp)
 set( HDR_IK Planners/IK/IK.h 
   Planners/IK/IKSearch.h
