@@ -39,10 +39,14 @@ std::vector< Eigen::VectorXd > IKSearch::Track( int _robotId,
 						std::string _EEName,
 						int _EEId,
 						std::vector<int> _constraints,
-						const std::vector<Eigen::VectorXd> _WSPath ) {
+						const std::vector<Eigen::VectorXd> _WSPath,
+						int _maxChain,
+						int _numCoeff,
+						double _minCoeff,
+						double _maxCoeff ) {
 
   //-- Get coeff for nullspace
-  GetCoeff();
+  GetCoeff( _numCoeff, _minCoeff, _maxCoeff );
 
   //-- Get Robot and constraints info
   GetGeneralInfo( _robotId, _links, _start,_EEName, _EEId, _constraints );
@@ -237,25 +241,20 @@ std::vector<Eigen::VectorXd> IKSearch::NS_ChainSearch( int _robotId,
   NS_Search( q, coeff, qSet, coeffSet );
 
   chain.push_back( q );
-/*
-  for( size_t i = 0; i < _maxChain; ++i ) {
-    if( NS_GetSample( q, coeff ) == false ) {
-      printf(" (!) Stopped chain at %d because of collision or limits \n", i );
-      return chain;
-    }
-    chain.push_back( q );
-  }
-*/
+
   for( size_t j = 0; j < qSet.size(); ++j ) {
-	Eigen::VectorXd qTemp = qSet[j];
-  	for( size_t i = 0; i < _maxChain; ++i ) {
-		
-    	if( NS_GetSample( qTemp, coeffSet[j] ) == false ) {
-      		printf(" [%d](!) Stopped chain at %d because of collision or limits \n", j, i );
-			break;
-    	}
-    	chain.push_back( qTemp );
-	}
+    printf( "*** Chain [%d] *** \n", j );
+    Eigen::VectorXd qTemp = qSet[j];
+    for( size_t i = 0; i < _maxChain; ++i ) {
+      if( NS_GetSample( qTemp, coeffSet[j] ) == false ) {
+	printf(" [%d](!) Stopped chain at %d because of collision or limits \n", j, i );
+	break;
+      }
+
+      double jrm = JRM_Measure( qTemp );
+      printf(" Added to chain with JRM: %.3f \n", jrm );
+      chain.push_back( qTemp );
+    }
   }
 
  

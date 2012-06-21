@@ -46,15 +46,14 @@ class TrackerTab : public GRIPTab
 
   // Key variables
   IK *mIk;
-  std::vector<Eigen::VectorXd> mExecutePath;  
+  std::vector<Eigen::VectorXd> mExecutePath;
+  std::vector<Eigen::VectorXd> mTrackPath;
+  std::vector<Eigen::VectorXd> mTrackLJMPath;
 
   Eigen::VectorXd mNSConf;
 
   wxTextCtrl *mW_ManipG;
   wxTextCtrl *mW_JraG;
-  wxTextCtrl *mW_DexterityS;
-  wxTextCtrl *mW_JraS;
-  wxTextCtrl *mW_JvmS;
 
   wxTextCtrl *mNS_NumCoeff;
   wxTextCtrl *mNS_MinCoeff;

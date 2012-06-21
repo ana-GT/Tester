@@ -16,10 +16,13 @@ enum TrackerTabEvents {
   button_TrackB = 50,
   button_TrackG,
   button_TrackS,
+  button_TrackS_LJM,
   button_ExecuteB,
   button_ExecuteG,
   button_ExecuteS,
+  button_ExecuteS_LJM,
   button_Plot1S,
+  button_Plot1S_LJM,
   button_SearchNS,
   button_ShowNS,
   button_PlotNS,
@@ -105,40 +108,6 @@ GRIPTab( parent, id, pos, size, style ) {
   wxStaticBox *SBox = new wxStaticBox( this, -1, wxT("Search") );
   wxStaticBoxSizer *SBoxSizer = new wxStaticBoxSizer( SBox, wxVERTICAL );
 
-  // Search Checkboxes
-  wxBoxSizer *SCheckSizer = new wxBoxSizer( wxVERTICAL );
-
-  // Dexterity
-  wxBoxSizer *WDexterityS_Sizer = new wxBoxSizer(wxHORIZONTAL);
-  wxStaticText *WDexterityS_Label = new wxStaticText( this, 1013, wxT("Dexterity  weight:") );
-  mW_DexterityS = new wxTextCtrl(this,1014,wxT("0.2"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);
-
-  WDexterityS_Sizer->Add( WDexterityS_Label, 0, wxALL, 1 );  
-  WDexterityS_Sizer->Add( mW_DexterityS, 0, wxALL, 1 );
-
-  SCheckSizer->Add( WDexterityS_Sizer, 1, wxALIGN_NOT );
-
-  // JRA
-  wxBoxSizer *WJraS_Sizer = new wxBoxSizer(wxHORIZONTAL);
-  wxStaticText *WJraS_Label = new wxStaticText( this, 1013, wxT("Jra  weight:") );
-  mW_JraS = new wxTextCtrl(this,1014,wxT("0.2"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);
-
-  WJraS_Sizer->Add( WJraS_Label, 0, wxALL, 1 );  
-  WJraS_Sizer->Add( mW_JraS, 0, wxALL, 1 );
-
-  SCheckSizer->Add( WJraS_Sizer, 1, wxALIGN_NOT );
-
-  // JVM
-  wxBoxSizer *WJvmS_Sizer = new wxBoxSizer(wxHORIZONTAL);
-  wxStaticText *WJvmS_Label = new wxStaticText( this, 1013, wxT("Jvm  weight:") );
-  mW_JvmS = new wxTextCtrl(this,1014,wxT("0.2"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);
-
-  WJvmS_Sizer->Add( WJvmS_Label, 0, wxALL, 1 );  
-  WJvmS_Sizer->Add( mW_JvmS, 0, wxALL, 1 );
-
-  SCheckSizer->Add( WJvmS_Sizer, 1, wxALIGN_NOT );
-
-
   // ** Button sizer **
   wxBoxSizer *SButtonSizer = new wxBoxSizer( wxHORIZONTAL );
   SButtonSizer->Add( new wxButton( this, button_TrackS, _T("Track") ),
@@ -148,9 +117,18 @@ GRIPTab( parent, id, pos, size, style ) {
   SButtonSizer->Add( new wxButton( this, button_Plot1S, _T("Plot") ),
 		     1, wxALIGN_NOT );
 
+  // ** Button sizer LJM**
+  wxBoxSizer *SButtonSizer1 = new wxBoxSizer( wxHORIZONTAL );
+  SButtonSizer1->Add( new wxButton( this, button_TrackS_LJM, _T("Track LJM") ),
+		     1, wxALIGN_NOT );
+  SButtonSizer1->Add( new wxButton( this, button_ExecuteS_LJM, _T("Execute") ),
+		     1, wxALIGN_NOT );
+  SButtonSizer1->Add( new wxButton( this, button_Plot1S_LJM, _T("Plot") ),
+		     1, wxALIGN_NOT );
+
   // Add sizers to GBoxSizer 
-  SBoxSizer->Add( SCheckSizer, 1, wxALIGN_NOT, 0 );
   SBoxSizer->Add( SButtonSizer, 1, wxALIGN_NOT, 0 );
+  SBoxSizer->Add( SButtonSizer1, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
   sizerFullTab->Add( SBoxSizer, 1, wxEXPAND |wxALL, 4 );
@@ -257,46 +235,6 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     
   } break;
     
-    /** Track Simple Search IK */
-  case button_TrackS: {
-    std::vector<int> constraints(6); 
-    constraints[0] = 1;
-    constraints[1] = 1;
-    constraints[2] = 1;
-    constraints[3] = 0;
-    constraints[4] = 0;
-    constraints[5] = 0;
-
-    double w_dexterity;
-    double w_jra;
-    double w_jvm;  
-    mW_DexterityS->GetValue().ToDouble(&w_dexterity);
-    mW_JraS->GetValue().ToDouble(&w_jra);
-    mW_JvmS->GetValue().ToDouble(&w_jvm);
-
-    double numCoeff;
-    double maxCoeff; double minCoeff;
-    mNS_NumCoeff->GetValue().ToDouble( &numCoeff );
-    mNS_MaxCoeff->GetValue().ToDouble( &maxCoeff );
-    mNS_MinCoeff->GetValue().ToDouble( &minCoeff );
-
-
-    IKSearch* ik = new IKSearch( *mWorld, mCollision );
-    mExecutePath = ik->Track_LJM( gRobotId,
-				  gLinks,
-				  gStartConf,
-				  gEEName,
-				  gEEId,
-				  constraints,
-				  gPosePath,
-				  10, // maxChain
-				  numCoeff,
-				  minCoeff,
-				  maxCoeff );
-    delete ik;
-  }
-    break;
-    
     /** Track Gradient-based IK */
   case button_TrackG: {
     std::vector<int> constraints(6); 
@@ -325,6 +263,73 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   }
     break;
 
+    /** Track Simple Search IK */
+  case button_TrackS: {
+    std::vector<int> constraints(6); 
+    constraints[0] = 1;
+    constraints[1] = 1;
+    constraints[2] = 1;
+    constraints[3] = 0;
+    constraints[4] = 0;
+    constraints[5] = 0;
+
+    double numCoeff;
+    double maxCoeff; double minCoeff;
+    mNS_NumCoeff->GetValue().ToDouble( &numCoeff );
+    mNS_MaxCoeff->GetValue().ToDouble( &maxCoeff );
+    mNS_MinCoeff->GetValue().ToDouble( &minCoeff );
+
+
+    IKSearch* ik = new IKSearch( *mWorld, mCollision );
+    mTrackPath = ik->Track( gRobotId,
+			      gLinks,
+			      gStartConf,
+			      gEEName,
+			      gEEId,
+			      constraints,
+			      gPosePath,
+			      10, // maxChain
+			      numCoeff,
+			      minCoeff,
+			      maxCoeff );
+    delete ik;
+  }
+    break;
+    
+    /** Track Search LJM  IK */
+  case button_TrackS_LJM: {
+    std::vector<int> constraints(6); 
+    constraints[0] = 1;
+    constraints[1] = 1;
+    constraints[2] = 1;
+    constraints[3] = 0;
+    constraints[4] = 0;
+    constraints[5] = 0;
+
+    double numCoeff;
+    double maxCoeff; double minCoeff;
+    mNS_NumCoeff->GetValue().ToDouble( &numCoeff );
+    mNS_MaxCoeff->GetValue().ToDouble( &maxCoeff );
+    mNS_MinCoeff->GetValue().ToDouble( &minCoeff );
+
+
+    IKSearch* ik = new IKSearch( *mWorld, mCollision );
+    mTrackLJMPath = ik->Track_LJM( gRobotId,
+				   gLinks,
+				   gStartConf,
+				   gEEName,
+				   gEEId,
+				   constraints,
+				   gPosePath,
+				   10, // maxChain
+				   numCoeff,
+				   minCoeff,
+				   maxCoeff );
+    delete ik;
+  }
+    break;
+    
+    
     /** Execute Simple IK */
   case button_ExecuteB: {
     SetTimeline( mExecutePath, 5.0 );
@@ -339,13 +344,24 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
 
     /** Execute Simple Search IK */
   case button_ExecuteS: {
-    SetTimeline( mExecutePath, 5.0 );
+    SetTimeline( mTrackPath, 5.0 );
+  }
+    break;
+
+    /** Execute Search LJM IK */
+  case button_ExecuteS_LJM: {
+    SetTimeline( mTrackLJMPath, 5.0 );
   }
     break;
 
     /** Plot Joint evolution vs step */
   case button_Plot1S: {
-    plotVariables( mExecutePath, "t", "joint", "Joint", "Joints vs t" );
+    plotVariables( mTrackPath, "t", "joint", "Joint", "Track Joints vs t" );
+  } break;
+
+    /** Plot LJM Joint evolution vs step */
+  case button_Plot1S_LJM: {
+    plotVariables( mTrackLJMPath, "t", "joint", "Joint", "LJM Joints vs t" );
   } break;
 
     /** Set Pose for NS Evaluation */

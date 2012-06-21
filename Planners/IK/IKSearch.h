@@ -32,7 +32,11 @@ class IKSearch : public IK {
 					      std::string _EEName,
 					      int _EEId,
 					      std::vector<int> _constraints,
-					      const std::vector<Eigen::VectorXd> _WSPath );
+					      const std::vector<Eigen::VectorXd> _WSPath,
+					      int _maxChain = 10,
+					      int _numCoeff = 11,
+					      double _minCoeff = -10.0,
+					      double _maxCoeff = 10.0 );
 
   virtual bool GoToPose( Eigen::VectorXd &_q, 
 			 Eigen::VectorXd _targetPose, 
@@ -64,6 +68,7 @@ class IKSearch : public IK {
 		  std::vector<Eigen::VectorXd> &_configSet,
 		  std::vector<Eigen::VectorXd> &_coeffSet );
   
+  std::vector<int> SortVector( std::vector<double> _vals );
   //------------------------------//
   
   std::vector<Eigen::VectorXd> NS_ChainSearch( int _robotId, 

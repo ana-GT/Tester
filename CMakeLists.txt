@@ -4,7 +4,7 @@ cmake_minimum_required( VERSION 2.8 )
 project ( Tester )
 
 set (CMAKE_INSTALL_PREFIX /usr/local )
-set (CMAKE_CXX_FLAGS "-g -O0 -Wall -Wextra -Wpointer-arith -fno-default-inline -fno-implicit-inline-templates -DwxUSE_THREADS")
+set (CMAKE_CXX_FLAGS "-std=C++0x -g -O0 -Wall -Wextra -Wpointer-arith -fno-default-inline -fno-implicit-inline-templates -DwxUSE_THREADS")
 
 include (${CMAKE_INSTALL_PREFIX}/share/dart/DART_config.cmake)
 include (${CMAKE_INSTALL_PREFIX}/share/grip/GRIP_config.cmake)
