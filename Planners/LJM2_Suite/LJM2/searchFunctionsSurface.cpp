@@ -68,13 +68,13 @@ std::vector< std::vector<Eigen::Vector3i> > LJM2::FindVarietyPaths1( int _x1, in
 	eStart << (double)_x1, (double)_y1, (double)_z1; 
 
     result = kd_nearest( mKdTree, eStart.data() );
-	startSurfaceIndex = (int) kd_res_item_data(result);
+	startSurfaceIndex = (size_t) kd_res_item_data(result);
 
 	Eigen::VectorXd eTarget(3);
 	eTarget << (double)_x2, (double)_y2, (double)_z2; 
 
     result = kd_nearest( mKdTree, eTarget.data() );
-	targetSurfaceIndex = (int) kd_res_item_data(result);
+	targetSurfaceIndex = (size_t) kd_res_item_data(result);
 
 	kd_res_free( result );
 

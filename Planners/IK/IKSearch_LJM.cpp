@@ -190,9 +190,9 @@ std::vector<int> IKSearch::SortVector( std::vector<double> _vals ) {
   }
 
   // Sortea
-  auto bool f = [](int i, int j ) { return (_vals[i] < _vals[j]); } 
-  std::sort( indices.begin(), 
-	     indices.begin() +5, f() );
+  //auto bool f = [](int i, int j ) { return (_vals[i] < _vals[j]); } 
+  //std::sort( indices.begin(), 
+	//     indices.begin() +5, f() );
   
   return indices;
 }

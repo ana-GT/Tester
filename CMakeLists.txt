@@ -42,12 +42,12 @@ set( HDR_PLANNERS Planners/RRT/RRT.h
   Planners/JTFollower/JTFollower.h
   Planners/JNSFollower/JNSFollower.h )
 
-set( SRC_LJM2 LJM2/LJM2.cpp 
-  LJM2/searchFunctionsFree.cpp
-  LJM2/searchFunctionsSurface.cpp
-  kdtree/kdtree.c )
+#set( SRC_LJM2 LJM2/LJM2.cpp 
+#  LJM2/searchFunctionsFree.cpp
+#  LJM2/searchFunctionsSurface.cpp
+#  kdtree/kdtree.c )
 
-set( HDR_LJM2 LJM2/LJM2.h )
+#set( HDR_LJM2 LJM2/LJM2.h )
 
 set( SRC_IK Planners/IK/IK.cpp
   Planners/IK/IKSearch.cpp
