@@ -1,3 +1,8 @@
+/**
+ * @file TrackerTab.cpp
+ * @author A. Huaman
+ */
+
 #include <wx/wx.h>
 #include <GUI/Viewer.h>
 #include <GUI/GUI.h>
@@ -16,12 +21,15 @@ enum TrackerTabEvents {
   button_TrackB = 50,
   button_TrackG,
   button_TrackS,
+  button_TrackS_LA,
   button_TrackS_BT2,
   button_ExecuteB,
   button_ExecuteG,
   button_ExecuteS,
+  button_ExecuteS_LA,
   button_ExecuteS_BT2,
   button_Plot1S,
+  button_Plot1S_LA,
   button_Plot1S_BT2,
   button_SearchNS,
   button_ShowNS,
@@ -117,7 +125,7 @@ GRIPTab( parent, id, pos, size, style ) {
   SButtonSizer->Add( new wxButton( this, button_Plot1S, _T("Plot") ),
 		     1, wxALIGN_NOT );
 
-  // ** Button sizer BT2**
+  // ** Button sizer BT2 (Backtrack) **
   wxBoxSizer *SButtonSizer1 = new wxBoxSizer( wxHORIZONTAL );
   SButtonSizer1->Add( new wxButton( this, button_TrackS_BT2, _T("Track BT2") ),
 		     1, wxALIGN_NOT );
@@ -126,9 +134,20 @@ GRIPTab( parent, id, pos, size, style ) {
   SButtonSizer1->Add( new wxButton( this, button_Plot1S_BT2, _T("Plot") ),
 		     1, wxALIGN_NOT );
 
+  // ** Button sizer LA (Look Ahead) **
+  wxBoxSizer *SButtonSizer2 = new wxBoxSizer( wxHORIZONTAL );
+  SButtonSizer2->Add( new wxButton( this, button_TrackS_LA, _T("Track LA") ),
+		     1, wxALIGN_NOT );
+  SButtonSizer2->Add( new wxButton( this, button_ExecuteS_LA, _T("Execute") ),
+		     1, wxALIGN_NOT );
+  SButtonSizer2->Add( new wxButton( this, button_Plot1S_LA, _T("Plot") ),
+		     1, wxALIGN_NOT );
+
+
   // Add sizers to GBoxSizer 
   SBoxSizer->Add( SButtonSizer, 1, wxALIGN_NOT, 0 );
   SBoxSizer->Add( SButtonSizer1, 1, wxALIGN_NOT, 0 );
+  SBoxSizer->Add( SButtonSizer2, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
   sizerFullTab->Add( SBoxSizer, 1, wxEXPAND |wxALL, 4 );
@@ -296,7 +315,7 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   }
     break;
     
-    /** Track Search LJM  IK */
+    /** Track Search Backtrack 2  IK */
   case button_TrackS_BT2: {
     std::vector<int> constraints(6); 
     constraints[0] = 1;
@@ -329,6 +348,38 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   }
     break;
     
+    /** Track Search Look Ahead  IK */
+  case button_TrackS_LA: {
+    std::vector<int> constraints(6); 
+    constraints[0] = 1;
+    constraints[1] = 1;
+    constraints[2] = 1;
+    constraints[3] = 0;
+    constraints[4] = 0;
+    constraints[5] = 0;
+
+    double numCoeff;
+    double maxCoeff; double minCoeff;
+    mNS_NumCoeff->GetValue().ToDouble( &numCoeff );
+    mNS_MaxCoeff->GetValue().ToDouble( &maxCoeff );
+    mNS_MinCoeff->GetValue().ToDouble( &minCoeff );
+
+
+    IKSearch* ik = new IKSearch( *mWorld, mCollision );
+    mTrack_LA_Path = ik->Track_LA( gRobotId,
+				   gLinks,
+				   gStartConf,
+				   gEEName,
+				   gEEId,
+				   constraints,
+				   gPosePath,
+				   10, // maxChain
+				   numCoeff,
+				   minCoeff,
+				   maxCoeff );
+    delete ik;
+  }
+    break;
     
     /** Execute Simple IK */
   case button_ExecuteB: {
@@ -354,14 +405,25 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   }
     break;
 
+    /** Execute Search LA IK */
+  case button_ExecuteS_LA: {
+    SetTimeline( mTrack_LA_Path, 5.0 );
+  }
+    break;
+
     /** Plot Joint evolution vs step */
   case button_Plot1S: {
     plotVariables( mTrackPath, "t", "joint", "Joint", "Track Joints vs t" );
   } break;
 
-    /** Plot LJM Joint evolution vs step */
+    /** Plot BT2 (Backtrack 2) Joint evolution vs step */
   case button_Plot1S_BT2: {
     plotVariables( mTrack_BT2_Path, "t", "joint", "Joint", "BT2 Joints vs t" );
+  } break;
+
+    /** Plot LA (Look Ahead) Joint evolution vs step */
+  case button_Plot1S_LA: {
+    plotVariables( mTrack_LA_Path, "t", "joint", "Joint", "LA Joints vs t" );
   } break;
 
     /** Set Pose for NS Evaluation */

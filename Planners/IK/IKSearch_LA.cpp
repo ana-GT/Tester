@@ -7,20 +7,20 @@
 #include <algorithm>
 
 /**
- * @function TrackLJM
- * @brief Main function
+ * @function Track_LA
+ * @brief Look-ahead tracking
  */
-std::vector< Eigen::VectorXd > IKSearch::Track_LJM( int _robotId,
-						    const Eigen::VectorXi &_links,
-						    const Eigen::VectorXd &_start,  
-						    std::string _EEName,
-						    int _EEId,
-						    std::vector<int> _constraints,
-						    const std::vector<Eigen::VectorXd> _WSPath,
-						    int _maxChain,
-						    int _numCoeff,
-						    double _minCoeff,
-						    double _maxCoeff ) {
+std::vector< Eigen::VectorXd > IKSearch::Track_LA( int _robotId,
+						   const Eigen::VectorXi &_links,
+						   const Eigen::VectorXd &_start,  
+						   std::string _EEName,
+						   int _EEId,
+						   std::vector<int> _constraints,
+						   const std::vector<Eigen::VectorXd> _WSPath,
+						   int _maxChain,
+						   int _numCoeff,
+						   double _minCoeff,
+						   double _maxCoeff ) {
   
   //-- Get coeff for nullspace
   GetCoeff( _numCoeff, _minCoeff, _maxCoeff );
@@ -32,7 +32,7 @@ std::vector< Eigen::VectorXd > IKSearch::Track_LJM( int _robotId,
   GetCoeff_JRM();
   
   //-- Track path
-  printf("*** Track Start -- IK Search LJM *** \n");
+  printf("*** Track Start -- IK Search LA *** \n");
   std::vector< Eigen::VectorXd > jointPath;
   Eigen::VectorXd q;
   
@@ -43,13 +43,13 @@ std::vector< Eigen::VectorXd > IKSearch::Track_LJM( int _robotId,
   
   int mWindow = 2;
   for( size_t i = 1; i < numPoints - mWindow + 1; ++i ) {
-    printf("[%d] ... Tracking LJM ... \n ", i );
+    printf("[%d] ... Tracking LA ... \n ", i );
     std::vector<Eigen::VectorXd> windowPathSubset;
     for( size_t j = i; j < i + mWindow; ++j ) {
       windowPathSubset.push_back( _WSPath[j] );
     } 
  
-    if( GoToPose_LJM( q, windowPathSubset, jointPath ) == false ) {
+    if( GoToPose_LA( q, windowPathSubset, jointPath ) == false ) {
       printf( " [%d] (!) -- GoToPose returned false \n", i );
       break;
     }      
@@ -60,11 +60,11 @@ std::vector< Eigen::VectorXd > IKSearch::Track_LJM( int _robotId,
 }
 
 /**
- * @function GoToPose_LJM
+ * @function GoToPose_LA
  */
-bool IKSearch::GoToPose_LJM( Eigen::VectorXd &_q, 
-			     std::vector<Eigen::VectorXd> _targetWindow, 
-			     std::vector<Eigen::VectorXd> &_jointPath ) {
+bool IKSearch::GoToPose_LA( Eigen::VectorXd &_q, 
+			    std::vector<Eigen::VectorXd> _targetWindow, 
+			    std::vector<Eigen::VectorXd> &_jointPath ) {
   
   Eigen::VectorXd q; 
   Eigen::VectorXd dq;
@@ -83,31 +83,31 @@ bool IKSearch::GoToPose_LJM( Eigen::VectorXd &_q,
   std::vector<Eigen::VectorXd> cSet1;
 
   // Find the possible solutions for targetWindow[0]
-  Getdq_LJM( q, _targetWindow[0], qSet, cSet );
+  Getdq_LA( q, _targetWindow[0], qSet, cSet );
 
   for( int i = 0; i < qSet.size(); ++i ) {
-    if( Getdq_LJM( qSet[i], _targetWindow[1], qSet1, cSet1 ) == true ) {
+    if( Getdq_LA( qSet[i], _targetWindow[1], qSet1, cSet1 ) == true ) {
       _q = qSet[i];
       temp.push_back( _q );
       _jointPath.insert( _jointPath.end(), temp.begin(), temp.end() );
       return true;
     }    
   }
-
+  
   printf( "Did not find solution with window = 2 \n" );
   return false;
 }  
 
 /**
- * @function Getdq_LJM
+ * @function Getdq_LA
  */
-bool IKSearch::Getdq_LJM( Eigen::VectorXd _q, 
-			  Eigen::VectorXd _s,
-			  std::vector<Eigen::VectorXd> &_configSet,
-			  std::vector<Eigen::VectorXd> &_coeffSet ) {
-
+bool IKSearch::Getdq_LA( Eigen::VectorXd _q, 
+			 Eigen::VectorXd _s,
+			 std::vector<Eigen::VectorXd> &_configSet,
+			 std::vector<Eigen::VectorXd> &_coeffSet ) {
+  
   std::vector<double> _valSet;
-
+  
   //-- Direct search
   Eigen::VectorXd dq;
   Eigen::VectorXd qp;
@@ -129,7 +129,7 @@ bool IKSearch::Getdq_LJM( Eigen::VectorXd _q,
   Eigen::VectorXd mindq;
   double minJRM; double tempJRM;
   
-  std::cout<< "Getdq_LJM" << std::endl;
+  std::cout<< "Getdq_LA" << std::endl;
   for( int a = 0; a < mNumCoeff; ++a ) {
     for( int b = 0; b < mNumCoeff; ++b ) {
       for( int c = 0; c < mNumCoeff; ++c ) {
@@ -173,26 +173,8 @@ bool IKSearch::Getdq_LJM( Eigen::VectorXd _q,
 
   if( found == true ) {
     _configSet[0] = mindq + _q;
-    SortVector( _valSet );
+    //SortVector( _valSet );
   }
   return found;
 }
 
-/**
- * @function SortVector
- */
-std::vector<int> IKSearch::SortVector( std::vector<double> _vals ) {
-
-  int n = _vals.size();
-  std::vector<int> indices(n);
-  for( size_t i = 0; i < n; ++i ) {
-    indices[i] = i;
-  }
-
-  // Sortea
-  //auto bool f = [](int i, int j ) { return (_vals[i] < _vals[j]); } 
-  //std::sort( indices.begin(), 
-	//     indices.begin() +5, f() );
-  
-  return indices;
-}

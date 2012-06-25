@@ -51,12 +51,16 @@ set( HDR_PLANNERS Planners/RRT/RRT.h
 
 set( SRC_IK Planners/IK/IK.cpp
   Planners/IK/IKSearch.cpp
-  Planners/IK/IKSearch_LJM.cpp
+  Planners/IK/IKSearch_LA.cpp
   Planners/IK/IKSearch_BT2.cpp
   Planners/IK/IKGradient.cpp)
+
 set( HDR_IK Planners/IK/IK.h 
   Planners/IK/IKSearch.h
   Planners/IK/IKGradient.h)
+
+set( SRC_UTILS Planners/IK/BinaryHeap.cpp )
+set( HDR_UTILS Planners/IK/BinaryHeap.h )
 
 set( SRC_FILES   TesterTabApp.cpp
   ConfigTab.cpp PlannerTab.cpp TrackerTab.cpp globalStuff.cpp )
@@ -73,7 +77,7 @@ if (wxWidgets_FOUND)
   include_directories(${DART_HEADERS} ${GRIP_HEADERS} ${WXWIDGETS_SHARED_INCLUDE_DIRS})
   link_directories(${CMAKE_SOURCE_DIR}/lib ${GRIP_LIBDIR} ${WXWIDGETS_SHARED_LIBRARY_DIRS} )
   
-  add_executable ( TesterTab  ${HDR_FILES} ${SRC_FILES} ${SRC_PLANNERS} ${HDR_PLANNERS} ${HDR_IK} ${SRC_IK} ${SRC_PLOT} ${HDR_PLOT} )
+  add_executable ( TesterTab  ${HDR_FILES} ${SRC_FILES} ${SRC_PLANNERS} ${HDR_PLANNERS} ${HDR_IK} ${SRC_IK} ${SRC_PLOT} ${HDR_PLOT} ${SRC_UTILS} ${HDR_UTILS} )
   target_link_libraries( TesterTab ${PCL_LIBRARIES}
     ${GRIP_LIBRARIES} 
     ${DART_LIBRARIES} 

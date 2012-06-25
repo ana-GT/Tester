@@ -47,28 +47,26 @@ class IKSearch : public IK {
   Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
 
   //------- Look-ahead function -------//
-  std::vector<Eigen::VectorXd> Track_LJM( int _robotId,
-					  const Eigen::VectorXi &_links,
-					  const Eigen::VectorXd &_start,
-					  std::string _EEName,
-					  int _EEId,
-					  std::vector<int> _constraints,
-					  const std::vector<Eigen::VectorXd> _WSPath,
-					  int _maxChain = 10,
-					  int _numCoeff = 11,
-					  double _minCoeff = -10.0,
-					  double _maxCoeff = 10.0 );  
-
-
-  bool GoToPose_LJM( Eigen::VectorXd &_q, 
-		     std::vector<Eigen::VectorXd> _targetWindow, 
-		     std::vector<Eigen::VectorXd> &_jointPath );
-  bool Getdq_LJM( Eigen::VectorXd _q, 
-		  Eigen::VectorXd _s,
-		  std::vector<Eigen::VectorXd> &_configSet,
-		  std::vector<Eigen::VectorXd> &_coeffSet );
+  std::vector<Eigen::VectorXd> Track_LA( int _robotId,
+					 const Eigen::VectorXi &_links,
+					 const Eigen::VectorXd &_start,
+					 std::string _EEName,
+					 int _EEId,
+					 std::vector<int> _constraints,
+					 const std::vector<Eigen::VectorXd> _WSPath,
+					 int _maxChain = 10,
+					 int _numCoeff = 11,
+					 double _minCoeff = -10.0,
+					 double _maxCoeff = 10.0 );  
   
-  std::vector<int> SortVector( std::vector<double> _vals );
+  
+  bool GoToPose_LA( Eigen::VectorXd &_q, 
+		    std::vector<Eigen::VectorXd> _targetWindow, 
+		    std::vector<Eigen::VectorXd> &_jointPath );
+  bool Getdq_LA( Eigen::VectorXd _q, 
+		 Eigen::VectorXd _s,
+		 std::vector<Eigen::VectorXd> &_configSet,
+		 std::vector<Eigen::VectorXd> &_coeffSet );
  
   //------ Backtrack function: Window 2 ------//
   std::vector<Eigen::VectorXd> Track_BT2( int _robotId,
@@ -86,7 +84,12 @@ class IKSearch : public IK {
   bool GenerateNSSet( Eigen::VectorXd _q,
 		      Eigen::VectorXd _s,
 		      std::vector<Eigen::VectorXd> &_qSet,
-		      std::vector<Eigen::VectorXd> &_coeffSet );
+		      std::vector<int> &_prioritySet,
+		      std::vector<double> &_valSet );
+
+  void SortNS( std::vector<Eigen::VectorXd> _configs, 
+	       std::vector<double> &_vals,
+	       std::vector<int> &_priority );
 
   //--------------------------------------------//
   std::vector<Eigen::VectorXd> NS_ChainSearch( int _robotId, 
@@ -131,6 +134,8 @@ class IKSearch : public IK {
 
   /// BT_2
   std::vector< std::vector<Eigen::VectorXd> > NSSet;
+  std::vector< std::vector<double> > NSValues;
+  std::vector< std::vector<int> > NSPriority;
 };
 
 #endif /** _IK_SEARCH_ */
