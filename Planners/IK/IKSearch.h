@@ -1,7 +1,7 @@
 /**
  * @file IKSearch
  * @author A. Huaman
- * @date 2012-06-08
+ * @date 2012-06-08 - modified 2012-06-24
  */
 
 #ifndef _IK_SEARCH_
@@ -46,7 +46,7 @@ class IKSearch : public IK {
   // ** NS Specific functions **
   Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
 
-  //------- My function -------//
+  //------- Look-ahead function -------//
   std::vector<Eigen::VectorXd> Track_LJM( int _robotId,
 					  const Eigen::VectorXi &_links,
 					  const Eigen::VectorXd &_start,
@@ -69,8 +69,26 @@ class IKSearch : public IK {
 		  std::vector<Eigen::VectorXd> &_coeffSet );
   
   std::vector<int> SortVector( std::vector<double> _vals );
-  //------------------------------//
-  
+ 
+  //------ Backtrack function: Window 2 ------//
+  std::vector<Eigen::VectorXd> Track_BT2( int _robotId,
+					  const Eigen::VectorXi &_links,
+					  const Eigen::VectorXd &_start,
+					  std::string _EEName,
+					  int _EEId,
+					  std::vector<int> _constraints,
+					  const std::vector<Eigen::VectorXd> _WSPath,
+					  int _maxChain = 10,
+					  int _numCoeff = 11,
+					  double _minCoeff = -10.0,
+					  double _maxCoeff = 10.0 );  
+
+  bool GenerateNSSet( Eigen::VectorXd _q,
+		      Eigen::VectorXd _s,
+		      std::vector<Eigen::VectorXd> &_qSet,
+		      std::vector<Eigen::VectorXd> &_coeffSet );
+
+  //--------------------------------------------//
   std::vector<Eigen::VectorXd> NS_ChainSearch( int _robotId, 
 					       const Eigen::VectorXi &_links,
 					       const Eigen::VectorXd _NSConf,
@@ -110,6 +128,9 @@ class IKSearch : public IK {
   Eigen::VectorXd mCoeff1_JRM;
   Eigen::VectorXd mCoeff2_JRM;
   double* mCoeff;
+
+  /// BT_2
+  std::vector< std::vector<Eigen::VectorXd> > NSSet;
 };
 
 #endif /** _IK_SEARCH_ */

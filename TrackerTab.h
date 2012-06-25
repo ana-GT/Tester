@@ -48,7 +48,7 @@ class TrackerTab : public GRIPTab
   IK *mIk;
   std::vector<Eigen::VectorXd> mExecutePath;
   std::vector<Eigen::VectorXd> mTrackPath;
-  std::vector<Eigen::VectorXd> mTrackLJMPath;
+  std::vector<Eigen::VectorXd> mTrack_BT2_Path;
 
   Eigen::VectorXd mNSConf;
 

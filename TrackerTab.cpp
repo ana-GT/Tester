@@ -16,13 +16,13 @@ enum TrackerTabEvents {
   button_TrackB = 50,
   button_TrackG,
   button_TrackS,
-  button_TrackS_LJM,
+  button_TrackS_BT2,
   button_ExecuteB,
   button_ExecuteG,
   button_ExecuteS,
-  button_ExecuteS_LJM,
+  button_ExecuteS_BT2,
   button_Plot1S,
-  button_Plot1S_LJM,
+  button_Plot1S_BT2,
   button_SearchNS,
   button_ShowNS,
   button_PlotNS,
@@ -117,13 +117,13 @@ GRIPTab( parent, id, pos, size, style ) {
   SButtonSizer->Add( new wxButton( this, button_Plot1S, _T("Plot") ),
 		     1, wxALIGN_NOT );
 
-  // ** Button sizer LJM**
+  // ** Button sizer BT2**
   wxBoxSizer *SButtonSizer1 = new wxBoxSizer( wxHORIZONTAL );
-  SButtonSizer1->Add( new wxButton( this, button_TrackS_LJM, _T("Track LJM") ),
+  SButtonSizer1->Add( new wxButton( this, button_TrackS_BT2, _T("Track BT2") ),
 		     1, wxALIGN_NOT );
-  SButtonSizer1->Add( new wxButton( this, button_ExecuteS_LJM, _T("Execute") ),
+  SButtonSizer1->Add( new wxButton( this, button_ExecuteS_BT2, _T("Execute") ),
 		     1, wxALIGN_NOT );
-  SButtonSizer1->Add( new wxButton( this, button_Plot1S_LJM, _T("Plot") ),
+  SButtonSizer1->Add( new wxButton( this, button_Plot1S_BT2, _T("Plot") ),
 		     1, wxALIGN_NOT );
 
   // Add sizers to GBoxSizer 
@@ -297,7 +297,7 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     break;
     
     /** Track Search LJM  IK */
-  case button_TrackS_LJM: {
+  case button_TrackS_BT2: {
     std::vector<int> constraints(6); 
     constraints[0] = 1;
     constraints[1] = 1;
@@ -314,17 +314,17 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
 
 
     IKSearch* ik = new IKSearch( *mWorld, mCollision );
-    mTrackLJMPath = ik->Track_LJM( gRobotId,
-				   gLinks,
-				   gStartConf,
-				   gEEName,
-				   gEEId,
-				   constraints,
-				   gPosePath,
-				   10, // maxChain
-				   numCoeff,
-				   minCoeff,
-				   maxCoeff );
+    mTrack_BT2_Path = ik->Track_BT2( gRobotId,
+				     gLinks,
+				     gStartConf,
+				     gEEName,
+				     gEEId,
+				     constraints,
+				     gPosePath,
+				     10, // maxChain
+				     numCoeff,
+				     minCoeff,
+				     maxCoeff );
     delete ik;
   }
     break;
@@ -348,9 +348,9 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   }
     break;
 
-    /** Execute Search LJM IK */
-  case button_ExecuteS_LJM: {
-    SetTimeline( mTrackLJMPath, 5.0 );
+    /** Execute Search BT2 IK */
+  case button_ExecuteS_BT2: {
+    SetTimeline( mTrack_BT2_Path, 5.0 );
   }
     break;
 
@@ -360,8 +360,8 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   } break;
 
     /** Plot LJM Joint evolution vs step */
-  case button_Plot1S_LJM: {
-    plotVariables( mTrackLJMPath, "t", "joint", "Joint", "LJM Joints vs t" );
+  case button_Plot1S_BT2: {
+    plotVariables( mTrack_BT2_Path, "t", "joint", "Joint", "BT2 Joints vs t" );
   } break;
 
     /** Set Pose for NS Evaluation */
