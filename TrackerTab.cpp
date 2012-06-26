@@ -379,17 +379,18 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
 
 
     IKSearch* ik = new IKSearch( *mWorld, mCollision );
-    mTrack_BT3_Path = ik->Track_BT3( gRobotId,
-				     gLinks,
-				     gStartConf,
-				     gEEName,
-				     gEEId,
-				     constraints,
-				     gPosePath,
-				     10, // maxChain
-				     numCoeff,
-				     minCoeff,
-				     maxCoeff );
+    mTrack_BT3_Path = ik->Track_BT( gRobotId,
+				    gLinks,
+				    gStartConf,
+				    gEEName,
+				    gEEId,
+				    constraints,
+				    gPosePath,
+				    2,
+				    10, // maxChain
+				    numCoeff,
+				    minCoeff,
+				    maxCoeff );
     delete ik;
   }
     break;

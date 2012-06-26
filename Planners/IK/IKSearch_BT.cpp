@@ -70,18 +70,22 @@ std::vector<Eigen::VectorXd> IKSearch::Track_BT( int _robotId,
 
       if( found == true ) {
 	printf("-- [%d] Backtrack made to element in NS Set \n", i );
+	GenerateNSSet( qPath[i-1], _WSPath[i], qSet, heapSet, valSet );
+
       }
       else {
 	printf("-- [%d] Backtrack failed - Stopping \n", i );
 	return qPath;
       }
     }
-    
-    NSSet.push_back( qSet );
-    NSPriority.push_back( heapSet );
-    NSValues.push_back( valSet );
-    q = NSSet[i][ NSPriority[i][0] ];
-    qPath.push_back(q);
+
+    else {
+      NSSet.push_back( qSet );
+      NSPriority.push_back( heapSet );
+      NSValues.push_back( valSet );
+      q = NSSet[i][ NSPriority[i][0] ];
+      qPath.push_back(q);
+    }
   }
   
   printf( "*** Track End - IK BT *** \n" );
@@ -203,7 +207,7 @@ void IKSearch::ClearAhead( int _i,
 			   std::vector< std::vector<int> > &_heapSet,
 			   std::vector< std::vector<double> > &_valSet ) {
   
-  if( _w == 0 ) {
+  if( _w == 1 ) {
     return;
   }
 
@@ -213,7 +217,7 @@ void IKSearch::ClearAhead( int _i,
       _heapSet[ _i-j ].resize(0);
       _valSet[ _i-j ].resize(0);
 
-      Heap_Pop( _heapSet[ _i-(_w+1) ], _valSet[ _i-(_w+1) ] );
+      Heap_Pop( _heapSet[ _i-_w ], _valSet[ _i-_w] );
     }
   }
 }
