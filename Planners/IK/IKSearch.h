@@ -108,6 +108,51 @@ class IKSearch : public IK {
 
   void TrackReset();
 
+  //------ Backtrack function ------//
+  std::vector<Eigen::VectorXd> Track_BT( int _robotId,
+					 const Eigen::VectorXi &_links,
+					 const Eigen::VectorXd &_start,
+					 std::string _EEName,
+					 int _EEId,
+					 std::vector<int> _constraints,
+					 const std::vector<Eigen::VectorXd> _WSPath,
+					 int _window = 3,
+					 int _maxChain = 10,
+					 int _numCoeff = 11,
+					 double _minCoeff = -10.0,
+					 double _maxCoeff = 10.0 );
+
+  bool BackTrack( int _i, 
+		  int _window, 
+		  int _maxWindow, 
+		  std::vector< std::vector<Eigen::VectorXd> > &_qSet,
+		  std::vector< std::vector<int> > &_heapSet,
+		  std::vector< std::vector<double> > &_valSet,
+		  std::vector< Eigen::VectorXd > &_qPath,
+		  const std::vector<Eigen::VectorXd> &_WSPath );
+
+  bool ForwardSearch( int _i,
+		      int _window,
+		      int _maxWindow,
+		      std::vector< std::vector<Eigen::VectorXd> > &_qSet,
+		      std::vector< std::vector<int> > &_heapSet,
+		      std::vector< std::vector<double> > &_valSet,
+		      std::vector< Eigen::VectorXd > &_qPath,
+		      const std::vector<Eigen::VectorXd> &_WSPath ); 
+  
+
+  void ClearAhead( int _i, 
+		   int _w,
+		   std::vector< std::vector<Eigen::VectorXd> > &_qSet,
+		   std::vector< std::vector<int> > &_heapSet,
+		   std::vector< std::vector<double> > &_valSet );
+    
+  void UpdateBackTrack( int _i,
+			int _window,
+			std::vector< std::vector<Eigen::VectorXd> > &_qSet,
+			const std::vector< std::vector<int> > &_heapSet,
+			std::vector< Eigen::VectorXd > &_qPath );
+
   //--------------------------------------------//
   std::vector<Eigen::VectorXd> NS_ChainSearch( int _robotId, 
 					       const Eigen::VectorXi &_links,
