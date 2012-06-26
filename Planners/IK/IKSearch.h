@@ -91,6 +91,23 @@ class IKSearch : public IK {
 	       std::vector<double> &_vals,
 	       std::vector<int> &_priority );
 
+
+  //------ Backtrack function: Window 3 ------//
+  std::vector<Eigen::VectorXd> Track_BT3( int _robotId,
+					  const Eigen::VectorXi &_links,
+					  const Eigen::VectorXd &_start,
+					  std::string _EEName,
+					  int _EEId,
+					  std::vector<int> _constraints,
+					  const std::vector<Eigen::VectorXd> _WSPath,
+					  int _maxChain = 10,
+					  int _numCoeff = 11,
+					  double _minCoeff = -10.0,
+					  double _maxCoeff = 10.0 );  
+
+
+  void TrackReset();
+
   //--------------------------------------------//
   std::vector<Eigen::VectorXd> NS_ChainSearch( int _robotId, 
 					       const Eigen::VectorXi &_links,
@@ -132,10 +149,11 @@ class IKSearch : public IK {
   Eigen::VectorXd mCoeff2_JRM;
   double* mCoeff;
 
-  /// BT_2
+  /// BT_2 / BT_3
   std::vector< std::vector<Eigen::VectorXd> > NSSet;
   std::vector< std::vector<double> > NSValues;
   std::vector< std::vector<int> > NSPriority;
 };
 
 #endif /** _IK_SEARCH_ */
+
