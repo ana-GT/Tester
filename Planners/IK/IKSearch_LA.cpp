@@ -4,7 +4,7 @@
  */
 
 #include "IKSearch.h"
-#include <algorithm>
+#include "BinaryHeap.h"
 
 /**
  * @function Track_LA
@@ -17,11 +17,15 @@ std::vector< Eigen::VectorXd > IKSearch::Track_LA( int _robotId,
 						   int _EEId,
 						   std::vector<int> _constraints,
 						   const std::vector<Eigen::VectorXd> _WSPath,
+						   int _window,
 						   int _maxChain,
 						   int _numCoeff,
 						   double _minCoeff,
 						   double _maxCoeff ) {
   
+  //-- Reset from (possible) old runs
+  TrackReset();
+
   //-- Get coeff for nullspace
   GetCoeff( _numCoeff, _minCoeff, _maxCoeff );
   
@@ -31,150 +35,139 @@ std::vector< Eigen::VectorXd > IKSearch::Track_LA( int _robotId,
   //-- Get coeff for JRM Measurement
   GetCoeff_JRM();
   
-  //-- Track path
-  printf("*** Track Start -- IK Search LA *** \n");
-  std::vector< Eigen::VectorXd > jointPath;
+  //-- Track path with look-ahead heuristic
+  int numPoints = _WSPath.size();
+
+  printf("*** Track Start -- IK  LA (%d points) - window size = %d *** \n", numPoints, _window );
+  std::vector< Eigen::VectorXd > qPath;
   Eigen::VectorXd q;
   
-  int numPoints = _WSPath.size();
+  NSSet.resize( numPoints );
+  NSPriority.resize( numPoints );
+  NSValues.resize( numPoints );
   
   //.. Initialize	
   q = _start;
+  qPath.push_back( q );
+
+  NSSet[0].push_back( q );
+  NSPriority[0].push_back(0);
+  NSValues[0].push_back( JRM_Measure(q) );
+
+  bool found;
   
-  int mWindow = 2;
-  for( size_t i = 1; i < numPoints - mWindow + 1; ++i ) {
-    printf("[%d] ... Tracking LA ... \n ", i );
-    std::vector<Eigen::VectorXd> windowPathSubset;
-    for( size_t j = i; j < i + mWindow; ++j ) {
-      windowPathSubset.push_back( _WSPath[j] );
-    } 
- 
-    if( GoToPose_LA( q, windowPathSubset, jointPath ) == false ) {
-      printf( " [%d] (!) -- GoToPose returned false \n", i );
-      break;
-    }      
-  } 
-  
-  printf(" *** Track End -- IK Search *** \n");
-  return jointPath;  
+  for( size_t i = 1; i < numPoints - _window; ++i ) {
+    printf("--> Workspace path [%d] \n ", i );
+    //-- Look Ahead for all
+    found = LookAhead( i, 0, _window, NSSet, NSPriority, NSValues, qPath, _WSPath );
+
+    if( found == false ) {
+      printf("-- [%d] LookAhead failed -- Stopping \n", i );
+      return qPath;
+    }
+
+    else {
+      /** Push last q */
+      qPath.push_back( NSSet[i][ NSPriority[i][0] ]);
+
+      if( i == numPoints - _window - 1 ) {
+	for( size_t j = i+1; j <= i+ _window; ++j ) {
+	  qPath.push_back( NSSet[j][ NSPriority[j][0] ] );
+	}
+      }
+
+      //-- Clean for next one
+      ClearAhead_LA( i, _window, NSSet, NSPriority, NSValues );
+    }
+
+  }
+
+  printf("*** Track LookAhead End - IK LA *** \n");
+  return qPath;
 }
 
 /**
- * @function GoToPose_LA
+ * @function LookAhead
+ * @brief Similar to ForwardSearch of BT but with a few mods
  */
-bool IKSearch::GoToPose_LA( Eigen::VectorXd &_q, 
-			    std::vector<Eigen::VectorXd> _targetWindow, 
-			    std::vector<Eigen::VectorXd> &_jointPath ) {
+bool IKSearch::LookAhead( int _i,
+			  int _window,
+			  int _maxWindow,
+			  std::vector< std::vector<Eigen::VectorXd> > &_qSet,
+			  std::vector< std::vector<int> > &_heapSet,
+			  std::vector< std::vector<double> > &_valSet,
+			  std::vector< Eigen::VectorXd > &_qPath,
+			  const std::vector<Eigen::VectorXd> &_WSPath ) {
   
-  Eigen::VectorXd q; 
-  Eigen::VectorXd dq;
-  Eigen::VectorXd ds; 
-  std::vector<Eigen::VectorXd> temp;
-  
-  // Initialize
-  q = _q;
-  ds = GetPoseError( GetPose( q ), _targetWindow[0] );
+  int i = _i;
+  int w = _window;
+  int maxW = _maxWindow;
+  bool found = false;
+  bool b;
 
-  // TEMP VARIABLES
-
-  std::vector<Eigen::VectorXd> qSet;
-  std::vector<Eigen::VectorXd> cSet;
-  std::vector<Eigen::VectorXd> qSet1;
-  std::vector<Eigen::VectorXd> cSet1;
-
-  // Find the possible solutions for targetWindow[0]
-  Getdq_LA( q, _targetWindow[0], qSet, cSet );
-
-  for( int i = 0; i < qSet.size(); ++i ) {
-    if( Getdq_LA( qSet[i], _targetWindow[1], qSet1, cSet1 ) == true ) {
-      _q = qSet[i];
-      temp.push_back( _q );
-      _jointPath.insert( _jointPath.end(), temp.begin(), temp.end() );
-      return true;
-    }    
+  if( w == 0 ) {
+    b = GenerateNSSet( _qPath[i+w-1], _WSPath[i+w], _qSet[i+w], _heapSet[i+w], _valSet[i+w] );
+    if( b == false ) { return false; }
   }
-  
-  printf( "Did not find solution with window = 2 \n" );
-  return false;
-}  
+
+  //-- Clean the posterior stuff and the present value
+  //ClearAhead_LA( i, w, _qSet, _heapSet, _valSet );
+
+  while( _heapSet[ i+w ].size() > 0 &&
+	 found == false ) {
+    bool b = GenerateNSSet( _qSet[ i+w ][ _heapSet[i+w][0] ], 
+			    _WSPath[i+w+1], 
+			    _qSet[i+w+1], _heapSet[i+w+1], _valSet[i+w+1] );
+
+    //-- If found 
+    if( b == true ) {
+      //-- Still not in the frontier (i-w,... i-3, i-2, i-1, i)
+      if( w < maxW - 1 ) {
+	found = LookAhead( i, w+1, maxW, _qSet, _heapSet, _valSet, _qPath, _WSPath );
+      }
+      else {
+	found = true;
+      }
+    }
+    /** Go next one */
+    else {
+      Heap_Pop( _heapSet[i+w], _valSet[i+w] );
+    }
+      
+  } // end main while
+
+
+  //-- If it got out of while but did not find a solution
+  if( found == false ) {
+    if( w == 0 ) {
+      return false;
+    }
+    else {
+      Heap_Pop( _heapSet[ i + w -1 ], _valSet[ i+ w - 1 ] );
+    }
+  }
+
+  //-- Got out of the loop and found a solution
+  else {
+      return true;
+  }
+
+}
 
 /**
- * @function Getdq_LA
+ * @function ClearAhead
  */
-bool IKSearch::Getdq_LA( Eigen::VectorXd _q, 
-			 Eigen::VectorXd _s,
-			 std::vector<Eigen::VectorXd> &_configSet,
-			 std::vector<Eigen::VectorXd> &_coeffSet ) {
-  
-  std::vector<double> _valSet;
-  
-  //-- Direct search
-  Eigen::VectorXd dq;
-  Eigen::VectorXd qp;
-  Eigen::VectorXd qh;
-  Eigen::VectorXd qtemp;
-  Eigen::MatrixXd ns;
-  Eigen::VectorXd ds;
-  Eigen::MatrixXd J;
+void IKSearch::ClearAhead_LA( int _i, 
+			      int _w,
+			      std::vector< std::vector<Eigen::VectorXd> > &_qSet,
+			      std::vector< std::vector<int> > &_heapSet,
+			      std::vector< std::vector<double> > &_valSet ) {
 
-  ds = GetPoseError( GetPose( _q ), _s );
-  J = GetJ(_q);
-  qp = GetJps(J)*ds;
-  ns = GetNS_Basis( J );
-
-  bool found = false;
-  int count = 0;
-  int countvalid = 0;
-
-  Eigen::VectorXd mindq;
-  double minJRM; double tempJRM;
-  
-  std::cout<< "Getdq_LA" << std::endl;
-  for( int a = 0; a < mNumCoeff; ++a ) {
-    for( int b = 0; b < mNumCoeff; ++b ) {
-      for( int c = 0; c < mNumCoeff; ++c ) {
-	for( int d = 0; d < 1; ++d ) { // *** TRIAL!! ***
-	  // Coeff
-	  Eigen::VectorXd coeff(4); coeff << mCoeff[a], mCoeff[b], mCoeff[c], mCoeff[d];
-	  qh = qp + ns*coeff ;
-	  
-	  if( GetPoseError(_s, GetPose(_q + qh)).norm() <  mPoseThresh  ) {
-	    countvalid++;
-	    
-	    // Check collisions
-	    if( CheckCollisionConfig( _q + qh ) == false && 
-		IsInLim( (_q + qh) ) == true ) {  
-
-	      found = true; count++;
-	      double val = JRM_Measure( _q + qh );
-
-	      _configSet.push_back( _q + qh );
-	      _coeffSet.push_back( coeff );
-	      _valSet.push_back( val );
-
-	      if( mindq.size() == 0 ) {
-		mindq = qh;
-		minJRM = val;
-	      }
-	      else {
-		if( val < minJRM ) {
-		  minJRM = val;
-		  mindq = qh;
-		}
-	      }
-	      
-	    } // end if Collision	
-	  } // end if GetPoseError
-	  
-	} // for a
-      } // for b
-    } // for c
-  } // for d
-
-  if( found == true ) {
-    _configSet[0] = mindq + _q;
-    //SortVector( _valSet );
-  }
-  return found;
+    for( size_t j = 1; j <= _w; ++j ) {
+      _qSet[ _i + j ].resize(0);
+      _heapSet[ _i + j ].resize(0);
+      _valSet[ _i + j ].resize(0);
+    }
+  return;
 }
 

@@ -35,7 +35,7 @@ std::vector<Eigen::VectorXd> IKSearch::Track_BT( int _robotId,
   //-- Get coeff for JRM Measurement
   GetCoeff_JRM();
 
-  //-- Track path with backtrack 2
+  //-- Track path with backtrack
   int numPoints = _WSPath.size();
 
   printf("*** Track Start - IK BT (%d points) - window size = %d *** \n", numPoints, _window );
@@ -172,6 +172,9 @@ bool IKSearch::ForwardSearch( int _i,
   }
 
 }
+
+
+
 
 /**
  * @function UpdateBackTrack

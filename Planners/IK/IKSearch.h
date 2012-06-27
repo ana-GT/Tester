@@ -47,27 +47,34 @@ class IKSearch : public IK {
   Eigen::MatrixXd GetNS_Basis( Eigen::MatrixXd _J );
 
   //------- Look-ahead function -------//
-  std::vector<Eigen::VectorXd> Track_LA( int _robotId,
-					 const Eigen::VectorXi &_links,
-					 const Eigen::VectorXd &_start,
-					 std::string _EEName,
-					 int _EEId,
-					 std::vector<int> _constraints,
-					 const std::vector<Eigen::VectorXd> _WSPath,
-					 int _maxChain = 10,
-					 int _numCoeff = 11,
-					 double _minCoeff = -10.0,
-					 double _maxCoeff = 10.0 );  
-  
-  
-  bool GoToPose_LA( Eigen::VectorXd &_q, 
-		    std::vector<Eigen::VectorXd> _targetWindow, 
-		    std::vector<Eigen::VectorXd> &_jointPath );
-  bool Getdq_LA( Eigen::VectorXd _q, 
-		 Eigen::VectorXd _s,
-		 std::vector<Eigen::VectorXd> &_configSet,
-		 std::vector<Eigen::VectorXd> &_coeffSet );
+ std::vector< Eigen::VectorXd > Track_LA( int _robotId,
+					  const Eigen::VectorXi &_links,
+					  const Eigen::VectorXd &_start,  
+					  std::string _EEName,
+					  int _EEId,
+					  std::vector<int> _constraints,
+					  const std::vector<Eigen::VectorXd> _WSPath,
+					  int _window = 3,
+					  int _maxChain = 10,
+					  int _numCoeff = 11,
+					  double _minCoeff = -10.0,
+					  double _maxCoeff = 10.0 );
  
+ bool LookAhead( int _i,
+		 int _window,
+		 int _maxWindow,
+		 std::vector< std::vector<Eigen::VectorXd> > &_qSet,
+		 std::vector< std::vector<int> > &_heapSet,
+		 std::vector< std::vector<double> > &_valSet,
+		 std::vector< Eigen::VectorXd > &_qPath,
+		 const std::vector<Eigen::VectorXd> &_WSPath );
+
+ void ClearAhead_LA( int _i, 
+		     int _w,
+		     std::vector< std::vector<Eigen::VectorXd> > &_qSet,
+		     std::vector< std::vector<int> > &_heapSet,
+		     std::vector< std::vector<double> > &_valSet );
+   
   //------ Backtrack function: Window 2 ------//
   std::vector<Eigen::VectorXd> Track_BT2( int _robotId,
 					  const Eigen::VectorXi &_links,

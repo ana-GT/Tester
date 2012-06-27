@@ -260,6 +260,7 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
 				   gEEId,
 				   constraints,
 				   gPosePath,
+				   (int) la_window,
 				   10, // maxChain
 				   numCoeff,
 				   minCoeff,
