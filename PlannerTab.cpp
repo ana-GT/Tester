@@ -310,7 +310,12 @@ void PlannerTab::OnButton(wxCommandEvent &evt) {
       double temp;
       mPathIndex->GetValue().ToDouble(&temp);
       int n = (int) temp;
-      gPosePath = mWorkspacePaths[n];      
+      gPosePath = mWorkspacePaths[n];  
+
+	  printf("--Saving path %d \n", n);
+	  for( size_t i = 0; i < gPosePath.size(); ++i ) {
+			std::cout << gPosePath[i].transpose() << std::endl;
+	  }    
     }
       break;
 

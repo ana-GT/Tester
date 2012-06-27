@@ -42,36 +42,29 @@ std::vector<Eigen::VectorXd> IKSearch::Track_BT( int _robotId,
   std::vector<Eigen::VectorXd> qPath;
   Eigen::VectorXd q;
 
-  std::vector<Eigen::VectorXd> qSet;
-  std::vector<int> heapSet;
-  std::vector<double> valSet;
+  NSSet.resize( numPoints );
+  NSPriority.resize( numPoints );
+  NSValues.resize( numPoints );
 
   //.. Initialize
   q = _start;
   qPath.push_back( q );
 
-  qSet.push_back( q );
-  NSSet.push_back( qSet );
-
-  heapSet.push_back(0);
-  NSPriority.push_back( heapSet );
-
-  valSet.push_back( JRM_Measure(q) );
-  NSValues.push_back( valSet);
+  NSSet[0].push_back( q );
+  NSPriority[0].push_back(0);
+  NSValues[0].push_back( JRM_Measure(q) );
 
   bool found;
 
   for( size_t i = 1; i < numPoints; ++i ) {
     printf("--> Workspace path [%d] \n", i );
-    if( GenerateNSSet( qPath[i-1], _WSPath[i], qSet, heapSet, valSet ) == false ) {
+    if( GenerateNSSet( qPath[i-1], _WSPath[i], NSSet[i], NSPriority[i], NSValues[i] ) == false ) {
       
       //-- Backtrack
       found = BackTrack( i, 1, _window, NSSet, NSPriority, NSValues, qPath, _WSPath );
 
       if( found == true ) {
-	printf("-- [%d] Backtrack made to element in NS Set \n", i );
-	GenerateNSSet( qPath[i-1], _WSPath[i], qSet, heapSet, valSet );
-
+	printf("-- [%d] Backtrack made to element in NS Set \n", i ); 
       }
       else {
 	printf("-- [%d] Backtrack failed - Stopping \n", i );
@@ -79,13 +72,10 @@ std::vector<Eigen::VectorXd> IKSearch::Track_BT( int _robotId,
       }
     }
 
-    else {
-      NSSet.push_back( qSet );
-      NSPriority.push_back( heapSet );
-      NSValues.push_back( valSet );
+    
       q = NSSet[i][ NSPriority[i][0] ];
       qPath.push_back(q);
-    }
+    
   }
   
   printf( "*** Track End - IK BT *** \n" );
@@ -206,18 +196,17 @@ void IKSearch::ClearAhead( int _i,
 			   std::vector< std::vector<Eigen::VectorXd> > &_qSet,
 			   std::vector< std::vector<int> > &_heapSet,
 			   std::vector< std::vector<double> > &_valSet ) {
-  
-  if( _w == 1 ) {
-    return;
-  }
 
-  else {
-    for( size_t j = 1; j <= _w; ++j ) {
+  Heap_Pop( _heapSet[ _i-_w ], _valSet[ _i-_w] );
+
+  if( _w > 1 ) {
+    for( size_t j = 1; j < _w; ++j ) {
       _qSet[ _i-j ].resize(0);
       _heapSet[ _i-j ].resize(0);
       _valSet[ _i-j ].resize(0);
-
-      Heap_Pop( _heapSet[ _i-_w ], _valSet[ _i-_w] );
     }
   }
+
+  return;
 }
+

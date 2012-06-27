@@ -139,7 +139,7 @@ GRIPTab( parent, id, pos, size, style ) {
   
   // ** Button sizer BT3 (Backtrack) **
   wxBoxSizer *SButtonSizer2 = new wxBoxSizer( wxHORIZONTAL );
-  SButtonSizer2->Add( new wxButton( this, button_TrackS_BT3, _T("Track BT3") ),
+  SButtonSizer2->Add( new wxButton( this, button_TrackS_BT3, _T("Track BT") ),
 		      1, wxALIGN_NOT );
   SButtonSizer2->Add( new wxButton( this, button_ExecuteS_BT3, _T("Execute") ),
 		      1, wxALIGN_NOT );
@@ -386,7 +386,7 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
 				    gEEId,
 				    constraints,
 				    gPosePath,
-				    2,
+				    4,
 				    10, // maxChain
 				    numCoeff,
 				    minCoeff,
