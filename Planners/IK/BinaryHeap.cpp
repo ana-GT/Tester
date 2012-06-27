@@ -64,7 +64,7 @@ int Heap_Pop( std::vector<int> &_heap,
   int temp;
 
   if( _heap.size() == 0 )
-    { printf("(!)-- ERROR ! No more elements left \n");return -1; }
+    { printf("--(!) [Heap_Pop] No more elements left -- return index (-1)\n");return -1; }
 
   // Save the pop-out element
   first = _heap[0];

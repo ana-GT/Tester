@@ -71,8 +71,7 @@ std::vector<Eigen::VectorXd> IKSearch::Track_BT( int _robotId,
 	return qPath;
       }
     }
-
-    
+    /** Add last q */
       q = NSSet[i][ NSPriority[i][0] ];
       qPath.push_back(q);
     
@@ -94,6 +93,7 @@ bool IKSearch::BackTrack( int _i,
 			  std::vector< Eigen::VectorXd > &_qPath,
 			  const std::vector<Eigen::VectorXd> &_WSPath ) {
 
+  printf( " -- BackTrack at [%d] - window level: %d / %d \n", _i, _window, _maxWindow );
   /** If window < maxWindow */
   if( _window < _maxWindow ) {
     if( ForwardSearch( _i, _window, _maxWindow, _qSet, _heapSet, _valSet, _qPath, _WSPath ) == false ) {
@@ -196,8 +196,6 @@ void IKSearch::ClearAhead( int _i,
 			   std::vector< std::vector<Eigen::VectorXd> > &_qSet,
 			   std::vector< std::vector<int> > &_heapSet,
 			   std::vector< std::vector<double> > &_valSet ) {
-
-  Heap_Pop( _heapSet[ _i-_w ], _valSet[ _i-_w] );
 
   if( _w > 1 ) {
     for( size_t j = 1; j < _w; ++j ) {
