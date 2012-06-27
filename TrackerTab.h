@@ -48,18 +48,17 @@ class TrackerTab : public GRIPTab
   IK *mIk;
   std::vector<Eigen::VectorXd> mExecutePath;
   std::vector<Eigen::VectorXd> mTrackPath;
-  std::vector<Eigen::VectorXd> mTrack_BT2_Path;
-  std::vector<Eigen::VectorXd> mTrack_BT3_Path;
+  std::vector<Eigen::VectorXd> mTrack_BT_Path;
   std::vector<Eigen::VectorXd> mTrack_LA_Path;
 
   Eigen::VectorXd mNSConf;
 
-  wxTextCtrl *mW_ManipG;
-  wxTextCtrl *mW_JraG;
+  wxTextCtrl *mBT_Window;
+  wxTextCtrl *mLA_Window;
 
-  wxTextCtrl *mNS_NumCoeff;
-  wxTextCtrl *mNS_MinCoeff;
-  wxTextCtrl *mNS_MaxCoeff;
+  wxTextCtrl *mNumCoeff;
+  wxTextCtrl *mMinCoeff;
+  wxTextCtrl *mMaxCoeff;
 
   // ***************************************
   // NEVER FORGET THIS!
