@@ -52,7 +52,6 @@ set( HDR_PLANNERS Planners/RRT/RRT.h
 set( SRC_IK Planners/IK/IK.cpp
   Planners/IK/IKSearch.cpp
   Planners/IK/IKSearch_LA.cpp
-  Planners/IK/IKSearch_BT2.cpp
   Planners/IK/IKSearch_BT.cpp
   Planners/IK/IKGradient.cpp)
 

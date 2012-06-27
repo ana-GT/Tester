@@ -74,47 +74,7 @@ class IKSearch : public IK {
 		     std::vector< std::vector<Eigen::VectorXd> > &_qSet,
 		     std::vector< std::vector<int> > &_heapSet,
 		     std::vector< std::vector<double> > &_valSet );
-   
-  //------ Backtrack function: Window 2 ------//
-  std::vector<Eigen::VectorXd> Track_BT2( int _robotId,
-					  const Eigen::VectorXi &_links,
-					  const Eigen::VectorXd &_start,
-					  std::string _EEName,
-					  int _EEId,
-					  std::vector<int> _constraints,
-					  const std::vector<Eigen::VectorXd> _WSPath,
-					  int _maxChain = 10,
-					  int _numCoeff = 11,
-					  double _minCoeff = -10.0,
-					  double _maxCoeff = 10.0 );  
-
-  bool GenerateNSSet( Eigen::VectorXd _q,
-		      Eigen::VectorXd _s,
-		      std::vector<Eigen::VectorXd> &_qSet,
-		      std::vector<int> &_prioritySet,
-		      std::vector<double> &_valSet );
-
-  void SortNS( std::vector<Eigen::VectorXd> _configs, 
-	       std::vector<double> &_vals,
-	       std::vector<int> &_priority );
-
-
-  //------ Backtrack function: Window 3 ------//
-  std::vector<Eigen::VectorXd> Track_BT3( int _robotId,
-					  const Eigen::VectorXi &_links,
-					  const Eigen::VectorXd &_start,
-					  std::string _EEName,
-					  int _EEId,
-					  std::vector<int> _constraints,
-					  const std::vector<Eigen::VectorXd> _WSPath,
-					  int _maxChain = 10,
-					  int _numCoeff = 11,
-					  double _minCoeff = -10.0,
-					  double _maxCoeff = 10.0 );  
-
-
-  void TrackReset();
-
+  
   //------ Backtrack function ------//
   std::vector<Eigen::VectorXd> Track_BT( int _robotId,
 					 const Eigen::VectorXi &_links,
@@ -160,6 +120,19 @@ class IKSearch : public IK {
 			const std::vector< std::vector<int> > &_heapSet,
 			std::vector< Eigen::VectorXd > &_qPath );
 
+  //------------------- For both BT and LA -------------------------//
+
+  bool GenerateNSSet( Eigen::VectorXd _q,
+		      Eigen::VectorXd _s,
+		      std::vector<Eigen::VectorXd> &_qSet,
+		      std::vector<int> &_prioritySet,
+		      std::vector<double> &_valSet );
+
+  void SortNS( std::vector<Eigen::VectorXd> _configs, 
+	       std::vector<double> &_vals,
+	       std::vector<int> &_priority );
+
+  void TrackReset();
   //--------------------------------------------//
   std::vector<Eigen::VectorXd> NS_ChainSearch( int _robotId, 
 					       const Eigen::VectorXi &_links,
