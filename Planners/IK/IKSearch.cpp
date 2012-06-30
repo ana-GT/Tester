@@ -5,6 +5,7 @@
  */
 
 #include "IKSearch.h"
+#include "BinaryHeap.h"
 
 /**
  * @function IKSearch
