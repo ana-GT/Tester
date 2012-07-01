@@ -6,6 +6,7 @@
 #ifndef _GLOBAL_STUFF_H_
 #define _GLOBAL_STUFF_H_
 
+#include <wx/wx.h>
 #include <string>
 #include <Eigen/Core>
 #include <planning/Robot.h>
@@ -20,6 +21,8 @@
 extern const int gNumRobotTypes;
 extern const wxString gWxRobotNames[];
 extern const char* gRobotNames[];
+extern const char* gEEId_A_Names[];
+extern const char* gEEId_B_Names[];
 
 //-- LWA3
 extern const int sNum_LA_Links_LWA3;
@@ -28,7 +31,6 @@ extern const char* sLA_Ids_LWA3[];
 //-- Barret
 extern const int sNum_LA_Links_Barret;
 extern const char* sLA_Ids_Barret[];
-
 // ***************************************
 
 enum eConfig{ ARM_A, ARM_B};
@@ -83,7 +85,7 @@ extern std::vector<Eigen::VectorXd> gPosePath_A;
 extern std::vector<Eigen::VectorXd> gPosePath_B;
 
 //-- General functions
-Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q );
-void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time = 5.0 );
-bool CheckCollisionConfig( Eigen::VectorXd _q );
+Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q, eConfig _which = ARM_A );
+void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time = 5.0, eConfig _which = ARM_A );
+bool CheckCollisionConfig( Eigen::VectorXd _q, eConfig _which = ARM_A );
 #endif /** _GLOBAL_STUFF_H_ */

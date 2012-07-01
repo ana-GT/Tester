@@ -95,7 +95,7 @@ class PlannerTab : public GRIPTab
 
   wxTextCtrl *mPathIndex_A;
 
-  // ***** Workspace Plan A *****
+  // ***** Workspace Plan B *****
   CheckProcess *mCp_B;
   LJM2 *mLjm2_B;
 
@@ -127,8 +127,9 @@ class PlannerTab : public GRIPTab
   int mNumPaths;
 
 
-  void WorkspacePlan(); 
- 
+  void WorkspacePlan_A(); 
+  void WorkspacePlan_B(); 
+
   // ****************************
 
     void GRIPStateChange();

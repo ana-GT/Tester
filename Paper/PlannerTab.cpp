@@ -191,8 +191,7 @@ GRIPTab(parent, id, pos, size, style ) {
   
   // Create sizer for this box with horizontal layout
   wxStaticBoxSizer* WSPlanner_BoxSizer = new wxStaticBoxSizer( WSPlanner_Box, wxVERTICAL );
-  
-  
+
   // LJM2 Parameters
   wxBoxSizer *LJM2Param_Sizer = new wxBoxSizer(wxHORIZONTAL);
   
@@ -209,14 +208,13 @@ GRIPTab(parent, id, pos, size, style ) {
   // -- Num Paths --
   wxBoxSizer *numPaths_Sizer = new wxBoxSizer(wxHORIZONTAL);
   wxStaticText *numPaths_Label = new wxStaticText( this, 1015, wxT(" Num Paths: ") );
-  mNumPathsText = new wxTextCtrl(this,1016,wxT("-0.2"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);//,wxTE_PROCESS_ENTER | wxTE_RIGHT);
+  mNumPathsText = new wxTextCtrl(this,1016,wxT("3"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);//,wxTE_PROCESS_ENTER | wxTE_RIGHT);
 
   numPaths_Sizer->Add( numPaths_Label, 0, wxALL, 1 );
   numPaths_Sizer->Add( mNumPathsText, 0, wxALL, 1 );
   
   LJM2Param_Sizer->Add( numPaths_Sizer, 0, wxALL, 1 );
-  
-    
+
   // -- * --
   WSPlanner_BoxSizer->Add( LJM2Param_Sizer, 0, wxALIGN_NOT, 1 );
 
@@ -237,6 +235,19 @@ GRIPTab(parent, id, pos, size, style ) {
 
   // -- * --
   WSPlanner_BoxSizer->Add( LJM2Run_Sizer, 1, wxALIGN_NOT ); 
+   
+  // **----- Add to sizerFull -----**
+  sizerFull_Planner->Add( WSPlanner_BoxSizer, 2, wxEXPAND | wxALL, 4 );
+ 
+  // ** SAVE PATHS FOR IK **
+
+  // Create StaticBox 
+  wxStaticBox* WSSave_Box = new wxStaticBox(this, -1, wxT("Save a Path"));
+  
+  // Create sizer for this box with horizontal layout
+  wxStaticBoxSizer* WSSave_BoxSizer = new wxStaticBoxSizer( WSSave_Box, wxVERTICAL ); 
+  
+
   
   // Save LJM2Path
     wxBoxSizer *LJM2Save_Sizer = new wxBoxSizer( wxVERTICAL );
@@ -255,8 +266,8 @@ GRIPTab(parent, id, pos, size, style ) {
     LJM2Save_A_Sizer->Add( pathIndex_A_Sizer, 0, wxALL, 1 );
 
     // -- Buttons A-- 
-    LJM2Save_A_Sizer->Add( new wxButton(this, button_Plot3DPath_A, wxT("Plot path A")), 0, wxALL, 1 );
-    LJM2Save_A_Sizer->Add( new wxButton(this, button_Save3DPath_A, wxT("Save path A")), 0, wxALL, 1 );
+    LJM2Save_A_Sizer->Add( new wxButton(this, button_Plot3DPath_A, wxT("Plot")), 0, wxALL, 1 );
+    LJM2Save_A_Sizer->Add( new wxButton(this, button_Save3DPath_A, wxT("Save")), 0, wxALL, 1 );
     
     LJM2Save_Sizer->Add( LJM2Save_A_Sizer, 0, wxALL, 1 );    
 
@@ -274,16 +285,16 @@ GRIPTab(parent, id, pos, size, style ) {
     LJM2Save_B_Sizer->Add( pathIndex_B_Sizer, 0, wxALL, 1 );
 
     // -- Buttons A-- 
-    LJM2Save_B_Sizer->Add( new wxButton(this, button_Plot3DPath_B, wxT("Plot path B")), 0, wxALL, 1 );
-    LJM2Save_B_Sizer->Add( new wxButton(this, button_Save3DPath_B, wxT("Save path B")), 0, wxALL, 1 );
+    LJM2Save_B_Sizer->Add( new wxButton(this, button_Plot3DPath_B, wxT("Plot")), 0, wxALL, 1 );
+    LJM2Save_B_Sizer->Add( new wxButton(this, button_Save3DPath_B, wxT("Save")), 0, wxALL, 1 );
     
     LJM2Save_Sizer->Add( LJM2Save_B_Sizer, 0, wxALL, 1 );    
 
     // --* -- 
-    WSPlanner_BoxSizer->Add( LJM2Save_Sizer, 1, wxALIGN_NOT ); 
+    WSSave_BoxSizer->Add( LJM2Save_Sizer, 1, wxALIGN_NOT ); 
 
-  // **----- Add to sizerFull -----**
-  sizerFull_Planner->Add( WSPlanner_BoxSizer, 2, wxEXPAND | wxALL, 4 );
+    // **----- Add to sizerFull -----**
+    sizerFull_Planner->Add( WSSave_BoxSizer, 2, wxEXPAND | wxALL, 4 );
     
   // ** SET SIZER FULL **
   SetSizer(sizerFull_Planner);
@@ -332,8 +343,8 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
       printf("      Get 3D Info     \n");
       printf("**********************\n");
       printf("--(!) Be sure to set start conf and target object or I will output rubbish \n");
-
-	  //-- Get data from Text	
+      
+      //-- Get data from Text	
       mSizeXText->GetValue().ToDouble( &gSizeX );
       mSizeYText->GetValue().ToDouble( &gSizeY );
       mSizeZText->GetValue().ToDouble( &gSizeZ );
@@ -341,13 +352,13 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
       mOriginXText->GetValue().ToDouble( &gOriginX );
       mOriginYText->GetValue().ToDouble( &gOriginY );
       mOriginZText->GetValue().ToDouble( &gOriginZ );
-
+      
       double temp;
       mPaddingText->GetValue().ToDouble( &temp );
       gPadding = (int) temp;
       mResolText->GetValue().ToDouble( &gResolution );
-
-	  //-- Create LJM2 Object
+      
+      //-- Create LJM2 Object
       mLjm2_A = new LJM2( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
       mCp_A = new CheckProcess( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
       mCp_A->getObjectsData( mWorld->mObjects, gTargetObjectName_A );  
@@ -358,7 +369,7 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
       printf(" (i) End process geometry (i)  \n");
     }		
     break;
-      
+    
     /** Plot 3D Configuration A */
   case button_Plot3DInfo_A:
     {
@@ -377,7 +388,7 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
     }		
     break;
 
-
+    
     /** Get 3D Info B */
   case button_Get3DInfo_B:
     {
@@ -385,12 +396,12 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
       printf("      Get 3D Info B    \n");
       printf("***********************\n");
       printf("--(!) Be sure to set start conf and target object or I will output rubbish \n");
-
-	  //-- Get data from Text	
+      
+      //-- Get data from Text	
       mSizeXText->GetValue().ToDouble( &gSizeX );
       mSizeYText->GetValue().ToDouble( &gSizeY );
       mSizeZText->GetValue().ToDouble( &gSizeZ );
-
+      
       mOriginXText->GetValue().ToDouble( &gOriginX );
       mOriginYText->GetValue().ToDouble( &gOriginY );
       mOriginZText->GetValue().ToDouble( &gOriginZ );
@@ -399,8 +410,8 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
       mPaddingText->GetValue().ToDouble( &temp );
       gPadding = (int) temp;
       mResolText->GetValue().ToDouble( &gResolution );
-
-	  //-- Create LJM2 Object
+      
+      //-- Create LJM2 Object
       mLjm2_B = new LJM2( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
       mCp_B = new CheckProcess( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
       mCp_B->getObjectsData( mWorld->mObjects, gTargetObjectName_B );  
@@ -411,7 +422,7 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
       printf(" (i) End process geometry (i)  \n");
     }		
     break;
-      
+    
     /** Plot 3D Configuration B */
   case button_Plot3DInfo_B:
     {
@@ -429,138 +440,158 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
       delete viewer;
     }		
     break;
-
     
-    /** Execute Plan A */
-      case button_Run_LJM2_A: {
-      //WorkspacePlan();
-      }
-      break;
-      
-      /** Plot 3D Paths_A */
-       case button_Plot3DPaths_A: {
-	 printf("*******************************\n");
-	 printf( "     Plotting 3D Paths A      \n");
-	 printf("*******************************\n");
-	 pcl::visualization::PCLVisualizer *viewer;
-	 viewer = new pcl::visualization::PCLVisualizer( "Workspace Paths A" );
-	 mLjm2_A->ViewObstacles( viewer, 0, 0, 255 );
-	 mLjm2_A->ViewPaths( mNodePaths_A, viewer );
-	 mLjm2_A->ViewBall( viewer, mStartNode_A(0), mStartNode_A(1), mStartNode_A(2), "Start" );
-	 mLjm2_A->ViewBall( viewer, mTargetNode_A(0), mTargetNode_A(1), mTargetNode_A(2), "Target" );
-      
-	 while( !viewer->wasStopped() ) {
-	 viewer->spin();
-	 }
-	 delete viewer; 
+    
+    /** Run LJM2 A */
+  case button_Run_LJM2_A: {
+
+    //-- Update the parameters
+    mAlphaText->GetValue().ToDouble( &mAlpha );
+    double temp;
+    mNumPathsText->GetValue().ToDouble( &temp );
+    mNumPaths = (int)temp;
+    //-- Execute
+    WorkspacePlan_A();
+  }
+    break;
+    
+    /** Plot 3D Paths_A */
+  case button_Plot3DPaths_A: {
+    printf("*******************************\n");
+    printf( "     Plotting 3D Paths A      \n");
+    printf("*******************************\n");
+    pcl::visualization::PCLVisualizer *viewer;
+    viewer = new pcl::visualization::PCLVisualizer( "Workspace Paths A" );
+    mLjm2_A->ViewObstacles( viewer, 0, 0, 255 );
+    mLjm2_A->ViewPaths( mNodePaths_A, viewer );
+    mLjm2_A->ViewBall( viewer, mStartNode_A(0), mStartNode_A(1), mStartNode_A(2), "Start" );
+    mLjm2_A->ViewBall( viewer, mTargetNode_A(0), mTargetNode_A(1), mTargetNode_A(2), "Target" );
+    
+    while( !viewer->wasStopped() ) {
+      viewer->spin();
     }
+    delete viewer; 
+  }
     break;
     
     /** Show Path A */
-       case button_Plot3DPath_A: {     
-	 
-	 double temp;
-      mPathIndex_A->GetValue().ToDouble(&temp);
-      int n = (int) temp;
-      
-      printf("**********************************\n");
-      printf( "     Plotting 3D Path A - %d       \n", n);
-      printf("**********************************\n");
-      pcl::visualization::PCLVisualizer *viewer;
-      viewer = new pcl::visualization::PCLVisualizer( "Workspace Path A" );
-      mLjm2_A->ViewObstacles( viewer, 0, 0, 255 );
-      mLjm2_A->ViewPath( mNodePaths_A[n], viewer );
-      mLjm2_A->ViewBall( viewer, mStartNode_A(0), mStartNode_A(1), mStartNode_A(2), "Start" );
-      mLjm2_A->ViewBall( viewer, mTargetNode_A(0), mTargetNode_A(1), mTargetNode_A(2), "Target" );
-      
-      while( !viewer->wasStopped() ) {
-	viewer->spin();
-      }
-      delete viewer; 
+  case button_Plot3DPath_A: {     
+    
+    double temp;
+    mPathIndex_A->GetValue().ToDouble(&temp);
+    int n = (int) temp;
+    
+    printf("**********************************\n");
+    printf( "     Plotting 3D Path A - %d       \n", n);
+    printf("**********************************\n");
+    pcl::visualization::PCLVisualizer *viewer;
+    viewer = new pcl::visualization::PCLVisualizer( "Workspace Path A" );
+    mLjm2_A->ViewObstacles( viewer, 0, 0, 255 );
+    mLjm2_A->ViewPath( mNodePaths_A[n], viewer );
+    mLjm2_A->ViewBall( viewer, mStartNode_A(0), mStartNode_A(1), mStartNode_A(2), "Start" );
+    mLjm2_A->ViewBall( viewer, mTargetNode_A(0), mTargetNode_A(1), mTargetNode_A(2), "Target" );
+    
+    while( !viewer->wasStopped() ) {
+      viewer->spin();
+    }
+    delete viewer; 
+  }    
+    break;
+    
+    /** Save3DPath: Save the WSPath into a global variable */
+  case button_Save3DPath_A: {
+    double temp;
+    mPathIndex_A->GetValue().ToDouble(&temp);
+    int n = (int) temp;
+    gPosePath_A = mWorkspacePaths_A[n];  
+    
+    printf("--Saving path A - %d \n", n);
+    for( size_t i = 0; i < gPosePath_A.size(); ++i ) {
+      std::cout << gPosePath_A[i].transpose() << std::endl;
     }    
-      break;
-
-      /** Save3DPath: Save the WSPath into a global variable */
-         case button_Save3DPath_A: {
-      double temp;
-      mPathIndex_A->GetValue().ToDouble(&temp);
-      int n = (int) temp;
-      gPosePath_A = mWorkspacePaths_A[n];  
-
-	  printf("--Saving path A - %d \n", n);
-	  for( size_t i = 0; i < gPosePath_A.size(); ++i ) {
-			std::cout << gPosePath_A[i].transpose() << std::endl;
-	  }    
+  }
+    break;
+    
+    
+    /** Plot 3D Paths_B */
+  case button_Plot3DPaths_B: {
+    printf("*******************************\n");
+    printf( "     Plotting 3D Paths B      \n");
+    printf("*******************************\n");
+    pcl::visualization::PCLVisualizer *viewer;
+    viewer = new pcl::visualization::PCLVisualizer( "Workspace Paths B" );
+    mLjm2_B->ViewObstacles( viewer, 0, 0, 255 );
+    mLjm2_B->ViewPaths( mNodePaths_A, viewer );
+    mLjm2_B->ViewBall( viewer, mStartNode_B(0), mStartNode_B(1), mStartNode_B(2), "Start" );
+    mLjm2_B->ViewBall( viewer, mTargetNode_B(0), mTargetNode_B(1), mTargetNode_B(2), "Target" );
+    
+    while( !viewer->wasStopped() ) {
+      viewer->spin();
     }
-      break;
-
-
-      /** Plot 3D Paths_B */
-       case button_Plot3DPaths_B: {
-	 printf("*******************************\n");
-	 printf( "     Plotting 3D Paths B      \n");
-	 printf("*******************************\n");
-	 pcl::visualization::PCLVisualizer *viewer;
-	 viewer = new pcl::visualization::PCLVisualizer( "Workspace Paths B" );
-	 mLjm2_B->ViewObstacles( viewer, 0, 0, 255 );
-	 mLjm2_B->ViewPaths( mNodePaths_A, viewer );
-	 mLjm2_B->ViewBall( viewer, mStartNode_B(0), mStartNode_B(1), mStartNode_B(2), "Start" );
-	 mLjm2_B->ViewBall( viewer, mTargetNode_B(0), mTargetNode_B(1), mTargetNode_B(2), "Target" );
-      
-	 while( !viewer->wasStopped() ) {
-	 viewer->spin();
-	 }
-	 delete viewer; 
-    }
+    delete viewer; 
+  }
     break;
     
     /** Show Path B */
-       case button_Plot3DPath_B: {     
-	 
-	 double temp;
-      mPathIndex_B->GetValue().ToDouble(&temp);
-      int n = (int) temp;
-      
-      printf("**********************************\n");
-      printf( "     Plotting 3D Path B - %d       \n", n);
-      printf("**********************************\n");
-      pcl::visualization::PCLVisualizer *viewer;
-      viewer = new pcl::visualization::PCLVisualizer( "Workspace Path B" );
-      mLjm2_B->ViewObstacles( viewer, 0, 0, 255 );
-      mLjm2_B->ViewPath( mNodePaths_B[n], viewer );
-      mLjm2_B->ViewBall( viewer, mStartNode_B(0), mStartNode_B(1), mStartNode_B(2), "Start" );
-      mLjm2_B->ViewBall( viewer, mTargetNode_B(0), mTargetNode_B(1), mTargetNode_B(2), "Target" );
-      
-      while( !viewer->wasStopped() ) {
-	viewer->spin();
-      }
-      delete viewer; 
-    }    
-      break;
-
-      /** Save3DPath: Save the WSPath into a global variable */
-         case button_Save3DPath_B: {
-      double temp;
-      mPathIndex_B->GetValue().ToDouble(&temp);
-      int n = (int) temp;
-      gPosePath_B = mWorkspacePaths_B[n];  
-
-	  printf("--Saving path B - %d \n", n);
-	  for( size_t i = 0; i < gPosePath_B.size(); ++i ) {
-			std::cout << gPosePath_B[i].transpose() << std::endl;
-	  }    
+  case button_Plot3DPath_B: {     
+    
+    double temp;
+    mPathIndex_B->GetValue().ToDouble(&temp);
+    int n = (int) temp;
+    
+    printf("**********************************\n");
+    printf( "     Plotting 3D Path B - %d       \n", n);
+    printf("**********************************\n");
+    pcl::visualization::PCLVisualizer *viewer;
+    viewer = new pcl::visualization::PCLVisualizer( "Workspace Path B" );
+    mLjm2_B->ViewObstacles( viewer, 0, 0, 255 );
+    mLjm2_B->ViewPath( mNodePaths_B[n], viewer );
+    mLjm2_B->ViewBall( viewer, mStartNode_B(0), mStartNode_B(1), mStartNode_B(2), "Start" );
+    mLjm2_B->ViewBall( viewer, mTargetNode_B(0), mTargetNode_B(1), mTargetNode_B(2), "Target" );
+    
+    while( !viewer->wasStopped() ) {
+      viewer->spin();
     }
-      break;
+    delete viewer; 
+  }    
+    break;
+    
+    /** Run LJM2 B */
+  case button_Run_LJM2_B: {
 
+    //-- Update the parameters
+    mAlphaText->GetValue().ToDouble( &mAlpha );
+    double temp;
+    mNumPathsText->GetValue().ToDouble( &temp );
+    mNumPaths = (int)temp;
+    //-- Execute
+    WorkspacePlan_B();
+  }
+    break;
+    
+    /** Save3DPath: Save the WSPath into a global variable */
+  case button_Save3DPath_B: {
+    double temp;
+    mPathIndex_B->GetValue().ToDouble(&temp);
+    int n = (int) temp;
+    gPosePath_B = mWorkspacePaths_B[n];  
+    
+    printf("--Saving path B - %d \n", n);
+    for( size_t i = 0; i < gPosePath_B.size(); ++i ) {
+      std::cout << gPosePath_B[i].transpose() << std::endl;
+    }    
+    }
+    break;
+    
 
-    } // end of switch
-      
+  } // end of switch
+  
 }
 
 /**
- * @function WorkspacePlan
+ * @function WorkspacePlan_A
  */ 
-void PlannerTab::WorkspacePlan() {
+void PlannerTab::WorkspacePlan_A() {
  
     /// Check start position is not in collision
     mWorld->mRobots[gRobotId]->setDofs( gStartConf_A, gLinks_A );
@@ -592,6 +623,44 @@ void PlannerTab::WorkspacePlan() {
    mNodePaths_A = mLjm2_A->FindVarietyPaths2( mStartNode_A(0), mStartNode_A(1), mStartNode_A(2), mTargetNode_A(0), mTargetNode_A(1), mTargetNode_A(2), mNumPaths, mAlpha );
    mWorkspacePaths_A = mLjm2_A->NodePathToWorkspacePath( mNodePaths_A );
    printf("-------(i) Finished Workpace Planning A (i)------- \n");
+    
+} 
+
+/**
+ * @function WorkspacePlan_B
+ */ 
+void PlannerTab::WorkspacePlan_B() {
+ 
+    /// Check start position is not in collision
+    mWorld->mRobots[gRobotId]->setDofs( gStartConf_B, gLinks_B );
+
+    if( mCollision->CheckCollisions() ) {   
+      printf(" --(!) Initial status is in collision. I am NOT proceeding. Exiting \n");
+      return; 
+    }
+
+   //-- Setting start cell
+   gStartPos_B = GetEE_Pos( gStartConf_B );
+
+   mStartNode_B.resize(3);
+   mTargetNode_B.resize(3);
+
+   if( mLjm2_B->WorldToGrid( gStartPos_B(0), gStartPos_B(1), gStartPos_B(2), mStartNode_B(0), mStartNode_B(1), mStartNode_B(2) ) == false )
+   {  printf("(x) Error: Start Position no valid  (x)\n"); return; } 
+   if( mLjm2_B->WorldToGrid( gTargetPos_B(0), gTargetPos_B(1), gTargetPos_B(2), mTargetNode_B(0), mTargetNode_B(1), mTargetNode_B(2) ) == false )
+   {  printf("(x) Error: Target Position no valid  (x)\n"); return; }    
+
+
+   //-- Plan now workspace guys
+   printf("(o) Planning from (%d %d %d) to (%d %d %d) (o)\n", mStartNode_B(0), mStartNode_B(1), mStartNode_B(2), mTargetNode_B(0), mTargetNode_B(1), mTargetNode_B(2) );
+   printf("(o) Start State: %d  Target state: %d (FREE: 1 OBSTACLE: 2) (o)\n", mLjm2_B->GetState(mStartNode_B(0), mStartNode_B(1), mStartNode_B(2)), mLjm2_B->GetState(mTargetNode_B(0), mTargetNode_B(1), mTargetNode_B(2)));
+
+   //-- Check alpha and numPaths
+   printf("---(i) Search Parameters: Alpha: %.3f - Num Paths: %d \n", mAlpha, mNumPaths );
+   
+   mNodePaths_B = mLjm2_B->FindVarietyPaths2( mStartNode_B(0), mStartNode_B(1), mStartNode_B(2), mTargetNode_B(0), mTargetNode_B(1), mTargetNode_B(2), mNumPaths, mAlpha );
+   mWorkspacePaths_A = mLjm2_A->NodePathToWorkspacePath( mNodePaths_A );
+   printf("-------(i) Finished Workpace Planning B (i)------- \n");
     
 } 
 

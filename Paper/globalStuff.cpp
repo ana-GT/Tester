@@ -20,11 +20,20 @@
 
 const int gNumRobotTypes = 4;
 const char* gRobotNames[] = {"LWA4", "LWA3", "Barret", "Katana"};
+const char* gEEId_A_Names[] = {"LJ7", "EE", "EE", "KH"};
+const char* gEEId_B_Names[] = {"RJ7", NULL, NULL, NULL};
 const wxString gWxRobotNames[] = { wxT( "LWA4" ), wxT("LWA3"), wxT("Barret"), wxT("Katana") };
 
 //-- LWA3
 const int sNum_LA_Links_LWA3 = 7;
 const char* sLA_Ids_LWA3[sNum_LA_Links_LWA3] = {"L1", "L2", "L3", "L4", "L5", "L6", "FT"};
+const string sName_LA_EE_LWA3 = "EE";
+
+//-- Barret
+extern const int sNum_LA_Links_Barret;
+extern const char* sLA_Ids_Barret[];
+const string sName_LA_EE_Barret = "B7";
+
 
 //-- Barret
 const int sNum_LA_Links_Barret = 7;
@@ -83,41 +92,59 @@ std::vector<Eigen::VectorXd> gPosePath_B;
 /*
  * @function GetEE_XYZ
  */
-Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q ) {
+Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q, eConfig _which ) {
 
+  Eigen::MatrixXd pose;
+
+  if( _which == ARM_A ) {
     mWorld->mRobots[gRobotId]->setDofs( _q, gLinks_A );
     mWorld->mRobots[gRobotId]->update();
-    Eigen::MatrixXd pose = gEENode_A->getWorldTransform(); 
-    Eigen::VectorXd xyz(3); xyz << pose(0,3), pose(1,3), pose(2,3);
+    pose = gEENode_A->getWorldTransform(); 
+  }
+  else {
+    mWorld->mRobots[gRobotId]->setDofs( _q, gLinks_B );
+    mWorld->mRobots[gRobotId]->update();
+    pose = gEENode_B->getWorldTransform(); 
+  }
 
-    return xyz;
+  Eigen::VectorXd xyz(3); xyz << pose(0,3), pose(1,3), pose(2,3);
+  return xyz;
 }
 
 /**
  * @function SetTimeline
  */
-void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time ) {
+void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time, eConfig _which ) {
 
   if( mWorld == NULL || _path.size() == 0 ) {
     std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
     return;
   }  
   
-  int numsteps = _path.size(); printf("NUm steps: %d \n", numsteps);
+  int numsteps = _path.size(); printf("** Num steps: %d \n", numsteps);
   double increment = _time / (double)numsteps;
   
   cout << "-->(+) Updating Timeline - Increment: " << increment << " Total T: " << _time << " Steps: " << numsteps << endl;
   
   frame->InitTimer( string("Plan"),increment );
   
+  if( _which == ARM_A ) {
+    Eigen::VectorXd vals( gLinks_A.size() );
   
-  Eigen::VectorXd vals( gLinks_A.size() );
+    for( size_t i = 0; i < numsteps; ++i ) {
+      mWorld->mRobots[gRobotId]->setDofs( _path[i], gLinks_A );
+      mWorld->mRobots[gRobotId]->update();      
+      frame->AddWorld( mWorld );
+    }
+  }
+  else {
+    Eigen::VectorXd vals( gLinks_B.size() );
   
-  for( size_t i = 0; i < numsteps; ++i ) {
-    mWorld->mRobots[gRobotId]->setDofs( _path[i], gLinks_A );
-    mWorld->mRobots[gRobotId]->update();
-    
-    frame->AddWorld( mWorld );
+    for( size_t i = 0; i < numsteps; ++i ) {
+      mWorld->mRobots[gRobotId]->setDofs( _path[i], gLinks_B );
+      mWorld->mRobots[gRobotId]->update();      
+      frame->AddWorld( mWorld );
+    }
   }
 }
 
@@ -125,8 +152,14 @@ void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time ) {
  * @function CheckCollisionConfig
  * @brief Check if there is a collision in the specified manipulator config
  */
-bool CheckCollisionConfig( Eigen::VectorXd _q ) {
-  mWorld->mRobots[gRobotId]->setDofs( _q, gLinks_A );
-  mWorld->mRobots[gRobotId]->update();
-  return mCollision->CheckCollisions();  
+bool CheckCollisionConfig( Eigen::VectorXd _q, eConfig _which ) {
+
+  if( _which == ARM_A ) {
+    mWorld->mRobots[gRobotId]->setDofs( _q, gLinks_A );
+  }
+  else {
+    mWorld->mRobots[gRobotId]->setDofs( _q, gLinks_B );
+  }
+    mWorld->mRobots[gRobotId]->update();
+    return mCollision->CheckCollisions();  
 }

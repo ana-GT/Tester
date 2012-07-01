@@ -349,13 +349,23 @@ void ConfigTab::OnRadio( wxCommandEvent &_evt ) {
   
   int num = _evt.GetSelection();
   
+  //-- Set Robot to use
   if( num < gNumRobotTypes ) { 
+
+    // Set robot name
     gRobotName = gRobotNames[num];
-    std::cout << "--> Robot name: " << gRobotName << std::endl; 
+    // Set EE for arm A
+    gEEName_A = gEEId_A_Names[num];
+    gEENode_A = mWorld->mRobots[gRobotId]->getNode( gEEName_A.c_str() );
+    gEEId_A = gEENode_A->getSkelIndex();
+    // Display Info
+    std::cout << "--> Robot set: " << gRobotName << std::endl;
+    std::cout << "--> [A] End Effector: " << gEEName_A << " ID: " << gEEId_A << std::endl;
   } 
   else {
-    std::cout << "--(!) No robot name set (!)--" << std::endl;
+    std::cout << "--(!) No robot set (!)--" << std::endl;
   }
+  
 
 }
 
