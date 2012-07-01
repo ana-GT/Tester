@@ -12,13 +12,14 @@
  */
 #include "GRIPApp.h"
 #include "ConfigTab.h"
-
+#include "PlannerTab.h"
 
 extern wxNotebook* tabView;
 
 class PaperApp : public GRIPApp {
 	virtual void AddTabs() {
 	  tabView->AddPage(new ConfigTab(tabView), wxT("Config Tab"));
+	  tabView->AddPage(new PlannerTab(tabView), wxT("Planner Tab"));
 	}
 };
 

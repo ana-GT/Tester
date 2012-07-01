@@ -36,8 +36,8 @@
  *
  */	
 
-#ifndef _PAPER_CONFIG_TAB_
-#define _PAPER_CONFIG_TAB_
+#ifndef _PAPER_PLANNER_TAB_
+#define _PAPER_PLANNER_TAB_
 
 #include <Tabs/GRIPTab.h>
 #include <Tabs/GRIPThread.h>
@@ -54,41 +54,75 @@
 #include <list>
 
 #include "globalStuff.h"
+#include "Planners/LJM2_Suite/myFunctions/CheckProcess.h"
+
 
 /**
- * @class ConfigTab
- * @brief Tab to enter configurations for the problem (start and goal)
+ * @class Planner
+ * @brief Tab with Tester Planners
  */
-class ConfigTab : public GRIPTab
+class PlannerTab : public GRIPTab
 {
  public:
-
-
+  
+  /// Functions related to Tab
+  PlannerTab(){};
+  PlannerTab( wxWindow * parent, wxWindowID id = -1,
+	      const wxPoint & pos = wxDefaultPosition,
+	      const wxSize & size = wxDefaultSize,
+	      long style = wxTAB_TRAVERSAL);
+  virtual ~PlannerTab();
+  
+  
   /// Public vars to capture external selection stuff 
   planning::Object* selectedObject;
   planning::Robot* selectedRobot;
   kinematics::BodyNode* selectedNode;
 
-  /// Functions about Arm
-  void GetLinksId();
-
-  /// Functions related to Tab
-  ConfigTab(){};
-  ConfigTab( wxWindow * parent, wxWindowID id = -1,
-	     const wxPoint & pos = wxDefaultPosition,
-	     const wxSize & size = wxDefaultSize,
-	     long style = wxTAB_TRAVERSAL);
-  virtual ~ConfigTab();
-  
   void OnSlider(wxCommandEvent &evt);
-  void OnRadio(wxCommandEvent &evt);
   void OnButton(wxCommandEvent &evt);
-    
-  void GRIPStateChange();
-        
-  DECLARE_DYNAMIC_CLASS( ConfigTab )
-    DECLARE_EVENT_TABLE()
-    };
+  
 
-#endif /** _PAPER_CONFIG_TAB_ */
+  // ***** Workspace Plan *****
+  CheckProcess *mCp;
+  LJM2 *mLjm2;
+
+  double mAlpha;
+  int mNumPaths;
+  Eigen::VectorXi mStartNode_A;
+  Eigen::VectorXi mTargetNode_A;
+  std::vector< std::vector<Eigen::VectorXd> > mWorkspacePaths_A;
+  std::vector< std::vector<Eigen::Vector3i> > mNodePaths_A;
+  std::vector< std::vector<Eigen::VectorXd> > mConfigPaths_A;
+
+  wxTextCtrl *mPathIndex_A;
+
+  // ****  3D Info ****
+  wxTextCtrl *mSizeXText;
+  wxTextCtrl *mSizeYText;
+  wxTextCtrl *mSizeZText;
+
+  wxTextCtrl *mOriginXText;
+  wxTextCtrl *mOriginYText;
+  wxTextCtrl *mOriginZText;
+
+  wxTextCtrl *mPaddingText;
+  wxTextCtrl *mResolText;
+
+  wxTextCtrl *mAlphaText;
+  wxTextCtrl *mNumPathsText;
+
+
+  /*
+  void WorkspacePlan(); 
+  void WorkspaceExecute( std::vector<Eigen::VectorXd> _path, int _type = 0 );
+  */
+  // ****************************
+
+    void GRIPStateChange();
+    DECLARE_DYNAMIC_CLASS( PlannerTab )
+    DECLARE_EVENT_TABLE()
+};
+
+#endif /** _PAPER_PLANNER_PLANNER_TAB_ */
 
