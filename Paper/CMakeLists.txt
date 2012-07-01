@@ -4,7 +4,9 @@ cmake_minimum_required( VERSION 2.8 )
 project ( Tester )
 
 set (CMAKE_INSTALL_PREFIX /usr/local )
+set (CMAKE_CXX_COMPILER "g++-4.4" )
 set (CMAKE_CXX_FLAGS "-L /usr/local/lib" )
+
 
 include (${CMAKE_INSTALL_PREFIX}/share/dart/DART_config.cmake)
 include (${CMAKE_INSTALL_PREFIX}/share/grip/GRIP_config.cmake)

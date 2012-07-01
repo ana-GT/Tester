@@ -19,13 +19,8 @@
 // ********** ROBOT HARD INFO ********
 
 const int gNumRobotTypes = 4;
-const char* gRobotNames[ gNumRobotTypes] = {"LWA4", "LWA3", "Barret", "Katana"};
-const wxString gWxRobotNames[] = {
-    wxT( gRobotNames[0] ),
-    wxT( gRobotNames[1] ),
-    wxT( gRobotNames[2] ),
-    wxT( gRobotNames[3] )
-};
+const char* gRobotNames[] = {"LWA4", "LWA3", "Barret", "Katana"};
+const wxString gWxRobotNames[] = { wxT( "LWA4" ), wxT("LWA3"), wxT("Barret"), wxT("Katana") };
 
 //-- LWA3
 const int sNum_LA_Links_LWA3 = 7;
@@ -82,8 +77,8 @@ double gOriginZ;
 int gPadding;
 
 //-- ** OUTPUTS: POSE PATHS A & B **
-extern std::vector<Eigen::VectorXd> gPosePath_A;
-extern std::vector<Eigen::VectorXd> gPosePath_B;
+std::vector<Eigen::VectorXd> gPosePath_A;
+std::vector<Eigen::VectorXd> gPosePath_B;
 
 /*
  * @function GetEE_XYZ

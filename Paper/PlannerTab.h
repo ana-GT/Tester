@@ -83,12 +83,10 @@ class PlannerTab : public GRIPTab
   void OnButton(wxCommandEvent &evt);
   
 
-  // ***** Workspace Plan *****
-  CheckProcess *mCp;
-  LJM2 *mLjm2;
+  // ***** Workspace Plan A *****
+  CheckProcess *mCp_A;
+  LJM2 *mLjm2_A;
 
-  double mAlpha;
-  int mNumPaths;
   Eigen::VectorXi mStartNode_A;
   Eigen::VectorXi mTargetNode_A;
   std::vector< std::vector<Eigen::VectorXd> > mWorkspacePaths_A;
@@ -96,6 +94,19 @@ class PlannerTab : public GRIPTab
   std::vector< std::vector<Eigen::VectorXd> > mConfigPaths_A;
 
   wxTextCtrl *mPathIndex_A;
+
+  // ***** Workspace Plan A *****
+  CheckProcess *mCp_B;
+  LJM2 *mLjm2_B;
+
+  Eigen::VectorXi mStartNode_B;
+  Eigen::VectorXi mTargetNode_B;
+  std::vector< std::vector<Eigen::VectorXd> > mWorkspacePaths_B;
+  std::vector< std::vector<Eigen::Vector3i> > mNodePaths_B;
+  std::vector< std::vector<Eigen::VectorXd> > mConfigPaths_B;
+
+  wxTextCtrl *mPathIndex_B;
+
 
   // ****  3D Info ****
   wxTextCtrl *mSizeXText;
@@ -112,11 +123,12 @@ class PlannerTab : public GRIPTab
   wxTextCtrl *mAlphaText;
   wxTextCtrl *mNumPathsText;
 
+  double mAlpha;
+  int mNumPaths;
 
-  /*
+
   void WorkspacePlan(); 
-  void WorkspaceExecute( std::vector<Eigen::VectorXd> _path, int _type = 0 );
-  */
+ 
   // ****************************
 
     void GRIPStateChange();

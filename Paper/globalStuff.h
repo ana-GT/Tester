@@ -31,6 +31,8 @@ extern const char* sLA_Ids_Barret[];
 
 // ***************************************
 
+enum eConfig{ ARM_A, ARM_B};
+
 //-- ** ARM A : Start and Target **
 extern Eigen::VectorXd gStartConf_A;
 extern Eigen::VectorXd gStartPos_A;  
