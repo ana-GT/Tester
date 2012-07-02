@@ -192,12 +192,11 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 Eigen::MatrixXd IKSearch::GetNS_Basis( Eigen::MatrixXd _J ) {
 
   Eigen::JacobiSVD<Eigen::MatrixXd> J_SVD( _J, Eigen::ComputeFullV );
-  int NSDim = mNumLinks - mNumConstraints;	
-  Eigen::MatrixXd NS = ( J_SVD.matrixV() ).rightCols( NSDim );
+  Eigen::MatrixXd NS = ( J_SVD.matrixV() ).rightCols( mNumExtraDOF );
   
   //-- Normalize
-  Eigen::MatrixXd normCoeff = Eigen::MatrixXd::Zero( NSDim, NSDim );
-  for( int i = 0; i < NSDim; ++i ) {
+  Eigen::MatrixXd normCoeff = Eigen::MatrixXd::Zero( mNumExtraDOF, mNumExtraDOF );
+  for( int i = 0; i < mNumExtraDOF; ++i ) {
     normCoeff(i,i) = mNSNorm*1.0/NS.col(i).norm();
   }
   
@@ -459,7 +458,6 @@ bool IKSearch::GenerateNSSet( Eigen::VectorXd _q,
   //-- Brute-force search
   Eigen::VectorXd dq;
   Eigen::VectorXd qp;
-  Eigen::VectorXd qh;
   Eigen::VectorXd qtemp;
   Eigen::MatrixXd ns;
   Eigen::VectorXd ds;
@@ -472,43 +470,76 @@ bool IKSearch::GenerateNSSet( Eigen::VectorXd _q,
 
   int count = 0;
   int countvalid = 0;
+  std::vector<int> iC( mNumExtraDOF );
+  std::vector<int> iStart( mNumExtraDOF, 0 );
+  std::vector<int> iEnd( mNumExtraDOF, mNumCoeff );
 
-  for( size_t a = 0; a < mNumCoeff; ++a ) {
-    for( size_t b = 0; b < mNumCoeff; ++b ) {
-      for( size_t c = 0; c < mNumCoeff; ++c ) {
-	for( size_t d = 0; d < 1; ++d ) {   // *** TRIAL!!! *** 
-	  //-- Coefficients
-	  Eigen::VectorXd coeff(4); 
-	  coeff << mCoeff[a], mCoeff[b], mCoeff[c], mCoeff[d];
-	  qh = qp + ns*coeff;
-
-	  //-- First check it is legal
-	  if( GetPoseError( _s, GetPose(qh) ).norm() < mPoseThresh ) {
-	    countvalid++;
-	    
-	    //-- Then check collisions and limits
-	    if( CheckCollisionConfig( qh ) == false &&
-		IsInLim( qh ) == true ) {
-	      //-- Add to set
-	      count++;
-	      _qSet.push_back( qh );
-	      // _coeffSet.push_back( coeff );
-	    }
-
-	  }
-
-	} //-- for d
-      } //-- for c
-    } //-- for b
-  } //-- for a
-
-  if( _qSet.size() > 0 ) {
+  if( GenerateNSSet_RecursiveFor( iC, 0, mNumExtraDOF, qp, ns, _s, _qSet, count, countvalid, iStart, iEnd ) == true ) {
     SortNS( _qSet, _valSet, _prioritySet );
     return true;
   } else {
     return false;
   }
 }
+
+/**
+ * @brief NS_RecursiveFor
+ */
+bool IKSearch::GenerateNSSet_RecursiveFor( std::vector<int> &_i,
+					   int _n,
+					   int _p,
+					   Eigen::VectorXd _qp,
+					   Eigen::MatrixXd _ns,
+					   Eigen::VectorXd _s,
+					   std::vector<Eigen::VectorXd> &_qSet,
+					   int &_count,
+					   int &_countvalid,
+					   std::vector<int> _iStart,
+					   std::vector<int> _iEnd ) {
+  //-- _n < _p-1
+  if( _n < _p-1 ) {
+    for( _i[_n] = _iStart[_n]; _i[_n] <= _iEnd[_n]; ++_i[_n] ) {
+      GenerateNSSet_RecursiveFor( _i, _n + 1, mNumExtraDOF, _qp, _ns, _s, _qSet, _count, _countvalid,  _iStart, _iEnd ); 
+    }
+  }
+  //-- _n == _p-1
+  else {
+    
+    //-- Coefficients
+    Eigen::VectorXd coeff(_p);
+    for( size_t j = 0; j < _p; ++j ) {
+      coeff(j) = mCoeff[ _i[j] ];
+    }
+    //-- Generate a possible solution
+    Eigen::VectorXd qh;
+    qh = _qp + _ns*coeff;
+    
+    //-- First check it is legal
+    if( GetPoseError( _s, GetPose(qh) ).norm() < mPoseThresh ) {
+      _countvalid++;
+      
+      //-- Then check collisions and limits
+      if( CheckCollisionConfig( qh ) == false &&
+	  IsInLim( qh ) == true ) {
+	//-- Add to set
+	_count++;
+	_qSet.push_back( qh );
+	// _coeffSet.push_back( coeff );
+      }
+      
+    }
+    
+  } // end else _count
+  
+  if( _qSet.size() > 0 ) { 
+    return true; 
+  }
+  else {
+    return false; 
+  }
+  
+}
+
 
 /**
  * @function SortNS

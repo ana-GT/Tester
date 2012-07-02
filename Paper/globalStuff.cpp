@@ -20,24 +20,21 @@
 
 const int gNumRobotTypes = 4;
 const char* gRobotNames[] = {"LWA4", "LWA3", "Barret", "Katana"};
-const char* gEEId_A_Names[] = {"LJ7", "EE", "EE", "KH"};
+const char* gEEId_A_Names[] = {"LJ7", "EE", "EE", "EE"};
 const char* gEEId_B_Names[] = {"RJ7", NULL, NULL, NULL};
 const wxString gWxRobotNames[] = { wxT( "LWA4" ), wxT("LWA3"), wxT("Barret"), wxT("Katana") };
 
 //-- LWA3
 const int sNum_LA_Links_LWA3 = 7;
 const char* sLA_Ids_LWA3[sNum_LA_Links_LWA3] = {"L1", "L2", "L3", "L4", "L5", "L6", "FT"};
-const string sName_LA_EE_LWA3 = "EE";
-
-//-- Barret
-extern const int sNum_LA_Links_Barret;
-extern const char* sLA_Ids_Barret[];
-const string sName_LA_EE_Barret = "B7";
-
 
 //-- Barret
 const int sNum_LA_Links_Barret = 7;
 const char* sLA_Ids_Barret[sNum_LA_Links_Barret] = {"B1", "B2", "B3", "B4", "B5", "B6", "B7"};
+
+//-- Katana
+const int sNum_LA_Links_Katana = 5;
+const char* sLA_Ids_Katana[sNum_LA_Links_Katana] = {"K1", "K2", "K3", "K4", "K5"};
 
 // ***********************************
 //-- Declare global variables once

@@ -191,6 +191,24 @@ void ConfigTab::GetLinksId() {
     } // end for
   }
 
+  //-- **** KATANA ARM ****
+  else if( gRobotName.compare( gRobotNames[3] ) == 0 ) {
+    gNumLinks_A = sNum_LA_Links_Katana;
+    gLinks_A.resize( gNumLinks_A );
+
+    for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
+      for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
+	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
+		    sLA_Ids_Katana[i] ) == 0 ) {
+	  gLinks_A[i] = linksAll[j]; 
+	  break;   
+	}
+      }
+    } // end for
+  }
+
+
+
   std::cout << "gLinks_A: " << gLinks_A.transpose() << std::endl;
 }
 

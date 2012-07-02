@@ -256,6 +256,8 @@ void IK::GetGeneralInfo( int _robotId,
   //-- Get joint limit information
   GetJointLimits( mJointsMin, mJointsMax );
 
+  //-- Get Extra DOF info
+  mNumExtraDOF = mNumLinks - mNumConstraints;
 }
 
 /**

@@ -128,9 +128,21 @@ class IKSearch : public IK {
 		      std::vector<int> &_prioritySet,
 		      std::vector<double> &_valSet );
 
-  void SortNS( std::vector<Eigen::VectorXd> _configs, 
-	       std::vector<double> &_vals,
-	       std::vector<int> &_priority );
+  bool GenerateNSSet_RecursiveFor( std::vector<int> &_i,
+				   int _n,
+				   int _p,
+				   Eigen::VectorXd _qp,
+				   Eigen::MatrixXd _ns,
+				   Eigen::VectorXd _s,
+				   std::vector<Eigen::VectorXd> &_qSet,
+				   int &_count,
+				   int &_countvalid,
+				   std::vector<int> _iStart,
+				   std::vector<int> _iEnd );
+  
+    void SortNS( std::vector<Eigen::VectorXd> _configs, 
+		 std::vector<double> &_vals,
+		 std::vector<int> &_priority );
 
   void TrackReset();
   //--------------------------------------------//

@@ -67,6 +67,7 @@ class IK {
   
   std::vector<int> mConstraints;
   int mNumConstraints;
+  int mNumExtraDOF;
   double mPoseThresh;
   int mMaxIter;
 
