@@ -24,6 +24,12 @@ extern const char* gRobotNames[];
 extern const char* gEEId_A_Names[];
 extern const char* gEEId_B_Names[];
 
+// **** IF YOU ADD A ROBOT, BE SURE TO ADD IT ALSO IN getLinksId at ConfigTab.cpp. That is all code you need to modify (as far as I remember)**** 
+
+//-- MITSUBISHI
+extern const int sNum_LA_Links_Mitsubishi;
+extern const char* sLA_Ids_Mitsubishi[];
+
 //-- LWA3
 extern const int sNum_LA_Links_LWA3;
 extern const char* sLA_Ids_LWA3[];

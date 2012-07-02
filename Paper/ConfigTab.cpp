@@ -154,10 +154,23 @@ void ConfigTab::GetLinksId() {
 
   Eigen::VectorXi linksAll = mWorld->mRobots[gRobotId]->getQuickDofsIndices();  
 
-  //-- **** LWA4 ****
+  //-- **** MITSUBISHI ****
   if( gRobotName.compare( gRobotNames[0] ) == 0 ) {
-    printf(" LWA4!\n");
+    gNumLinks_A = sNum_LA_Links_Mitsubishi; 
+    gLinks_A.resize( gNumLinks_A );
+
+    for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
+      for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
+	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(),
+		    sLA_Ids_Mitsubishi[i] ) == 0 ) {
+	  gLinks_A[i] = linksAll[j]; 
+	  break;   
+	}
+      }
+    } // end for
+   
   }
+
   //-- **** LWA3 ****
   else if( gRobotName.compare( gRobotNames[1] ) == 0 ) {
     gNumLinks_A = sNum_LA_Links_LWA3; 

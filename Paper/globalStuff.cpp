@@ -19,10 +19,14 @@
 // ********** ROBOT HARD INFO ********
 
 const int gNumRobotTypes = 4;
-const char* gRobotNames[] = {"LWA4", "LWA3", "Barret", "Katana"};
-const char* gEEId_A_Names[] = {"LJ7", "EE", "EE", "EE"};
+const char* gRobotNames[] = {"Mitsubishi", "LWA3", "Barret", "Katana"};
+const char* gEEId_A_Names[] = {"EE", "EE", "EE", "EE"};
 const char* gEEId_B_Names[] = {"RJ7", NULL, NULL, NULL};
-const wxString gWxRobotNames[] = { wxT( "LWA4" ), wxT("LWA3"), wxT("Barret"), wxT("Katana") };
+const wxString gWxRobotNames[] = { wxT( "Mitsubishi" ), wxT("LWA3"), wxT("Barret"), wxT("Katana") };
+
+//-- MITSUBISHI
+const int sNum_LA_Links_Mitsubishi = 6;
+const char* sLA_Ids_Mitsubishi[sNum_LA_Links_Mitsubishi] = {"M0", "M1", "M2", "M3", "M4", "M5"};
 
 //-- LWA3
 const int sNum_LA_Links_LWA3 = 7;
