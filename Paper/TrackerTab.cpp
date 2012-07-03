@@ -135,13 +135,37 @@ GRIPTab( parent, id, pos, size, style ) {
 
   BT_ButtonSizer->Add( BT_Window_Sizer, 1, wxALIGN_NOT );
 
+  wxBoxSizer *BT_AB_ButtonSizer = new wxBoxSizer( wxHORIZONTAL );
+
+  // ----------------------
+  wxBoxSizer *BT_A_ButtonSizer = new wxBoxSizer( wxVERTICAL );
+
   // BT Buttons
-  BT_ButtonSizer->Add( new wxButton( this, button_Track_BT, _T("Track BT") ),
+  BT_A_ButtonSizer->Add( new wxButton( this, button_Track_BT, _T("Track BT A") ),
 		     1, wxALIGN_NOT );
-  BT_ButtonSizer->Add( new wxButton( this, button_Execute_BT, _T("Execute") ),
+  BT_A_ButtonSizer->Add( new wxButton( this, button_Execute_BT, _T("Execute A") ),
 		     1, wxALIGN_NOT );
-  BT_ButtonSizer->Add( new wxButton( this, button_Plot_1S_BT, _T("Plot") ),
+  BT_A_ButtonSizer->Add( new wxButton( this, button_Plot_1S_BT, _T("Plot A") ),
 		     1, wxALIGN_NOT );
+
+  BT_AB_ButtonSizer->Add( BT_A_ButtonSizer, 0, wxALL, 1 );
+
+  // ----------------------
+  wxBoxSizer *BT_B_ButtonSizer = new wxBoxSizer( wxVERTICAL );
+
+
+  // BT Buttons
+  BT_B_ButtonSizer->Add( new wxButton( this, button_Track_BT, _T("Track BT B") ),
+		     1, wxALIGN_NOT );
+  BT_B_ButtonSizer->Add( new wxButton( this, button_Execute_BT, _T("Execute B") ),
+		     1, wxALIGN_NOT );
+  BT_B_ButtonSizer->Add( new wxButton( this, button_Plot_1S_BT, _T("Plot B") ),
+		     1, wxALIGN_NOT );
+
+  BT_AB_ButtonSizer->Add( BT_B_ButtonSizer, 0, wxALL, 1 );
+
+   // --*--
+  BT_ButtonSizer->Add( BT_AB_ButtonSizer, 1, wxALIGN_NOT );
 
   // ** Button sizer LA (Look Ahead) **
   wxBoxSizer *LA_ButtonSizer = new wxBoxSizer( wxVERTICAL );

@@ -18,11 +18,11 @@
 
 // ********** ROBOT HARD INFO ********
 
-const int gNumRobotTypes = 4;
-const char* gRobotNames[] = {"Mitsubishi", "LWA3", "Barret", "Katana"};
-const char* gEEId_A_Names[] = {"EE", "EE", "EE", "EE"};
-const char* gEEId_B_Names[] = {"RJ7", NULL, NULL, NULL};
-const wxString gWxRobotNames[] = { wxT( "Mitsubishi" ), wxT("LWA3"), wxT("Barret"), wxT("Katana") };
+const int gNumRobotTypes = 6;
+const char* gRobotNames[] = {"Mitsubishi", "LWA3", "Barret", "Katana", "Snake", "LWA4"};
+const char* gEEId_A_Names[] = {"EE", "EE", "EE", "EE", "EE", "LJ7"};
+const char* gEEId_B_Names[] = {"RJ7", NULL, NULL, NULL, NULL,"RJ7"};
+const wxString gWxRobotNames[] = { wxT( "Mitsubishi" ), wxT("LWA3"), wxT("Barret"), wxT("Katana"), wxT("Snake"), wxT("LWA4") };
 
 //-- MITSUBISHI
 const int sNum_LA_Links_Mitsubishi = 6;
@@ -39,6 +39,18 @@ const char* sLA_Ids_Barret[sNum_LA_Links_Barret] = {"B1", "B2", "B3", "B4", "B5"
 //-- Katana
 const int sNum_LA_Links_Katana = 5;
 const char* sLA_Ids_Katana[sNum_LA_Links_Katana] = {"K1", "K2", "K3", "K4", "K5"};
+
+//-- Snake
+const int sNum_LA_Links_Snake = 9;
+const char* sLA_Ids_Snake[sNum_LA_Links_Snake] = {"L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "FT"};
+
+//-- LWA4
+const int sNum_LA_Links_LWA4 = 7;
+const char* sLA_Ids_LWA4[sNum_LA_Links_LWA4] = {"LJ1", "LJ2", "LJ3", "LJ4", "LJ5", "LJ6", "LJ7"};
+
+const int sNum_RA_Links_LWA4 = 7;
+const char* sRA_Ids_LWA4[sNum_RA_Links_LWA4] = {"RJ1", "RJ2", "RJ3", "RJ4", "RJ5", "RJ6", "RJ7"};
+
 
 // ***********************************
 //-- Declare global variables once

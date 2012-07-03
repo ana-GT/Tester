@@ -75,9 +75,17 @@ GRIPTab( _parent, _id, _pos, _size, _style ) {
 
   gTargetPos_A.resize(3);
   gTargetPose_A.resize(6);
+
+  gStartConf_B.resize(0);
+  gStartPos_B.resize(0);
+
+  gTargetPos_B.resize(3);
+  gTargetPose_B.resize(6);
+
   
   gRobotId = 0;
   gLinks_A.resize(0);
+  gLinks_B.resize(0);
  
  
   // **** SET ROBOT TYPE ****
@@ -220,9 +228,56 @@ void ConfigTab::GetLinksId() {
     } // end for
   }
 
+  //-- **** Snake ARM ****
+  else if( gRobotName.compare( gRobotNames[4] ) == 0 ) {
+    gNumLinks_A = sNum_LA_Links_Snake;
+    gLinks_A.resize( gNumLinks_A );
 
+    for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
+      for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
+	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
+		    sLA_Ids_Snake[i] ) == 0 ) {
+	  gLinks_A[i] = linksAll[j]; 
+	  break;   
+	}
+      }
+    } // end for
+  }
+
+
+  //-- **** LWA4 ARM DUAL ****
+  else if( gRobotName.compare( gRobotNames[5] ) == 0 ) {
+    gNumLinks_A = sNum_LA_Links_LWA4;
+    gLinks_A.resize( gNumLinks_A );
+
+    for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
+      for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
+	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
+		    sLA_Ids_LWA4[i] ) == 0 ) {
+	  gLinks_A[i] = linksAll[j]; 
+	  break;   
+	}
+      }
+    } // end for
+
+	gNumLinks_B = sNum_RA_Links_LWA4;
+    gLinks_B.resize( gNumLinks_B );
+    for( unsigned int i = 0; i < gNumLinks_B; i++ ) {
+      for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
+	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
+		    sRA_Ids_LWA4[i] ) == 0 ) {
+	  gLinks_B[i] = linksAll[j]; 
+	  break;   
+	}
+      }
+    } // end for
+
+  }
 
   std::cout << "gLinks_A: " << gLinks_A.transpose() << std::endl;
+	if( gNumLinks_B > 0 ) {
+  std::cout << "gLinks_B: " << gLinks_B.transpose() << std::endl;
+	}
 }
 
 
@@ -344,7 +399,6 @@ void ConfigTab::OnButton( wxCommandEvent &_evt ) {
 
     // **** Set Target B ****
   case button_SetTarget_B: {
-    
     if( mWorld != NULL ) {  
       if( mWorld->mRobots.size() < 1 )
 	{  printf("---------(xx) No robot in the loaded world, you idiot, I need one! (xx)---------- \n"); break; }
@@ -392,6 +446,15 @@ void ConfigTab::OnRadio( wxCommandEvent &_evt ) {
     // Display Info
     std::cout << "--> Robot set: " << gRobotName << std::endl;
     std::cout << "--> [A] End Effector: " << gEEName_A << " ID: " << gEEId_A << std::endl;
+
+	// If LWA4
+	if( num == 5 ) {
+    // Set EE for arm B
+    gEEName_B = gEEId_B_Names[num];
+    gEENode_B = mWorld->mRobots[gRobotId]->getNode( gEEName_B.c_str() );
+    gEEId_B = gEENode_B->getSkelIndex();	
+    std::cout << "--> [B] End Effector: " << gEEName_B << " ID: " << gEEId_B << std::endl;
+	}
   } 
   else {
     std::cout << "--(!) No robot set (!)--" << std::endl;

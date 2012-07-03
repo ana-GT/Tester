@@ -640,7 +640,7 @@ void PlannerTab::WorkspacePlan_B() {
     }
 
    //-- Setting start cell
-   gStartPos_B = GetEE_Pos( gStartConf_B );
+   gStartPos_B = GetEE_Pos( gStartConf_B, ARM_B );
 
    mStartNode_B.resize(3);
    mTargetNode_B.resize(3);

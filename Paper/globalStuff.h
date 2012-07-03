@@ -42,6 +42,18 @@ extern const char* sLA_Ids_Barret[];
 extern const int sNum_LA_Links_Katana;
 extern const char* sLA_Ids_Katana[];
 
+//-- Snake
+extern const int sNum_LA_Links_Snake;
+extern const char* sLA_Ids_Snake[];
+
+//-- LWA4
+extern const int sNum_LA_Links_LWA4;
+extern const char* sLA_Ids_LWA4[];
+
+extern const int sNum_RA_Links_LWA4;
+extern const char* sRA_Ids_LWA4[];
+
+
 // ***************************************
 
 enum eConfig{ ARM_A, ARM_B};
