@@ -33,7 +33,7 @@
 
 % *********************************************************
 % Paper Info
-\title{Redundancy Resolution using a Semi-Local Nullspace-based approach}
+\title{Redundancy Resolution using Backtracking and Nullspace Search}
 \author{Ana Huam\'an Quispe and Mike Stilman% <-this % stops a space
   \thanks{The authors are with the Center for Robotics and Intelligent
     Machines at the Georgia Institute of Technology, Atlanta, GA
@@ -41,16 +41,20 @@
 \maketitle
 
 % *********************************************************
+\textbf{ DO NOT READ THIS YET! IT IS UGLY IN ITS CURRENT FORM }
 \begin{abstract}
 %\boldmath
 Redundant manipulators pose a non-trivial inverse kinematics problem.
-Due to computability restrictions, most of the existing approaches offer
-local optimality guarantees, which is satisfactory for a good range of common 
-manipulating tasks. In this paper, we propose yet another local method based
-on the Jacobian nullspace projection; however our approach offers a 
-different treatment of the nullspace, treating it as a search space rather
-than a mathematical device. We also suggest an intuitive procedure to select
-the joints configuration for the manipulator, based on annealing methods.
+Due to computability restrictions, most of the existing approaches only offer
+local optimality guarantees. Most of these methods are based on the nullspace 
+projection of the Jacobian and in the Motion Rate control approach introduced 
+by Whitney in \cite{Whitney-motionRate-1969}. In this paper, we present a method that also exploits
+the nullspace, but instead of projecting arbitrary configurations, we discretize
+the nullspace and perform a search, selecting the configuration that maximizes
+an optimization function. Additionaly, our algorithm use a backtracking schema 
+to escape of local minima. Simulated experiments show that our algorithm solve
+problems that cannot be solved otherwise by using a simple Motion Rate Control approach.
+We present results with diverse robotic manipulators of up to 9 DOF.  
 \end{abstract}
 
 % **********************************************************
@@ -80,8 +84,7 @@ present a brief overview of the current work on the area in section
 the inverse kinematics problem and based on it we will explain our
 approach on section \ref{sec:ProposedAlgorithm}. We present the 
 results of a serie of simulated experiments in section \ref{sec:Experiments}
-and end the paper with conclusions and future work \ref{sec:Conclusions}.
-
+and end the paper with conclusions and future work in section \ref{sec:Conclusions}.
 
 % ...............................................
 % Cover Figure
@@ -104,7 +107,7 @@ and end the paper with conclusions and future work \ref{sec:Conclusions}.
 The redundance resolution problem has been vastly studied, being the
 pioneering work of Whitney in \emph{Motion Rate Control} (\cite{Whitney-motionRate-1969}) perhaps one of the most influentials in all the methods proposed later. 
 Whitney proposed the use of the \emph{Jacobian pseudoinverse} to obtain
-solutions that minimized the energy spent.  
+solutions that minimized the energy spent. Variations of it included   
 Other authors, such as \cite{liegeois-ns-1977} proposed to use
 secondary goal functions to achieve.
 
