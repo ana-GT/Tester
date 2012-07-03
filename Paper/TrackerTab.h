@@ -42,11 +42,17 @@ class TrackerTab : public GRIPTab
   //Functions
   void OnButton( wxCommandEvent &evt );
 
+  void ExecuteBoth();
+
   // Key variables
   IK *mIk;
   std::vector<Eigen::VectorXd> mExecutePath;
-  std::vector<Eigen::VectorXd> mTrackPath;
-  std::vector<Eigen::VectorXd> mTrack_BT_Path;
+  std::vector<Eigen::VectorXd> mExecutePath_A;
+  std::vector<Eigen::VectorXd> mExecutePath_B;
+  std::vector<Eigen::VectorXd> mTrackPath_A;
+  std::vector<Eigen::VectorXd> mTrackPath_B;
+  std::vector<Eigen::VectorXd> mTrack_BT_Path_A;
+  std::vector<Eigen::VectorXd> mTrack_BT_Path_B;
   std::vector<Eigen::VectorXd> mTrack_LA_Path;
 
   Eigen::VectorXd mNSConf;

@@ -1,5 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% HUMANOIDS VERSION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[conference]{IEEEtran}
 % \documentclass[conference]{../sty/IEEEtran}
 \IEEEoverridecommandlockouts 
@@ -14,6 +16,8 @@
 \usepackage[caption=false,font=footnotesize]{subfig}
 \usepackage{fixltx2e}
 \usepackage{stfloats}
+\usepackage{graphicx}
+\usepackage{subfigure}
 \usepackage{url}
 
 \hyphenation{op-tical net-works semi-conduc-tor}
@@ -77,6 +81,21 @@ the inverse kinematics problem and based on it we will explain our
 approach on section \ref{sec:ProposedAlgorithm}. We present the 
 results of a serie of simulated experiments in section \ref{sec:Experiments}
 and end the paper with conclusions and future work \ref{sec:Conclusions}.
+
+
+% ...............................................
+% Cover Figure
+\begin{figure}[]
+  \centering
+  \subfigure[Workspace Trajectory]{
+    \includegraphics[height=100pt]{figures/Workspace_Path_Barret_1.png} 	
+  }
+  \subfigure[Execution]{
+    \includegraphics[height=100pt]{figures/Barret_1_Mosaic.png} 
+  } 
+  \caption{ Experiment with a 7-DOF Barret Arm}
+  \label{fig:CoverFigure}
+\end{figure}
 
 
 % ***********************************************************

@@ -95,7 +95,7 @@ GRIPTab( _parent, _id, _pos, _size, _style ) {
   RobotType_BoxSizer->Add( new wxRadioBox( this, wxID_ANY, wxT("Robot:"),
 					   wxDefaultPosition, wxDefaultSize,
 					   gNumRobotTypes, gWxRobotNames, 1,
-					   wxRA_SPECIFY_COLS),
+					   wxRA_SPECIFY_ROWS), // COLS / ROWS
 			   1,
 			   wxALIGN_NOT,
 			   0 );

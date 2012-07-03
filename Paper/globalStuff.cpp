@@ -20,8 +20,8 @@
 
 const int gNumRobotTypes = 6;
 const char* gRobotNames[] = {"Mitsubishi", "LWA3", "Barret", "Katana", "Snake", "LWA4"};
-const char* gEEId_A_Names[] = {"EE", "EE", "EE", "EE", "EE", "LJ7"};
-const char* gEEId_B_Names[] = {"RJ7", NULL, NULL, NULL, NULL,"RJ7"};
+const char* gEEId_A_Names[] = {"EE", "EE", "EE", "EE", "EE", "LEE"};
+const char* gEEId_B_Names[] = {"RJ7", NULL, NULL, NULL, NULL,"REE"};
 const wxString gWxRobotNames[] = { wxT( "Mitsubishi" ), wxT("LWA3"), wxT("Barret"), wxT("Katana"), wxT("Snake"), wxT("LWA4") };
 
 //-- MITSUBISHI

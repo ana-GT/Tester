@@ -473,6 +473,7 @@ bool IKSearch::GenerateNSSet( Eigen::VectorXd _q,
   std::vector<int> iC( mNumExtraDOF );
   std::vector<int> iStart( mNumExtraDOF, 0 );
   std::vector<int> iEnd( mNumExtraDOF, mNumCoeff );
+  iEnd[mNumExtraDOF - 1] = 1; /// TRIAL, ERASE
 
   if( GenerateNSSet_RecursiveFor( iC, 0, mNumExtraDOF, qp, ns, _s, _qSet, count, countvalid, iStart, iEnd ) == true ) {
     SortNS( _qSet, _valSet, _prioritySet );

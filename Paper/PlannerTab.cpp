@@ -659,7 +659,7 @@ void PlannerTab::WorkspacePlan_B() {
    printf("---(i) Search Parameters: Alpha: %.3f - Num Paths: %d \n", mAlpha, mNumPaths );
    
    mNodePaths_B = mLjm2_B->FindVarietyPaths2( mStartNode_B(0), mStartNode_B(1), mStartNode_B(2), mTargetNode_B(0), mTargetNode_B(1), mTargetNode_B(2), mNumPaths, mAlpha );
-   mWorkspacePaths_A = mLjm2_A->NodePathToWorkspacePath( mNodePaths_A );
+   mWorkspacePaths_B = mLjm2_B->NodePathToWorkspacePath( mNodePaths_B );
    printf("-------(i) Finished Workpace Planning B (i)------- \n");
     
 } 

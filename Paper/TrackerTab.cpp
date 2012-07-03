@@ -21,9 +21,17 @@ enum TrackerTabEvents {
   button_Track_LA = 50,
   button_Execute_LA,
   button_Plot1S_LA,
-  button_Track_BT,
-  button_Execute_BT,
-  button_Plot_1S_BT,
+
+  button_Track_BT_A,
+  button_Execute_BT_A,
+  button_Plot_1S_BT_A,
+
+  button_Track_BT_B,
+  button_Execute_BT_B,
+  button_Plot_1S_BT_B,
+
+  button_Execute_BT_AB,
+
   button_SetPose_NS,
   button_Search_NS,
   button_Show_NS,
@@ -133,7 +141,7 @@ GRIPTab( parent, id, pos, size, style ) {
   BT_Window_Sizer->Add( BT_Window_Label, 0, wxALL, 1 );  
   BT_Window_Sizer->Add( mBT_Window, 0, wxALL, 1 );
 
-  BT_ButtonSizer->Add( BT_Window_Sizer, 1, wxALIGN_NOT );
+  BT_ButtonSizer->Add( BT_Window_Sizer, 0, wxALL, 1 );
 
   wxBoxSizer *BT_AB_ButtonSizer = new wxBoxSizer( wxHORIZONTAL );
 
@@ -141,11 +149,11 @@ GRIPTab( parent, id, pos, size, style ) {
   wxBoxSizer *BT_A_ButtonSizer = new wxBoxSizer( wxVERTICAL );
 
   // BT Buttons
-  BT_A_ButtonSizer->Add( new wxButton( this, button_Track_BT, _T("Track BT A") ),
+  BT_A_ButtonSizer->Add( new wxButton( this, button_Track_BT_A, _T("Track BT A") ),
 		     1, wxALIGN_NOT );
-  BT_A_ButtonSizer->Add( new wxButton( this, button_Execute_BT, _T("Execute A") ),
+  BT_A_ButtonSizer->Add( new wxButton( this, button_Execute_BT_A, _T("Execute A") ),
 		     1, wxALIGN_NOT );
-  BT_A_ButtonSizer->Add( new wxButton( this, button_Plot_1S_BT, _T("Plot A") ),
+  BT_A_ButtonSizer->Add( new wxButton( this, button_Plot_1S_BT_A, _T("Plot A") ),
 		     1, wxALIGN_NOT );
 
   BT_AB_ButtonSizer->Add( BT_A_ButtonSizer, 0, wxALL, 1 );
@@ -155,17 +163,21 @@ GRIPTab( parent, id, pos, size, style ) {
 
 
   // BT Buttons
-  BT_B_ButtonSizer->Add( new wxButton( this, button_Track_BT, _T("Track BT B") ),
+  BT_B_ButtonSizer->Add( new wxButton( this, button_Track_BT_B, _T("Track BT B") ),
 		     1, wxALIGN_NOT );
-  BT_B_ButtonSizer->Add( new wxButton( this, button_Execute_BT, _T("Execute B") ),
+  BT_B_ButtonSizer->Add( new wxButton( this, button_Execute_BT_B, _T("Execute B") ),
 		     1, wxALIGN_NOT );
-  BT_B_ButtonSizer->Add( new wxButton( this, button_Plot_1S_BT, _T("Plot B") ),
+  BT_B_ButtonSizer->Add( new wxButton( this, button_Plot_1S_BT_B, _T("Plot B") ),
 		     1, wxALIGN_NOT );
 
   BT_AB_ButtonSizer->Add( BT_B_ButtonSizer, 0, wxALL, 1 );
 
    // --*--
-  BT_ButtonSizer->Add( BT_AB_ButtonSizer, 1, wxALIGN_NOT );
+  BT_ButtonSizer->Add( BT_AB_ButtonSizer, 0, wxALL, 1 );
+   // --*--
+  BT_ButtonSizer->Add( new wxButton( this, button_Execute_BT_AB, _T("Track BT Both") ),
+		     1, wxALIGN_NOT );
+
 
   // ** Button sizer LA (Look Ahead) **
   wxBoxSizer *LA_ButtonSizer = new wxBoxSizer( wxVERTICAL );
@@ -221,8 +233,8 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   switch  (button_num) {
     
     
-    /** Track Search Backtrack  IK */
-  case button_Track_BT: {
+    /** Track Search Backtrack  IK -- A */
+  case button_Track_BT_A: {
     std::vector<int> constraints(6); 
     constraints[0] = 1;
     constraints[1] = 1;
@@ -241,7 +253,7 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     mBT_Window->GetValue().ToDouble( &bt_window );
 
     IKSearch* ik = new IKSearch( *mWorld, mCollision );
-    mTrack_BT_Path = ik->Track_BT( gRobotId,
+    mTrack_BT_Path_A = ik->Track_BT( gRobotId,
 				    gLinks_A,
 				    gStartConf_A,
 				    gEEName_A,
@@ -256,6 +268,43 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     delete ik;
   }
     break;
+
+    /** Track Search Backtrack  IK -- B */
+  case button_Track_BT_B: {
+    std::vector<int> constraints(6); 
+    constraints[0] = 1;
+    constraints[1] = 1;
+    constraints[2] = 1;
+    constraints[3] = 0;
+    constraints[4] = 0;
+    constraints[5] = 0;
+
+    double numCoeff;
+    double maxCoeff; 
+    double minCoeff;
+    double bt_window;
+    mNumCoeff->GetValue().ToDouble( &numCoeff );
+    mMaxCoeff->GetValue().ToDouble( &maxCoeff );
+    mMinCoeff->GetValue().ToDouble( &minCoeff );
+    mBT_Window->GetValue().ToDouble( &bt_window );
+
+    IKSearch* ik = new IKSearch( *mWorld, mCollision );
+    mTrack_BT_Path_B = ik->Track_BT( gRobotId,
+				    gLinks_B,
+				    gStartConf_B,
+				    gEEName_B,
+				    gEEId_B,
+				    constraints,
+				    gPosePath_B,
+				    (int) bt_window,
+				    10, // maxChain
+				    numCoeff,
+				    minCoeff,
+				    maxCoeff );
+    delete ik;
+  }
+    break;
+
 
     /** Track Search Look Ahead  IK */
   case button_Track_LA: {
@@ -292,23 +341,42 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     delete ik;
   }
     break;
+
+    /** Execute Search BT3 IK -- A */
+  case button_Execute_BT_A: {
+    SetTimeline( mTrack_BT_Path_A, 5.0 );
+  }
+    break;
+
     
-    /** Execute Search BT3 IK */
-  case button_Execute_BT: {
-    SetTimeline( mTrack_BT_Path, 5.0 );
+    /** Execute Search BT3 IK -- B */
+  case button_Execute_BT_B: {
+    SetTimeline( mTrack_BT_Path_B, 5.0, ARM_B );
+  }
+    break;
+
+   /** Execute Search BT IK -- AB */	
+  case button_Execute_BT_AB: {
+    ExecuteBoth();
   }
     break;
 
     /** Execute Search LA IK */
   case button_Execute_LA: {
-    SetTimeline( mTrack_LA_Path, 5.0 );
+    SetTimeline( mTrack_LA_Path, 5.0, ARM_A );
   }
     break;
 
-    /** Plot BT3 (Backtrack 3) Joint evolution vs step */
-  case button_Plot_1S_BT: {
-    plotVariables( mTrack_BT_Path, "t", "joint", "Joint", "BT Joints vs t" );
+    /** Plot BT3 --A Joint evolution vs step */
+  case button_Plot_1S_BT_A: {
+    plotVariables( mTrack_BT_Path_A, "t", "joint", "Joint", "A: BT Joints vs t" );
   } break;
+
+    /** Plot BT3 --B Joint evolution vs step */
+  case button_Plot_1S_BT_B: {
+    plotVariables( mTrack_BT_Path_B, "t", "joint", "Joint", "B: BT Joints vs t" );
+  } break;
+
 
     /** Plot LA (Look Ahead) Joint evolution vs step */
   case button_Plot1S_LA: {
@@ -369,4 +437,40 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   } break;
 
   }
+}
+
+/**
+ * @function ExecuteBoth
+ */
+void TrackerTab::ExecuteBoth() {
+  double _time = 5.0;
+  printf("--> Start of Executing both \n");
+ if( mWorld == NULL || mTrack_BT_Path_A.size() == 0 || mTrack_BT_Path_B.size() == 0) {
+    std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
+    return;
+  }  
+  
+  if( mTrack_BT_Path_A.size() != mTrack_BT_Path_B.size() ) {
+    std::cout << "--(!) Different sizes of paths A and B" << std::endl;
+  }
+  	
+  int numsteps = mTrack_BT_Path_A.size(); printf("** Num steps A = B : %d \n", numsteps);
+  double increment = _time / (double)numsteps;
+  
+  cout << "-->(+) Updating Timeline - Increment: " << increment << " Total T: " << _time << " Steps: " << numsteps << endl;
+  
+  frame->InitTimer( string("Plan"),increment );
+  
+
+    Eigen::VectorXd vals_A( gLinks_A.size() );
+    Eigen::VectorXd vals_B( gLinks_B.size() );
+  
+    for( size_t i = 0; i < numsteps; ++i ) {
+      mWorld->mRobots[gRobotId]->setDofs( mTrack_BT_Path_A[i], gLinks_A );
+      mWorld->mRobots[gRobotId]->setDofs( mTrack_BT_Path_B[i], gLinks_B );
+      mWorld->mRobots[gRobotId]->update();   
+      frame->AddWorld( mWorld );
+    }
+
+  printf("--> End of Executing both \n");
 }
