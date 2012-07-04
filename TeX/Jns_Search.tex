@@ -1,4 +1,3 @@
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % HUMANOIDS VERSION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -24,10 +23,13 @@
 
 % *********************************************************
 % Math characters shortcuts
+\newcommand{\J}{ \ensuremath{J} }
 \newcommand{\Jps}{ \ensuremath{J^{\dagger}} }
 \newcommand{\dx}{ \ensuremath{\dot{x}} }
-\newcommand{\dt}{ \ensuremath{\dot{\theta}} }
-
+\newcommand{\dq}{ \ensuremath{\dot{\theta}} }
+\newcommand{\q}{ \ensuremath{\theta } }
+\newcommand{\nsb}{ \ensuremath{ \hat{e} } }
+\newcommand{\nsc}{ \ensuremath{ w } }
  
 \begin{document}
 
@@ -45,14 +47,14 @@
 %\boldmath
 Redundant manipulators pose a non-trivial inverse kinematics problem.
 Due to computability restrictions, most of the existing approaches only offer
-local optimality guarantees. Most of these methods are based on the nullspace 
-projection of the Jacobian and in the Motion Rate control approach introduced 
-by Whitney in \cite{Whitney-motionRate-1969}. In this paper, we present a method that also exploits
-the nullspace, but instead of projecting arbitrary configurations, we discretize
+local optimality guarantees. Most of these methods are based on the Gradient
+Projection Method (GPM)\cite{liegeois-ns-1977} which use the self-motions in the
+Jacobian nullspace to achieve secondary tasks. In this paper, we present a method that 
+also exploits the nullspace, but instead of projecting arbitrary configurations, we discretize
 the nullspace and perform a search, selecting the configuration that maximizes
-an optimization function. Additionaly, our algorithm use a backtracking schema 
+an optimization function. Additionally, our algorithm use a backtracking schema 
 to escape of local minima. Simulated experiments show that our algorithm solve
-problems that cannot be solved otherwise by using a simple Motion Rate Control approach.
+problems that cannot be solved otherwise by using GPM.
 We present results with diverse robotic manipulators of up to 9 DOF.  
 \end{abstract}
 
@@ -77,22 +79,19 @@ success criteria \cite{hooper-ns-1995}.
 The present paper focuses on solving the most commonly encountered
 situation in daily life: To track a task space path
 such that it avoids collisions in a static
-environment. We present a brief overview of the current work on the area in section 
-\ref{sec:RelatedWork}. Section \ref{sec:Overview} gives a general overview of
-the inverse kinematics problem and based on it we will explain our
-approach on section \ref{sec:ProposedAlgorithm}. We present the 
-results of a serie of simulated experiments in section \ref{sec:Experiments}
-and end the paper with conclusions and future work in section \ref{sec:Conclusions}.
-
+environment. We present background theory as well as previous work on \ref{sec:Background}. 
+On Section \ref{sec:ProposedAlgorithm} we expose a detailed explanation of our proposed
+algorithm. Results of series of simulated experiments are presented in section \ref{sec:Experiments}. 
+We conclude with conclusions and future work in \ref{sec:Conclusions}.
 % ...............................................
 % Cover Figure
 \begin{figure}[]
   \centering
   \subfigure[Workspace Trajectory]{
-    \includegraphics[height=100pt]{figures/Workspace_Path_Barret_1.png} 	
+    \includegraphics[height=100pt]{figures/Workspace_Path_Barret_1_PinkBG.png} 	
   }
   \subfigure[Execution]{
-    \includegraphics[height=100pt]{figures/mosaicImg_Barret_1.png} 
+    \includegraphics[height=100pt]{figures/Barret_1_Mosaic_small_PinkBG.png} 
   } 
   \caption{ Experiment with a 7-DOF Barret Arm}
   \label{fig:CoverFigure}
@@ -100,42 +99,124 @@ and end the paper with conclusions and future work in section \ref{sec:Conclusio
 
 
 % ***********************************************************
-\section{Related Work}
-\label{sec:RelatedWork}
-The redundance resolution problem has been vastly studied, being the
-pioneering work of Whitney in \emph{Motion Rate Control} (\cite{Whitney-motionRate-1969}) perhaps one of the most influentials in all the methods proposed later. 
-Whitney proposed the use of the \emph{Jacobian pseudoinverse} to obtain
-solutions that minimized the energy spent. Variations of it included   
-Other authors, such as \cite{liegeois-ns-1977} proposed to use
-secondary goal functions to achieve.
-
-An excellent overview of these methods can be found in \cite{siciliano-ns-1990}
-
-% *********************************************************
-\section{Overview}
-\label{sec:Overview}
-
-% ---------------------------------------------------------
-\subsection{The Inverse Kinematic Problem}
-Given a manipulator with $n$ degrees of freedom and a task that
-can be represented by $x$. The direct mapping:
+\section{Background}
+\label{sec:Background}
+The forward kinematics of a manipulator is given as follows:
 
 \begin{equation}
-x = f(\theta) 
-\label{eq:DK}
+x = f(\q)
+\label{eq:FK}
 \end{equation}
+
+and its differential version:
 
 \begin{equation}
-\dt = \Jps \dx + (I - \Jps J)^{-1}\dot{q}_{0}
-\label{eq:IK_MinNorm_Solution}
+\dot{x} = \J \dq
+\label{eq:Diff_FK}
 \end{equation}
 
+where $x \in R^{m}$ and $\q \in R^{n}$, being $m$ and $n$ the dimensions
+of the task and joint space respectively. If $m < n$, the manipulator is
+task redundant. 
 
+There are two main common manipulator tasks (as described in \cite{seereeram-ns-1995}):
+
+\begin{itemize}
+\item{\textit{End-Point Goal:} The manipulator is given start and end task space points. 
+The task is to find a sequence of joint space configurations that connect them. 
+This is most known as a \textit{path planning problem} } 
+\item{\textit{Point-to-Point:} The manipulator is given a task space trajectory to be mapped
+to a joint space trajectory. This is most known as a \textit{tracking problem}, which will be 
+the focus of this paper.}
+\end{itemize}
+
+A particular solution to \ref{eq:Diff_FK}) can be given as:
+
+\begin{equation}
+\dq = \Jps \dx
+\label{eq:IK_ParticularSol}
+\end{equation}
+
+where $\Jps$ is a generalized inverse that can be chosen to minimize a specific criterion. 
+In \cite{Whitney-motionRate-1969} Whitney used the Moore-Penrose to minimize the norm of $\dq$. 
+Whitney further proposed to use a pseudo-inverse Jacobian weighted with the inertia matrix in 
+order to minimize the kinematic energy of the system. A generalization of this is the weighted 
+least-norm (WLM) presented in \cite{chan-ns-1995}, which proved to be particularly effective 
+to avoid joint limits. Recent extensions to this approach include the work of Xiang with GWLM 
+\cite{xiang-ns-2010}.  
+
+The general solution to (\ref{eq:Diff_FK}) can be expressed as:
+\begin{equation}
+\dq = \Jps \dx + (I - \Jps \J)\dq_{0}
+\label{eq:IK_GeneralSol}
+\end{equation}
+. The second term represents the homogeneous solutions or \textit{self-motions}, that is, motions 
+in the configuration space that do not produce motions the task space. 
+
+Homogeneous solutions are configurations in the Jacobian nullspace. These can be found by projecting 
+an arbitrary vector $\dq_{0}$ on the nullspace, such as in (\ref{eq:IK_GeneralSol}) where the columns 
+of $(I - \Jps \J)$ are the basis of the nullspace of $\J$. Most of the proposed methods differ in 
+their choosing of $\dq_{0}$. The most widely used method is the \textit{Gradient projection method} 
+(GPM) proposed by Liegeois in \cite{liegeois-ns-1977}. The GPM method consists on defining a 
+optimization function $H(\q)$ to be minimized. By defining:
+
+\begin{equation}
+\dq_{0} = -\alpha \dfrac{\partial H}{\partial \q}
+\end{equation}
+
+it produces solutions that move the manipulator away from undesirable configurations. 
+Diverse $H$ functions have been used in the literature, such as the measure manipulatability
+ in \cite{yoshikawa-ns-1985}, used to avoid singularities. Other applications include obstacle
+avoidance \cite{klein-ns-1985}, minimization of torques \cite{hollerbach-ns-1985}, avoidance
+of joint limits \cite{liegeois-ns-1977}, among others. An excellent overview of these early
+methods can be found in \cite{siciliano-ns-1990}. For problems with more than one subtask,
+nested approaches have been proposed \cite{chiaverini-ns-1997}\cite{nakamura-ns-1987}, 
+based on the relative priority between each subtask. Other methods instead define a weigthed
+sum of optimization functions, such as in \cite{buss-ns-2006}. 
+
+There are other approaches that tackle the redundancy problem by defining additional constraints
+ such that the problem is no longer redundant. Examples of these are the Extended Jacobian 
+\cite{baillieul-ns-1985} and the Augmented Jacobian \cite{sciavicco-ns-1988}\cite{egeland-ns-1987}. 
+
+The methods mentioned above solve different kind of problems, however all of them share the same 
+weakness of being local, which precludes them to fall in local minima. There are a few global 
+approaches such as  but these are rarely used in practice due to the intensive computation required
+(Add citations). In the next section we propose a method that attempts to escape the local minima by 
+using backtracking in the discretized nullspace of the manipulator.
 
 % *********************************************************
 \section{Proposed Algorithm}
 \label{sec:ProposedAlgorithm}
 
+We saw in section \ref{sec:Background} that the solution to (\ref{eq:Diff_FK}) has the general form:
+
+\begin{equation}
+\dq = \Jps \dx + (I - \Jps \J)\dq_{0}
+\label{eq:IK_GeneralSol_2}
+\end{equation}
+
+where the second right-hand term represents the self-motions in the Jacobian nullspace, which is a
+subspace of dimensions $(n-m)$. Hence, we can write Eq.(\ref{eq:IK_GeneralSol_2}) equivalently as:
+
+\begin{equation}
+\dq = \Jps \dx + \displaystyle \sum_{i=1}^{n-m} \nsc_{i}\nsb_{i}
+\label{eq:Proposed_Eq1}
+\end{equation}
+
+where:
+\begin{itemize}
+\item{ $\nsb_{i}$: Normalized basis of the Jacobian nullspace}
+\item{$\nsc_{i}$: Coefficients of each $\nsb_{i}$}
+\end{itemize}
+
+Both representations are equivalent, however (\ref{eq:Proposed_Eq1}) is of special interest to us since
+instead of having to define a vector $\q_{0} \in R^{n}$, we define it in terms of the $(n-m)$
+coefficient factors $\nsc_{i}$. The problem, however still has potentially infinite solutions.
+
+Our approach proposes, instead of finding a $\q_{0}$ vector (as GPM does), to effectuate a 
+search in the discretized Jacobian nullspace. The discretization is carried out by selecting a range of
+values for $\nsc_{i}$. Notice that, since we are considering the tracking of a task space trajectory, 
+we do only use    
 
 % *********************************************************
 \section{Experiments and Results}
