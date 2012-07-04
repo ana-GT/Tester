@@ -41,7 +41,6 @@
 \maketitle
 
 % *********************************************************
-\textbf{ DO NOT READ THIS YET! IT IS UGLY IN ITS CURRENT FORM }
 \begin{abstract}
 %\boldmath
 Redundant manipulators pose a non-trivial inverse kinematics problem.
@@ -61,7 +60,7 @@ We present results with diverse robotic manipulators of up to 9 DOF.
 \section{Introduction}
 Redundancy is a desirable feature in robotic manipulators. The 
 additional degrees of freedom allow the robot to not only achieve
-its primary goal, such as executing a given workspace path, but 
+its primary goal, such as tracking, but 
 it also endows the system with multiple ways to execute the same 
 task successfully. Diverse uses of redundancy include obstacle 
 avoidance in cluttered environments, control of joint velocities,
@@ -76,10 +75,9 @@ solve the problem under specific assumptions and assessing different
 success criteria \cite{hooper-ns-1995}. 
 
 The present paper focuses on solving the most commonly encountered
-situation in daily life: To map a desired workspace path to a path in
-configuration space such that it avoids collisions in a static
-environment while reducing the energy spent during the execution. We
-present a brief overview of the current work on the area in section 
+situation in daily life: To track a task space path
+such that it avoids collisions in a static
+environment. We present a brief overview of the current work on the area in section 
 \ref{sec:RelatedWork}. Section \ref{sec:Overview} gives a general overview of
 the inverse kinematics problem and based on it we will explain our
 approach on section \ref{sec:ProposedAlgorithm}. We present the 
@@ -94,7 +92,7 @@ and end the paper with conclusions and future work in section \ref{sec:Conclusio
     \includegraphics[height=100pt]{figures/Workspace_Path_Barret_1.png} 	
   }
   \subfigure[Execution]{
-    \includegraphics[height=100pt]{figures/Barret_1_Mosaic.png} 
+    \includegraphics[height=100pt]{figures/mosaicImg_Barret_1.png} 
   } 
   \caption{ Experiment with a 7-DOF Barret Arm}
   \label{fig:CoverFigure}
