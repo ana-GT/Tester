@@ -16,8 +16,9 @@
 \usepackage{fixltx2e}
 \usepackage{stfloats}
 \usepackage{graphicx}
-\usepackage{subfigure}
+\usepackage[]{subfigure}
 \usepackage{url}
+\usepackage[algoruled,vlined,linesnumbered]{algorithm2e}
 
 \hyphenation{op-tical net-works semi-conduc-tor}
 
@@ -210,13 +211,79 @@ where:
 \end{itemize}
 
 Both representations are equivalent, however (\ref{eq:Proposed_Eq1}) is of special interest to us since
-instead of having to define a vector $\q_{0} \in R^{n}$, we define it in terms of the $(n-m)$
-coefficient factors $\nsc_{i}$. The problem, however still has potentially infinite solutions.
+instead of having to define a vector $\q_{0} \in R^{n}$, we define the homogeneous solution in terms of 
+the $(n-m)$ coefficient $\nsc_{i}$. The problem, however still has potentially infinite solutions.
 
 Our approach proposes, instead of finding a $\q_{0}$ vector (as GPM does), to effectuate a 
 search in the discretized Jacobian nullspace. The discretization is carried out by selecting a range of
-values for $\nsc_{i}$. Notice that, since we are considering the tracking of a task space trajectory, 
-we do only use    
+values for each $\nsc_{i}$. Notice that, since we are considering the tracking of a task space \textit{trajectory}, 
+we do only consider homogeneous solutions that are realizable in one time step. To make this clear, please refer 
+to Fig.\ref{fig:SelfMotion_Illustration}. Figures \ref{fig:SelfMotion_Illustration}.a and 
+\ref{fig:SelfMotion_Illustration}.c show the one-step self-motions considered. Figures \ref{fig:SelfMotion_Illustration}.b 
+and \ref{fig:SelfMotion_Illustration}.d show a subset of the possible self-motions corresponding to these 
+that would require more than one time-step to be executed, hence they are not considered in 
+the nullspace search explained in this paper\footnote{Notice that in the
+general case of tracking a \textit{path}, \textit{all} the self-motion configurations should also be considered. We
+are currently working on this topic}.     
+
+% ...............................................
+% Self-motion limitation
+\begin{figure}[]
+  \centering
+  \subfigure[One-step self-motion A]{
+    \includegraphics[height=90pt]{figures/singleNS_illustration1.png} }
+  \subfigure[Set of self-motions A]{
+    \includegraphics[height=90pt]{figures/completeNS_illustration1.png}
+  } \\
+  \subfigure[One-step self-motion B]{
+    \includegraphics[height=90pt]{figures/singleNS_illustration2.png} 	
+  }
+  \subfigure[Set of self-motions B]{
+    \includegraphics[height=90pt]{figures/completeNS_illustration2.png}
+  }  
+  \caption{ Illustration of self-motion considered}
+  \label{fig:SelfMotion_Illustration}
+\end{figure}
+
+Once the set of self-motions is generated we proceed to eliminate the configurations that are in collision, keeping only
+the set of \textit{valid} configurations, from which any can be a possible solution for the task space point evaluated.
+Rather than picking a random configuration from the nullspace set, we choose a configuration such that it maximizes a
+performance optimization function. Previous work such as \cite{kapoor-ns-1998} suggests a serie of diverse functions to assess
+the desirability of each configuration. In particular, we have evaluated the so-called Joint Range Availability measurement (JRA):
+
+\begin{equation}
+\psi(\q)=  \displaystyle \sum_{i=1}^{n} \dfrac{ \q_{i} - {\bar{\q}}_{i} }{ {\q_{i}}_{Max} - {\q_{i}}_{Min} }
+\end{equation}
+
+in our experiments. We save the nullspace sets as priority queues ordered w.r.t. the JRA measure of each configuration. A sketch
+of the algorithm explained so far is shown in Algorithm \ref{alg:NaiveSearch}
+
+% -------------------------------------------------------
+% FindSequencePaths Algorithm
+\begin{algorithm}
+%\dontprintsemicolon
+\KwIn{ ws \tcp*{workspace path}, q \tcp*{initial configuration} } % \tcp*{problem description}
+\KwOut{ wq \tcp*{Jointspace path }  } 
+\BlankLine
+\SetKwFunction{GenerateNS}{GenerateNS()}
+\SetKwFunction{PushQueue}{PushQueue}
+\SetKwFunction{EvaluateMeasure}{EvaluateMeasure}
+\BlankLine
+
+\For{$i \leftarrow 1$ \KwTo ws.\FuncSty{size()}}{
+	\GenerateNS \;
+
+}
+\Return a \;
+\caption{ NaiveSearch }
+\label{alg:NaiveSearch}
+\end{algorithm}
+
+So far, our algorithm is completely local, hence it is prone to fall in local minima. We attempt to 
+
+
+
+
 
 % *********************************************************
 \section{Experiments and Results}
