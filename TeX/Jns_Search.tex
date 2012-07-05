@@ -1,20 +1,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % HUMANOIDS VERSION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\documentclass[letterpaper, 10 pt, conference]{ieeeconf}
 \documentclass[conference]{IEEEtran}
-% \documentclass[conference]{../sty/IEEEtran}
 \IEEEoverridecommandlockouts 
 \usepackage{cite}
 \usepackage[cmex10]{amsmath}
-\usepackage{algorithmic}
+\usepackage{amssymb}
+%\usepackage{algorithmic}
 \usepackage{array}
 \usepackage{mdwmath}
 \usepackage{mdwtab}
 \usepackage{eqparbox}
-\usepackage[tight,footnotesize]{subfigure}
-\usepackage[caption=false,font=footnotesize]{subfig}
-\usepackage{fixltx2e}
-\usepackage{stfloats}
 \usepackage{graphicx}
 \usepackage[]{subfigure}
 \usepackage{url}
@@ -24,14 +21,18 @@
 
 % *********************************************************
 % Math characters shortcuts
-\newcommand{\J}{ \ensuremath{J} }
-\newcommand{\Jps}{ \ensuremath{J^{\dagger}} }
-\newcommand{\dx}{ \ensuremath{\dot{x}} }
-\newcommand{\dq}{ \ensuremath{\dot{\theta}} }
-\newcommand{\q}{ \ensuremath{\theta } }
-\newcommand{\nsb}{ \ensuremath{ \hat{e} } }
-\newcommand{\nsc}{ \ensuremath{ w } }
- 
+\newcommand{\J}{\ensuremath{J}}
+\newcommand{\Jps}{\ensuremath{J^{\dagger}}}
+\newcommand{\dx}{\ensuremath{\dot{x}}}
+\newcommand{\dq}{\ensuremath{\dot{q}}}
+\newcommand{\q}{\ensuremath{q}}
+\newcommand{\JsPath}{\ensuremath{\mathcal{Q}}}
+\newcommand{\WsPath}{\ensuremath{\mathcal{P}}} % Workspace path
+\newcommand{\Wsp}{\ensuremath{p}} % Workspace point
+\newcommand{\nsb}{\ensuremath{\hat{e}}} % Nullspace basis
+\newcommand{\nsc}{\ensuremath{w}}  % Nullspace coefficients
+\newcommand{\nsS}{\ensuremath{\mathcal{NS}}}  % Nullspace Set - vector of queues
+\newcommand{\nss}{\ensuremath{ns}}  % Nullspace element single queue
 \begin{document}
 
 % *********************************************************
@@ -189,6 +190,8 @@ using backtracking in the discretized nullspace of the manipulator.
 \section{Proposed Algorithm}
 \label{sec:ProposedAlgorithm}
 
+% ###################
+\subsection{Basics}
 We saw in section \ref{sec:Background} that the solution to (\ref{eq:Diff_FK}) has the general form:
 
 \begin{equation}
@@ -252,43 +255,258 @@ performance optimization function. Previous work such as \cite{kapoor-ns-1998} s
 the desirability of each configuration. In particular, we have evaluated the so-called Joint Range Availability measurement (JRA):
 
 \begin{equation}
-\psi(\q)=  \displaystyle \sum_{i=1}^{n} \dfrac{ \q_{i} - {\bar{\q}}_{i} }{ {\q_{i}}_{Max} - {\q_{i}}_{Min} }
+JRA(\q)=  \displaystyle \sum_{i=1}^{n} \dfrac{ \q_{i} - {\bar{\q}}_{i} }{ {\q_{i}}_{Max} - {\q_{i}}_{Min} }
 \end{equation}
 
-in our experiments. We save the nullspace sets as priority queues ordered w.r.t. the JRA measure of each configuration. A sketch
-of the algorithm explained so far is shown in Algorithm \ref{alg:NaiveSearch}
+in our experiments. We save the nullspace sets as priority queues ordered w.r.t. the JRA measure of each configuration. The approach explained so far is shown in Algorithm \ref{alg:Simple_Track}
 
 % -------------------------------------------------------
-% FindSequencePaths Algorithm
+% SimpleTrack Algorithm
 \begin{algorithm}
-%\dontprintsemicolon
-\KwIn{ ws \tcp*{workspace path}, q \tcp*{initial configuration} } % \tcp*{problem description}
-\KwOut{ wq \tcp*{Jointspace path }  } 
-\BlankLine
-\SetKwFunction{GenerateNS}{GenerateNS()}
-\SetKwFunction{PushQueue}{PushQueue}
-\SetKwFunction{EvaluateMeasure}{EvaluateMeasure}
-\BlankLine
+\dontprintsemicolon
+\KwIn{ Workspace trajectory $\WsPath$ and initial joint configuration $\q_{0}$ } 
+\KwOut{ Jointspace trajectory $\JsPath$ } 
+\SetKwFunction{GenerateSol}{Generate\_Sol}
+\SetKwFunction{FALSE}{false}
+\SetKwFunction{TRUE}{true}
 
-\For{$i \leftarrow 1$ \KwTo ws.\FuncSty{size()}}{
-	\GenerateNS \;
-
+$\q \leftarrow \q_{0}$ \;
+\BlankLine
+\For{ $i \leftarrow 1$ \KwTo $\WsPath$.\FuncSty{size()} }{
+	\eIf{ \GenerateSol{$\q$, $\WsPath[i]$, $\nsS[i]$ } {\bf is} \FALSE }{
+		\label{algLine:BacktrackLoc} \Return \FALSE \;
+	} {
+		$\q \leftarrow \nsS[i][0]$ \tcp*{Top priority element} \;
+		$\JsPath$.\FuncSty{push\_back($\q$)} \;
+	}
 }
-\Return a \;
-\caption{ NaiveSearch }
-\label{alg:NaiveSearch}
+\BlankLine
+
+\Return \TRUE \;
+\caption{ Simple\_Track( $\WsPath$, $\q_{0}$, $\JsPath$ ) }
+\label{alg:Simple_Track}
 \end{algorithm}
-
-So far, our algorithm is completely local, hence it is prone to fall in local minima. We attempt to 
-
+% -------------------------------------------------------
 
 
+% -------------------------------------------------------
+% GenerateSol Algorithm
+\begin{algorithm}
+\dontprintsemicolon
+\KwIn{ Current joint configuration $\q$, next workspace point $\Wsp$ } 
+\KwOut{ Nullspace queue $\nss$ corresponding to $\q$ } 
+\SetKwFunction{GetPoseError}{GetPoseError}
+\SetKwFunction{ToTaskSpace}{ToTaskSpace}
+\SetKwFunction{IsInCollision}{InCollision}
+\SetKwFunction{IsInLimits}{InLimits}
+\SetKwFunction{JRA}{JRA}
+\SetKwFunction{FALSE}{false}
+\SetKwFunction{TRUE}{true}
+\BlankLine
 
+$ds \leftarrow (\Wsp - \ToTaskSpace{\q})$ \;
+$\q_{p} \leftarrow \Jps(q)\cdot ds$ \tcp*{Least-norm sol}\;
+$ \nsb = \J(q).\FuncSty{kernel()}$ \tcp*{J nullspace basis}\;
+\BlankLine
+\ForAll{combinations of $w_{j}$}{
+ $\q_{ns} \leftarrow \q + \q_{p} + \sum_{j=1}^{m-n}w_{j} \nsb_{j}$ \;
+ \BlankLine
+ \If{$\parallel \Wsp$ - \ToTaskSpace{$\q_{ns}$}$\parallel < $ \ArgSty{thresh} }{
+     \If{ \IsInCollision{$\q_{ns}$} {\bf is} \FALSE \bf{and} \IsInLimits{$\q_{ns}$} {\bf is} \TRUE }{
+     $\nss$.\FuncSty{Push\_Queue($\q_{ns}$,\JRA{$\q_{ns}$}) } \;
+     } 
+	}
+}
+
+\eIf{$\nss$.\FuncSty{size()} $> 0$}{
+	\Return \TRUE \; 
+}(){
+	\Return \FALSE \;
+}
+\caption{ Generate\_Sol( $\q$, $\Wsp$, $\nss$ ) }
+\label{alg:GenerateSol}
+\end{algorithm}
+% -------------------------------------------------------
+
+Algorithm \ref{alg:Simple_Track} is prone to fall in local minima. This
+can be easily seen in Line \ref{algLine:BacktrackLoc} in Algorithm \ref{alg:Simple_Track}, which 
+reports failure if a solution is not found for a workspace point. We know that a solution might exist 
+if previous configurations were chosen differently. Hence, our method improves this by implementing a
+\textit{backtracking schema} that operates whenever local solutions fail. 
+
+% ###################
+\subsection{Backtracking}
+Algorithm \ref{alg:Backtrack} implements a recursive backtracking procedure. It accepts as
+input the current configuration, the stored nullspace sets of the trajectory mapped so far
+and the maximum number of backtracking steps allowed. When a failure is detected at time $i$, our
+algorithm goes back one step ($i-1$), pop up the failing configuration and choose a different one 
+from the $\nsS[i-1]$. Notice that since $nsS$ stores the nullspace sets as priority queues, the next
+configuration to be evaluated is the next best, according to our optimization function. In case the 
+backtrack fails again in producing a valid solution, it backtracks to $i-2$ and it will repeat
+the procedure until it finds a solution or until it reaches the maximum allowed number of backtracking steps.
+
+Of course, backtracking can be computationally intensive if the depth is too big. In order to avoid
+backtracking as much as possible, we must use a reasonable heuristic function such that backtrack is only
+used in extreme cases. In our experiments we only used the $JRA$ function, which seemed to produce adequate results.  
+
+Our proposed method is shown in Algorithm \ref{alg:Complete_Track}. The recursive backtracking routine (which actually
+implements a breadth-first search) is presented in Algorithm \ref{alg:Backtrack}. Notice that the latter algorithm
+depends on the \texttt{ForwardSearch} routine(Algorithm \ref{alg:ForwardSearch}) which searches for a solution from
+the backtracked configuration $(\ArgSty{i}-\ArgSty{step})$. Notice that each time a backtrack is executed, the nullspace sets generated previously
+from $(\ArgSty{i}-\ArgSty{step}-1)$ to $i$ are cleared and updated according to the new configuration found in  $(\ArgSty{i}- \ArgSty{step})$.
+
+% -------------------------------------------------------
+% CompleteTrack Algorithm
+\begin{algorithm}[h]
+\dontprintsemicolon
+\KwIn{ Workspace trajectory $\WsPath$ and initial joint configuration $\q_{0}$,
+maximum backtrack allowed \ArgSty{maxStep} } 
+\KwOut{ Jointspace trajectory $\JsPath$ } 
+\SetKwFunction{GenerateSol}{Generate\_Sol}
+\SetKwFunction{Backtrack}{Backtrack}
+\SetKwFunction{Update}{Update}
+\SetKwFunction{FALSE}{false}
+\SetKwFunction{TRUE}{true}
+
+$\q \leftarrow \q_{0}$ \;
+\BlankLine
+\For{ $i \leftarrow 1$ \KwTo $\WsPath$.\FuncSty{size()} }{
+	\eIf{ \GenerateSol{$\q$, $\WsPath[i]$, $\nsS[i]$ } {\bf is} \FALSE }{
+		\ArgSty{step} $\leftarrow 1$ \;
+		b = \Backtrack{i, step, maxStep, $\nsS$, $\WsPath$} \;
+		\eIf{ b is \FALSE}{
+			\Return \FALSE \;
+		} {
+			\Update{$\JsPath$, \ArgSty{i}, \ArgSty{step}, $\nsS$} \;
+		}
+	} {
+		$\q \leftarrow \nsS[i][0]$ \;
+		$\JsPath$.\FuncSty{push\_back($\q$)} \;
+	}
+}
+\BlankLine
+\Return \TRUE \;
+\caption{ Complete\_Track( $\WsPath$, $\q_{0}$, $\JsPath$, \ArgSty{maxStep} ) }
+\label{alg:Complete_Track}
+\end{algorithm}
+% -------------------------------------------------------
+
+
+% -------------------------------------------------------
+% Backtrack Algorithm
+\begin{algorithm}
+\dontprintsemicolon
+\KwIn{ current index $i$, current backtrack \ArgSty{step}, maximum backtrack \ArgSty{maxStep},
+nullspace sets $\nsS$, workspace trajectory $\WsPath$ } 
+\KwOut{ Updated $\nsS$ } 
+\SetKwFunction{Backtrack}{Backtrack}
+\SetKwFunction{ForwardSearch}{ForwardSearch}
+\SetKwFunction{FALSE}{false}
+\SetKwFunction{TRUE}{true}
+
+\eIf{ step $<$ maxStep}{
+		\eIf{ \ForwardSearch{i, step, maxStep, $\nsS$, $\WsPath$} {\bf is} \FALSE }{
+			\Return \Backtrack{i, step++, maxStep, $\nsS$, $\WsPath$} \;
+		}{
+		\Return \TRUE \;	
+		}	
+}{
+	\Return \ForwardSearch{i, step, maxStep, $\nsS$, $\WsPath$} \;
+}
+\Return \TRUE \;
+\caption{ Backtrack( \ArgSty{i}, \ArgSty{step}, \ArgSty{maxStep}, $\nsS$, $\WsPath$ ) }
+\label{alg:Backtrack}
+\end{algorithm}
+% -------------------------------------------------------
+
+% -------------------------------------------------------
+% ForwardSearch Algorithm
+\begin{algorithm}
+\dontprintsemicolon
+\KwIn{ current index $i$, current backtrack \ArgSty{step}, maximum backtrack \ArgSty{maxStep},
+nullspace sets $\nsS$ } 
+\KwOut{ Updated $\nsS$ } 
+\SetKwFunction{ForwardSearch}{ForwardSearch}
+\SetKwFunction{ForwardClearNS}{ForwardClear\_NS}
+\SetKwFunction{GenerateSol}{Generate\_Sol}
+\SetKwFunction{FALSE}{false}
+\SetKwFunction{TRUE}{true}
+
+\ForwardClearNS{i, step, $\nsS$} \;
+\ArgSty{j} $\leftarrow$ \ArgSty{i - step} \;
+\ArgSty{found} $\leftarrow$ \FALSE \;
+\While{ $\nsS[j]$.\FuncSty{size()}$> 0$ {\bf and} \ArgSty{found} {\bf is} \FALSE }{
+	b $\leftarrow$ \GenerateSol{$\nsS[j][0]$, $\WsPath[j+1]$, $\nsS[j+1]$}\;
+	\eIf{ b is \TRUE}{
+		\eIf{ step $> 1$}{
+			\ArgSty{found} $\leftarrow$ \ForwardSearch{i, \ArgSty{step-1}, \ArgSty{maxStep}, $\nsS$, $\WsPath$} \;
+		} {
+			\ArgSty{found} $\leftarrow$ \TRUE \;
+		}
+	}{
+		$\nsS[j]$.\FuncSty{Pop\_Queue()} \;
+	}
+}
+\BlankLine
+\eIf{ \ArgSty{found} {\bf is} \FALSE}{
+	\eIf{ step {\bf is} maxStep }{
+		\Return \FALSE \;
+	} {
+		$\nsS[j+1]$.\FuncSty{Pop\_Queue()} \;
+	}
+} {
+	\Return \TRUE \;
+}
+\caption{ ForwardSearch( \ArgSty{i}, \ArgSty{step}, \ArgSty{maxStep}, $\nsS$, $\WsPath$) }
+\label{alg:ForwardSearch}
+\end{algorithm}
+% -------------------------------------------------------
+
+% -------------------------------------------------------
+\begin{procedure}
+\dontprintsemicolon
+\SetNoline
+%\KwIn{ current index $i$, backtrack performed \ArgSty{step},
+%nullspace sets $\nsS$ } 
+%\KwOut{ Updated $\JsPath$ after backtracking } 
+\SetKwFunction{FALSE}{false}
+\SetKwFunction{TRUE}{true}
+
+\For{ $j \leftarrow 1$ \KwTo \ArgSty{step} }{
+	\emph{// Update the changed joint trajectory points} \;
+	$\JsPath[i-j] \leftarrow \nsS[i-j][0]$\;
+}
+\caption{ Update($\JsPath$, \ArgSty{i}, \ArgSty{step}, $\nsS$) } 
+\label{proc:Update}
+\end{procedure}
+% -------------------------------------------------------
+
+% -------------------------------------------------------
+\begin{procedure}[noend]
+\dontprintsemicolon
+\SetNoline
+\SetKwFunction{FALSE}{false}
+\SetKwFunction{TRUE}{true}
+\If{ \ArgSty{step} $> 1$ }{
+	\For{$j \leftarrow 1$ \KwTo \ArgSty{step}}{
+	$\nsS[i-j]$.\FuncSty{clear()}\;		
+	}
+}
+\caption{ForwardClearNS(\ArgSty{i}, \ArgSty{step}, $\nsS$)} 
+\label{proc:ForwardClearNS}
+\end{procedure}
+% -------------------------------------------------------
 
 % *********************************************************
 \section{Experiments and Results}
 \label{sec:Experiments}
-
+In this section we present a series of simulated experiments
+with diverse manipulators. The simulations were made using the
+integrated GRIP + DART\footnote{ GRIP (\url{https://github.com/golems/grip})
+is a robotics simulator based on the physical engine DART (\url{https://github.com/golems/dart}).
+Both packages are OpenSource projects currently developed at Georgia Tech} 
+software platform. For collision detection we used the VCOLLIDE\cite{Hudson97v-collide:accelerated}
+package
 
 % *********************************************************
 \section{Conclusions and Future Work}
