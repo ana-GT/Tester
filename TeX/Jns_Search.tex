@@ -37,7 +37,7 @@
 
 % *********************************************************
 % Paper Info
-\title{Redundancy Resolution using Backtracking and Nullspace Search}
+\title{Redundancy Resolution using Backtracking and a Discretized Nullspace-Search Approach}
 \author{Ana Huam\'an Quispe and Mike Stilman% <-this % stops a space
   \thanks{The authors are with the Center for Robotics and Intelligent
     Machines at the Georgia Institute of Technology, Atlanta, GA
@@ -62,29 +62,41 @@ We present results with diverse robotic manipulators of up to 9 DOF.
 
 % **********************************************************
 \section{Introduction}
-Redundancy is a desirable feature in robotic manipulators. The 
+Task redundancy is a desirable feature in robotic manipulators. The 
 additional degrees of freedom allow the robot to not only achieve
-its primary goal, such as tracking, but 
+a primary goal, such as following an end-effector trajectory, but 
 it also endows the system with multiple ways to execute the same 
 task successfully. Diverse uses of redundancy include obstacle 
-avoidance in cluttered environments, control of joint velocities,
-avoidance of singularities, etc.
+avoidance in cluttered environments, joint velocity control,
+singularity avoidance, torque minimization among others.
 
 Although redundancy is advantageous, it comes at a
  cost. The complexity of the manipulator increases, which means
-that the solution of the inverse kinematics problem does not have
-a closed-form solution except for simple or known configurations.
+that the solution of the \emph{inverse kinematics problem} does not have
+a closed-form solution except for particular configurations.
 Multiple approaches have been proposed, most of them tailored to
-solve the problem under specific assumptions and assessing different
-success criteria \cite{hooper-ns-1995}. 
+solve the problem under specific assumptions and hence assessing different
+success criteria depending on the particular task \cite{hooper-ns-1995}. 
 
-The present paper focuses on solving the most commonly encountered
-situation in daily life: To track a task space path
-such that it avoids collisions in a static
-environment. We present background theory as well as previous work on \ref{sec:Background}. 
-On Section \ref{sec:ProposedAlgorithm} we expose a detailed explanation of our proposed
+The inverse kinematics problem was initially analyzed under an industrial
+perspective, where criteria such as minimization of kinetic energy and manipulatability
+were of vital interest. Since robots are slowly making the transition
+of factories to more challenging environment such as homes, the manipulator requirements
+are more complex, hence redundancy is a useful and needed feature.
+ 
+The present paper focuses on solving a task typically encountered by a 
+manipulator: Tracking an end-effector trajectory
+such that the manipulator avoids collisions in a static
+environment. This kind of task is important not only in the context of the robot
+accomplishing a task but it is also a helpful tool for robot learning, facilitating
+the demonstration of a task executed by a human (in which only the end-effector movement becomes 
+the key feature, leaving to the robot the task of figuring out how to replicate the movement with
+its own particular kinematic configuration that may or may not be anthropomorphic). 
+
+We present background inverse kinematic theory and some of the existing approaches in Section \ref{sec:Background}. 
+On Section \ref{sec:ProposedAlgorithm} we describe our proposed
 algorithm. Results of series of simulated experiments are presented in section \ref{sec:Experiments}. 
-We conclude with conclusions and future work in \ref{sec:Conclusions}.
+We end this paper with conclusions and future work in Section \ref{sec:Conclusions}.
 % ...............................................
 % Cover Figure
 \begin{figure}[]
@@ -110,7 +122,7 @@ x = f(\q)
 \label{eq:FK}
 \end{equation}
 
-and its differential version:
+and its differential version is expressed as:
 
 \begin{equation}
 \dot{x} = \J \dq
