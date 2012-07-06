@@ -22,6 +22,7 @@
 #include <list>
 
 #include "Planners/IK/IK.h"
+#include "Planners/IK/IKGradient.h"
 #include "Planners/IK/IKSearch.h"
 #include "globalStuff.h"
 
@@ -54,6 +55,9 @@ class TrackerTab : public GRIPTab
   std::vector<Eigen::VectorXd> mTrack_BT_Path_A;
   std::vector<Eigen::VectorXd> mTrack_BT_Path_B;
   std::vector<Eigen::VectorXd> mTrack_LA_Path;
+
+  ////
+  std::vector<Eigen::VectorXd> mTrack_Test_Path;
 
   Eigen::VectorXd mNSConf;
 

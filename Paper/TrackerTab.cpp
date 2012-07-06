@@ -35,7 +35,13 @@ enum TrackerTabEvents {
   button_SetPose_NS,
   button_Search_NS,
   button_Show_NS,
-  button_Plot_1S_NS
+  button_Plot_1S_NS,
+
+  button_Test_Gradient,
+  button_Test_SimpleSearch,
+  button_Test_LeastNorm,
+  button_Execute_Test,
+  button_Plot_1S_Test
 };
 
 //-- Sizer for TrackerTab
@@ -100,7 +106,7 @@ GRIPTab( parent, id, pos, size, style ) {
   Conf_BoxSizer->Add( CoeffSizer, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
-  sizerFullTab->Add( Conf_BoxSizer, 1, wxEXPAND |wxALL, 4 );
+  sizerFullTab->Add( Conf_BoxSizer, 1, wxEXPAND |wxALL, 5 );
 
 
   // ** NS BOX **
@@ -122,7 +128,7 @@ GRIPTab( parent, id, pos, size, style ) {
   NS_BoxSizer->Add( NS_ButtonSizer, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
-  sizerFullTab->Add( NS_BoxSizer, 1, wxEXPAND |wxALL, 4 );
+  sizerFullTab->Add( NS_BoxSizer, 1, wxEXPAND |wxALL, 5 );
 
 
   // ** Search BOX **
@@ -206,9 +212,31 @@ GRIPTab( parent, id, pos, size, style ) {
   Search_BoxSizer->Add( LA_ButtonSizer, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
-  sizerFullTab->Add( Search_BoxSizer, 2, wxEXPAND |wxALL, 4 );
+  sizerFullTab->Add( Search_BoxSizer, 2, wxEXPAND |wxALL, 5 );
 
+  // ** TEST BOX **
+  wxStaticBox *Test_Box = new wxStaticBox( this, -1, wxT("Test compare") );
+  wxStaticBoxSizer *Test_BoxSizer = new wxStaticBoxSizer( Test_Box, wxVERTICAL );
+  
+  wxBoxSizer *Test_ButtonSizer = new wxBoxSizer( wxVERTICAL );
+  Test_ButtonSizer->Add( new wxButton( this, button_Test_Gradient, _T("Gradient") ),
+		     1, wxALIGN_NOT );
+  Test_ButtonSizer->Add( new wxButton( this, button_Test_SimpleSearch, _T("Simple search") ),
+		     1, wxALIGN_NOT );
+  Test_ButtonSizer->Add( new wxButton( this, button_Test_LeastNorm, _T("Least Norm") ),
+		     1, wxALIGN_NOT );
+  Test_ButtonSizer->Add( new wxButton( this, button_Execute_Test, _T("Execute") ),
+		     1, wxALIGN_NOT );
+  Test_ButtonSizer->Add( new wxButton( this, button_Plot_1S_Test, _T("Plot") ),
+		     1, wxALIGN_NOT );
+ 
+  // Add sizers to Test_BoxSizer 
+  Test_BoxSizer->Add( Test_ButtonSizer, 1, wxALIGN_NOT, 0 );
 
+  // Set the general sizer
+  sizerFullTab->Add( Test_BoxSizer, 1, wxEXPAND |wxALL, 5 );
+
+  // -- * --
   SetSizer( sizerFullTab );
 }
 
@@ -435,6 +463,98 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   case button_Plot_1S_NS: {
     plotVariables( mExecutePath, "t", "joint", "Joint", "Joint vs t" );
   } break;
+
+    // /////////////////////
+    /** TEST GRADIENT JRA */
+  case button_Test_Gradient: {
+    std::vector<int> constraints(6); 
+    constraints[0] = 1;
+    constraints[1] = 1;
+    constraints[2] = 1;
+    constraints[3] = 0;
+    constraints[4] = 0;
+    constraints[5] = 0;
+
+    double maxCoeff;
+    mMaxCoeff->GetValue().ToDouble( &maxCoeff );
+
+    IKGradient* ik = new IKGradient( *mWorld, mCollision );
+    mTrack_Test_Path = ik->Track( gRobotId,
+				  gLinks_A,
+				  gStartConf_A,
+				  gEEName_A,
+				  gEEId_A,
+				  constraints,
+				  gPosePath_A,
+				  maxCoeff );
+    delete ik;
+  } break;
+
+    /** TEST SEARCH WITH NO BACKTRACK */
+  case button_Test_SimpleSearch: {
+
+    std::vector<int> constraints(6); 
+    constraints[0] = 1;
+    constraints[1] = 1;
+    constraints[2] = 1;
+    constraints[3] = 0;
+    constraints[4] = 0;
+    constraints[5] = 0;
+  
+    double numCoeff;
+    double maxCoeff; double minCoeff;
+    mNumCoeff->GetValue().ToDouble( &numCoeff );
+    mMaxCoeff->GetValue().ToDouble( &maxCoeff );
+    mMinCoeff->GetValue().ToDouble( &minCoeff );
+
+    IKSearch* ik = new IKSearch( *mWorld, mCollision );
+    mTrack_Test_Path = ik->Track( gRobotId,
+				  gLinks_A,
+				  gStartConf_A,
+				  gEEName_A,
+				  gEEId_A,
+				  constraints,
+				  gPosePath_A,
+				  20,
+				  (int) numCoeff, 
+				  minCoeff, 
+				  maxCoeff);
+    delete ik;
+
+  } break;
+
+    /** TEST LEAST NORM - WHITNEY*/
+  case button_Test_LeastNorm: {
+
+    std::vector<int> constraints(6); 
+    constraints[0] = 1;
+    constraints[1] = 1;
+    constraints[2] = 1;
+    constraints[3] = 0;
+    constraints[4] = 0;
+    constraints[5] = 0;
+  
+    IK* ik = new IK( *mWorld, mCollision );
+    mTrack_Test_Path = ik->Track( gRobotId,
+				  gLinks_A,
+				  gStartConf_A,
+				  gEEName_A,
+				  gEEId_A,
+				  constraints,
+				  gPosePath_A );
+    delete ik;
+  } break;
+
+    /** EXECUTE THE TESTS! */
+  case button_Execute_Test: {
+    SetTimeline( mTrack_Test_Path, 5.0, ARM_A );
+  } break;
+
+    /** PLOT THE TESTS! */
+  case button_Plot_1S_Test: {
+    plotVariables( mTrack_Test_Path, "t", "joint", "Joint", "Test: Joint vs t" );
+  } break;
+    // /////////////////////
 
   }
 }

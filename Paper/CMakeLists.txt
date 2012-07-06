@@ -50,7 +50,7 @@ set( HDR_PLANNERS
 # *******************
 
 set( SRC_IK 
-  ${SOURCE_1}/Planners/IK/IK.cpp
+  ${SOURCE_1}/Planners/IK/IK.cpp 
   ${SOURCE_1}/Planners/IK/IKSearch.cpp
   ${SOURCE_1}/Planners/IK/IKSearch_LA.cpp
   ${SOURCE_1}/Planners/IK/IKSearch_BT.cpp

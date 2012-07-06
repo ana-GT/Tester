@@ -313,7 +313,7 @@ void IKSearch::NS_Search( Eigen::VectorXd &_q,
 		  count++;
 		  _configSet.push_back( qtemp );
 		  _coeffSet.push_back( coeff );
-		  
+		  std::cout << "qh: " << qh.transpose() << std::endl;
 		  if( mindq.size() == 0 && qh.norm() != 0 ) {
 		    mindq = qh;
 		    minJRM = JRM_Measure( qtemp );
@@ -338,8 +338,13 @@ void IKSearch::NS_Search( Eigen::VectorXd &_q,
   printf("Found %d solutions - valids: %d  \n", count, countvalid );
 
   // Update
+  printf("Adding q \n");
+  std::cout << "* q:" << q.transpose() << std::endl;
+  std::cout << "* mindq:" << mindq.transpose() << std::endl;
   _q = q + mindq;
+  printf("Coeff \n");
   _coeff = minCoeff;
+  printf("Got out of NS Search \n");
 }
 
 

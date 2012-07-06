@@ -92,7 +92,7 @@ GRIPTab( parent, id, pos, size, style ) {
   Conf_BoxSizer->Add( CoeffSizer, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
-  sizerFullTab->Add( Conf_BoxSizer, 1, wxEXPAND |wxALL, 4 );
+  sizerFullTab->Add( Conf_BoxSizer, 1, wxEXPAND |wxALL, 5 );
 
 
   // ** NS BOX **
@@ -114,7 +114,7 @@ GRIPTab( parent, id, pos, size, style ) {
   NS_BoxSizer->Add( NS_ButtonSizer, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
-  sizerFullTab->Add( NS_BoxSizer, 1, wxEXPAND |wxALL, 4 );
+  sizerFullTab->Add( NS_BoxSizer, 1, wxEXPAND |wxALL, 5 );
 
 
   // ** Search BOX **
@@ -170,9 +170,9 @@ GRIPTab( parent, id, pos, size, style ) {
   Search_BoxSizer->Add( LA_ButtonSizer, 1, wxALIGN_NOT, 0 );
 
   // Set the general sizer
-  sizerFullTab->Add( Search_BoxSizer, 2, wxEXPAND |wxALL, 4 );
+  sizerFullTab->Add( Search_BoxSizer, 2, wxEXPAND |wxALL, 5 );
 
-
+  // -- * --
   SetSizer( sizerFullTab );
 }
 
