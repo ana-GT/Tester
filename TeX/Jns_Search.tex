@@ -129,22 +129,25 @@ and its differential version is expressed as:
 \label{eq:Diff_FK}
 \end{equation}
 
-where $x \in R^{m}$ and $\q \in R^{n}$, being $m$ and $n$ the dimensions
+where $x \in R^{m}$, $\q \in R^{n}$, and $m$ and $n$ are the dimensions
 of the task and joint space respectively. If $m < n$, the manipulator is
-task redundant. 
+\emph{task redundant}. 
 
-There are two main common manipulator tasks (as described in \cite{seereeram-ns-1995}):
+Manipulator tasks are varied; however, here we briefly describe two of the most
+common (as it is similary explained in \cite{seereeram-ns-1995}):
 
 \begin{itemize}
-\item{\textit{End-Point Goal:} The manipulator is given start and end task space points. 
+\item{\textit{End-Point Goal Task:} The manipulator is given start and end task space points. 
 The task is to find a sequence of joint space configurations that connect them. 
 This is most known as a \textit{path planning problem} } 
-\item{\textit{Point-to-Point:} The manipulator is given a task space trajectory to be mapped
+\item{\textit{Point-to-Point Task:} The manipulator is given a task space trajectory to be mapped
 to a joint space trajectory. This is most known as a \textit{tracking problem}, which will be 
 the focus of this paper.}
 \end{itemize}
 
-A particular solution to \ref{eq:Diff_FK}) can be given as:
+The inverse kinematics problem consists on finding a mapping such that $\q = f^{-1}(x)$. For
+redundant manipulators there are potentially infinite values $\q$ for a given $x$, which can be obtained
+by solving (\ref{eq:Diff_FK}). A particular solution is given by:
 
 \begin{equation}
 \dq = \Jps \dx
@@ -152,26 +155,28 @@ A particular solution to \ref{eq:Diff_FK}) can be given as:
 \end{equation}
 
 where $\Jps$ is a generalized inverse that can be chosen to minimize a specific criterion. 
-In \cite{Whitney-motionRate-1969} Whitney used the Moore-Penrose to minimize the norm of $\dq$. 
+In \cite{Whitney-motionRate-1969}, Whitney used the Moore-Penrose pseudo-inverse to minimize the norm of $\dq$. 
 Whitney further proposed to use a pseudo-inverse Jacobian weighted with the inertia matrix in 
 order to minimize the kinematic energy of the system. A generalization of this is the weighted 
-least-norm (WLM) presented in \cite{chan-ns-1995}, which proved to be particularly effective 
+least-norm method (WLM) presented in \cite{chan-ns-1995}, which proved to be particularly effective 
 to avoid joint limits. Recent extensions to this approach include the work of Xiang with GWLM 
 \cite{xiang-ns-2010}.  
+\medskip
 
-The general solution to (\ref{eq:Diff_FK}) can be expressed as:
+(\ref{eq:IK_ParticularSol}) is a particular solution of \ref{eq:Diff_FK}. In general, the set of possible solutions can be expressed as:
 \begin{equation}
 \dq = \Jps \dx + (I - \Jps \J)\dq_{0}
 \label{eq:IK_GeneralSol}
 \end{equation}
-. The second term represents the homogeneous solutions or \textit{self-motions}, that is, motions 
-in the configuration space that do not produce motions the task space. 
+
+The second right-hand term represents the homogeneous solutions or \textit{self-motions}, that is, motions 
+in the configuration space that do not produce motions in the task space. 
 
 Homogeneous solutions are configurations in the Jacobian nullspace. These can be found by projecting 
 an arbitrary vector $\dq_{0}$ on the nullspace, such as in (\ref{eq:IK_GeneralSol}) where the columns 
 of $(I - \Jps \J)$ are the basis of the nullspace of $\J$. Most of the proposed methods differ in 
 their choosing of $\dq_{0}$. The most widely used method is the \textit{Gradient projection method} 
-(GPM) proposed by Liegeois in \cite{liegeois-ns-1977}. The GPM method consists on defining a 
+(GPM) proposed by Liegeois in \cite{liegeois-ns-1977}. The GPM method consists on defining an 
 optimization function $H(\q)$ to be minimized. By defining:
 
 \begin{equation}
@@ -190,12 +195,13 @@ sum of optimization functions, such as in \cite{buss-ns-2006}.
 
 There are other approaches that tackle the redundancy problem by defining additional constraints
  such that the problem is no longer redundant. Examples of these are the Extended Jacobian 
-\cite{baillieul-ns-1985} and the Augmented Jacobian \cite{sciavicco-ns-1988}\cite{egeland-ns-1987}. 
+\cite{baillieul-ns-1985} and the Augmented Jacobian \cite{sciavicco-ns-1988}\cite{egeland-ns-1987}.
+\medskip 
 
-The methods mentioned above solve different kind of problems, however all of them share the same 
+The methods mentioned above solve different kinds of problems; however all of them share the same 
 weakness of being local, which precludes them to fall in local minima. There are a few global 
-approaches such as  but these are rarely used in practice due to the intensive computation required
-(Add citations). In the next section we propose a method that attempts to escape the local minima by 
+approaches in the literature, but these are rarely used in practice due to the intensive computation required
+(Add citations). In the next section we propose a method that attempts to escape the local minima curse by 
 using backtracking in the discretized nullspace of the manipulator.
 
 % *********************************************************
@@ -212,7 +218,7 @@ We saw in section \ref{sec:Background} that the solution to (\ref{eq:Diff_FK}) h
 \end{equation}
 
 where the second right-hand term represents the self-motions in the Jacobian nullspace, which is a
-subspace of dimensions $(n-m)$. Hence, we can write Eq.(\ref{eq:IK_GeneralSol_2}) equivalently as:
+subspace of dimensions $(n-m)$. Hence, we can write (\ref{eq:IK_GeneralSol_2}) equivalently as:
 
 \begin{equation}
 \dq = \Jps \dx + \displaystyle \sum_{i=1}^{n-m} \nsc_{i}\nsb_{i}
@@ -234,8 +240,8 @@ search in the discretized Jacobian nullspace. The discretization is carried out 
 values for each $\nsc_{i}$. Notice that, since we are considering the tracking of a task space \textit{trajectory}, 
 we do only consider homogeneous solutions that are realizable in one time step. To make this clear, please refer 
 to Fig.\ref{fig:SelfMotion_Illustration}. Figures \ref{fig:SelfMotion_Illustration}.a and 
-\ref{fig:SelfMotion_Illustration}.c show the one-step self-motions considered. Figures \ref{fig:SelfMotion_Illustration}.b 
-and \ref{fig:SelfMotion_Illustration}.d show a subset of the possible self-motions corresponding to these 
+\ref{fig:SelfMotion_Illustration}.c show the one-step self-motions that can be achieved in one time step. Figures \ref{fig:SelfMotion_Illustration}.b 
+and \ref{fig:SelfMotion_Illustration}.d show the subset of additional self-motions corresponding to these 
 that would require more than one time-step to be executed, hence they are not considered in 
 the nullspace search explained in this paper\footnote{Notice that in the
 general case of tracking a \textit{path}, \textit{all} the self-motion configurations should also be considered. We
@@ -352,7 +358,7 @@ Algorithm \ref{alg:Backtrack} implements a recursive backtracking procedure. It 
 input the current configuration, the stored nullspace sets of the trajectory mapped so far
 and the maximum number of backtracking steps allowed. When a failure is detected at time $i$, our
 algorithm goes back one step ($i-1$), pop up the failing configuration and choose a different one 
-from the $\nsS[i-1]$. Notice that since $nsS$ stores the nullspace sets as priority queues, the next
+from the $\nsS[i-1]$. Notice that since $\nsS$ stores the nullspace sets as priority queues, the next
 configuration to be evaluated is the next best, according to our optimization function. In case the 
 backtrack fails again in producing a valid solution, it backtracks to $i-2$ and it will repeat
 the procedure until it finds a solution or until it reaches the maximum allowed number of backtracking steps.
@@ -364,7 +370,7 @@ used in extreme cases. In our experiments we only used the $JRA$ function, which
 Our proposed method is shown in Algorithm \ref{alg:Complete_Track}. The recursive backtracking routine (which actually
 implements a breadth-first search) is presented in Algorithm \ref{alg:Backtrack}. Notice that the latter algorithm
 depends on the \texttt{ForwardSearch} routine(Algorithm \ref{alg:ForwardSearch}) which searches for a solution from
-the backtracked configuration $(\ArgSty{i}-\ArgSty{step})$. Notice that each time a backtrack is executed, the nullspace sets generated previously
+the backtracked configuration $(\ArgSty{i}-\ArgSty{step})$. Also note that each time a backtrack is executed, the nullspace sets generated previously
 from $(\ArgSty{i}-\ArgSty{step}-1)$ to $i$ are cleared and updated according to the new configuration found in  $(\ArgSty{i}- \ArgSty{step})$.
 
 % -------------------------------------------------------
@@ -608,12 +614,23 @@ workspace to follow.
 % *********************************************************
 \section{Conclusions and Future Work}
 \label{sec:Conclusions}
+We have presented an approach to solve the trajectory tracking
+problem for redundant manipulators based on the discretization of the Jacobian nullspace
+and a backtracking strategy to prevent local minima traps. In contrast
+with previous approaches, we exploit the nullspace by considering more than one possible
+configuration and allow our method to be more flexible. In contrast with previous
+work in which a set of joints were arbitrarily selected as non-redundant, our approach 
+uses the nullspace basis of the Jacobian to perform the search with the minimum required
+values.
 
+As future work, we intend to devise more simulated experiments with more challenging
+scenarios and further test the presented method in a physical manipulator. Additionally,
+we plan to test  our approach with \emph{pose tracking} problems to verify its effectiveness.
 
 % *********************************************************
 \section*{Acknowledgments}
 The authors would like to thank all members of the Humanoid Lab
-at Georgia Tech for their insightful feedback.
+at Georgia Tech for their insightful feedback and continuous support.
 
 % *********************************************************
 %\IEEEtriggeratref{8}
