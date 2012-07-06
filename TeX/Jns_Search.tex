@@ -482,7 +482,7 @@ nullspace sets $\nsS$ }
 % -------------------------------------------------------
 
 % -------------------------------------------------------
-\begin{procedure}[noend]
+\begin{procedure}
 \dontprintsemicolon
 \SetNoline
 \SetKwFunction{FALSE}{false}
@@ -505,12 +505,37 @@ with diverse manipulators. The simulations were made using the
 integrated GRIP + DART\footnote{ GRIP (\url{https://github.com/golems/grip})
 is a robotics simulator based on the physical engine DART (\url{https://github.com/golems/dart}).
 Both packages are OpenSource projects currently developed at Georgia Tech} 
-software platform. For collision detection we used the VCOLLIDE\cite{Hudson97v-collide:accelerated}
-package
+software platform. For collision detection we used the VCOLLIDE package\cite{Hudson97v-collide:accelerated}. All the experiments were
+executed on a Intel 2 Core Duo (2.80GHz).
+
+% ###############################
+\subsection{Preliminaries}
+Before presenting the experiments, some details should be mentioned:
+
+\begin{itemize}
+\item{All the experiments presented are \textit{end-effector position
+tracking} problems. We chose to focus this paper on
+position (rather than pose) tracking since the manipulator
+has more redundant degrees of freedom with respect to
+this kind of tasks. Having less constraints poses a more
+challenging scenario to test our algorithm.}
+\item{The workspace trajectories used in the experiments were generated
+with a low-level workspace planner described in \textit{Tech-Report}}
+\item{All the kinematics evaluations were handled by the DART dynamics package. Additional linear algebra calculations (such as the nullspace basis or the Jacobian pseudo-inverse) were performed using the Eigen\footnote{\url{http://eigen.tuxfamily.org}} C++ library.}
+\item{All the experiments used a discretization of $10$ values per each $\nsc_{i}$. The range of each $\nsc_{i}$ was $[-10,10]$. The nullspace basis $\nsb_{i}$ were normalized to have the same relative norm w.r.t each other.}
+\end{itemize}
 
 % ###############################
 \subsection{Experiment 1: LWA3}
-Our first series of experiments were done with a 7 DOF LWA3 arm, as shown in Fig.\ref{fig:Experiment1_LWA3} 
+Our first series of experiments were done with a 7 DOF
+LWA3 arm, as shown in Fig.\ref{fig:Experiment1_LWA3}. The initial configuration of the
+robot has its end effector below the cabinet. The workspace
+trajectory to follow is shown in Fig.\ref{fig:Experiment1_LWA3}(b). Notice that the
+end-effector trajectory is very close to the cabinet, hence the
+tracking is harder since there are more chances of the manipulator
+links colliding with the object. The resulting execution is
+shown in Fig.\ref{fig:Experiment1_LWA3}(c).
+
 % ...............................................
 % Experiment 1: LWA3
 \begin{figure}[]
@@ -533,11 +558,22 @@ Our first series of experiments were done with a 7 DOF LWA3 arm, as shown in Fig
 
 
 % ###############################
-\subsection{Experiment 1: LWA3}
-Our first series of experiments were done with a 7 DOF LWA3 arm, as shown in Fig.\ref{fig:Experiment1_LWA3} 
+\subsection{Experiment 2: BarretWMA}
+Our second experiment was done with a 7 DOF BarretWMA
+manipulator. The scenary kept the same as in the experiment
+with the LWA3 but the initial configuration of the arm changed
+as it is shown in Fig.4. The arm has its end effector located
+on top of the cabinet and its target location is resting on top
+of the table. The resulting trajectory is shown in Fig.\ref{fig:Experiment2_Barret}.(c).
+In this execution, two backtrack calls were needed (at time
+step 3 and 31 out of the total trajectory of 35 points) both of
+them requiring a depth of 2. Notice that a simple search such
+as GPM is not able to solve this problem for this particular
+workspace to follow.
+
 % ...............................................
 % Experiment 2: Barret Arm
-Our second experiment was done with a 7 DOF BarretWMA manipulator.
+
 \begin{figure}[]
   \centering
   \subfigure[Start conf. and target location]{
@@ -553,7 +589,7 @@ Our second experiment was done with a 7 DOF BarretWMA manipulator.
   %  \includegraphics[height=50pt]{figures/Experiment_LWA3_Path_2_Joints_620x340.png} 
   %}  
   \caption{ Experiment with a 7-DOF LWA3 Schunk arm}
-  \label{fig:Experiment1_LWA3}
+  \label{fig:Experiment2_Barret}
 \end{figure}
 
 
