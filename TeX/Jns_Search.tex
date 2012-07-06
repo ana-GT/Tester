@@ -49,14 +49,14 @@
 %\boldmath
 Redundant manipulators pose a non-trivial inverse kinematics problem.
 Due to computability restrictions, most of the existing approaches only offer
-local optimality guarantees. Most of these methods are based on the Gradient
+local optimality guarantees. The vast majority of these methods are based on the Gradient
 Projection Method (GPM)\cite{liegeois-ns-1977} which use the self-motions in the
-Jacobian nullspace to achieve secondary tasks. In this paper, we present a method that 
-also exploits the nullspace, but instead of projecting arbitrary configurations, we discretize
-the nullspace and perform a search, selecting the configuration that maximizes
-an optimization function. Additionally, our algorithm use a backtracking schema 
-to escape of local minima. Simulated experiments show that our algorithm solve
-problems that cannot be solved otherwise by using GPM.
+Jacobian nullspace to achieve secondary tasks. In this paper, we propose a method that 
+also exploits the nullspace, but instead of projecting arbitrary configurations, our approach 
+discretizes the nullspace and perform an exhaustive search, selecting the configuration(s) that maximizes
+a desirable performance function. Furthermore, our algorithm implements a backtracking schema 
+to prevent failures caused by local minima. Simulated experiments show that our algorithm solve
+tracking problems that cannot be solved otherwise by using a GPM based approach.
 We present results with diverse robotic manipulators of up to 9 DOF.  
 \end{abstract}
 
