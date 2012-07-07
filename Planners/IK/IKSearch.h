@@ -142,7 +142,8 @@ class IKSearch : public IK {
   
     void SortNS( std::vector<Eigen::VectorXd> _configs, 
 		 std::vector<double> &_vals,
-		 std::vector<int> &_priority );
+		 std::vector<int> &_priority,
+		 Eigen::VectorXd _q );
 
   void TrackReset();
   //--------------------------------------------//
@@ -171,6 +172,7 @@ class IKSearch : public IK {
 		 double _maxCoeff = 10.0 );
   void GetCoeff_JRM();
   double JRM_Measure( Eigen::VectorXd _conf );
+  double JVM_Measure( Eigen::VectorXd _conf, Eigen::VectorXd _conf_1 );
 
   // Member
   double mNSNorm;

@@ -37,7 +37,7 @@ int Heap_Insert( int _index,
     parent = (node - 1)/2 ;
     qp = _heap[parent]; qn = _heap[node];   
 
-    if( _vals[ qp ] >= _vals[ qn ] )
+    if( _vals[ qp ] > _vals[ qn ] ) // IT WAS >= should not change
       {
         temp = qp;
         _heap[parent] = qn;  

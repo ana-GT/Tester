@@ -154,7 +154,7 @@ Eigen::VectorXd IKSearch::Getdq( Eigen::VectorXd _q, Eigen::VectorXd _s ) {
 	    countvalid++;
 	    
 	    // Check collisions
-	    if( CheckCollisionConfig( _q + qh ) == false && 
+	    if( CheckCollisionConfig( _q + qh, mLinks ) == false && 
 		IsInLim( (_q + qh) ) == true ) {  
 	      found = true; count++;
 	      if( mindq.size() == 0 ) {
@@ -308,7 +308,7 @@ void IKSearch::NS_Search( Eigen::VectorXd &_q,
 	    countvalid++;
 	    
 	    // Check collisions and lim
-		if( CheckCollisionConfig( qtemp ) == false && 
+		if( CheckCollisionConfig( qtemp, mLinks ) == false && 
 		    IsInLim( qtemp ) == true ) {  
 		  count++;
 		  _configSet.push_back( qtemp );
@@ -378,7 +378,7 @@ bool  IKSearch::NS_GetSample( Eigen::VectorXd &_q,
     return false; 
   }
   
-  if( CheckCollisionConfig( _q ) == true || 
+  if( CheckCollisionConfig( _q, mLinks ) == true || 
       IsInLim( _q ) == false ) {
     return false;
   }
@@ -435,6 +435,16 @@ double IKSearch::JRM_Measure( Eigen::VectorXd _conf ) {
   return val.dot(val);
 }
 
+
+/**
+ * @function JVM_Measure  
+ */
+double IKSearch::JVM_Measure( Eigen::VectorXd _conf, Eigen::VectorXd _conf_1 ) {
+  
+  Eigen::VectorXd val = ( _conf - _conf_1 );
+  return val.dot(val);
+}
+
 /******************** BT and LA functions ********************/
 /**
  * @function TrackReset
@@ -478,10 +488,10 @@ bool IKSearch::GenerateNSSet( Eigen::VectorXd _q,
   std::vector<int> iC( mNumExtraDOF );
   std::vector<int> iStart( mNumExtraDOF, 0 );
   std::vector<int> iEnd( mNumExtraDOF, mNumCoeff );
-  iEnd[mNumExtraDOF - 1] = 1; /// TRIAL, ERASE
+  //iEnd[mNumExtraDOF - 1] = 1; /// TRIAL, ERASE
 
   if( GenerateNSSet_RecursiveFor( iC, 0, mNumExtraDOF, qp, ns, _s, _qSet, count, countvalid, iStart, iEnd ) == true ) {
-    SortNS( _qSet, _valSet, _prioritySet );
+    SortNS( _qSet, _valSet, _prioritySet, _q );
     return true;
   } else {
     return false;
@@ -525,7 +535,7 @@ bool IKSearch::GenerateNSSet_RecursiveFor( std::vector<int> &_i,
       _countvalid++;
       
       //-- Then check collisions and limits
-      if( CheckCollisionConfig( qh ) == false &&
+      if( CheckCollisionConfig( qh, mLinks ) == false &&
 	  IsInLim( qh ) == true ) {
 	//-- Add to set
 	_count++;
@@ -552,12 +562,14 @@ bool IKSearch::GenerateNSSet_RecursiveFor( std::vector<int> &_i,
  */
 void IKSearch::SortNS( std::vector<Eigen::VectorXd> _configs, 
 		       std::vector<double> &_vals,
-		       std::vector<int> &_priority) {
+		       std::vector<int> &_priority,
+			   Eigen::VectorXd _q ) {
   
   int n = _configs.size();
 
   for( size_t i = 0; i < n; ++i ) {
-    _vals.push_back( JRM_Measure(_configs[i]) );
+    //_vals.push_back( JRM_Measure(_configs[i]) );
+    _vals.push_back( JVM_Measure(_configs[i], _q) );
     Heap_Insert( i, _priority, _vals );
   }
   

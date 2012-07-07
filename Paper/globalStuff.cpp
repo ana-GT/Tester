@@ -176,3 +176,12 @@ bool CheckCollisionConfig( Eigen::VectorXd _q, eConfig _which ) {
     mWorld->mRobots[gRobotId]->update();
     return mCollision->CheckCollisions();  
 }
+
+/***/
+bool CheckCollisionConfig( Eigen::VectorXd _q, Eigen::VectorXi _links ) {
+
+    mWorld->mRobots[gRobotId]->setDofs( _q, _links );
+    mWorld->mRobots[gRobotId]->update();
+    return mCollision->CheckCollisions();  
+}
+

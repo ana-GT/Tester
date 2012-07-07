@@ -111,4 +111,5 @@ extern std::vector<Eigen::VectorXd> gPosePath_B;
 Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q, eConfig _which = ARM_A );
 void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time = 5.0, eConfig _which = ARM_A );
 bool CheckCollisionConfig( Eigen::VectorXd _q, eConfig _which = ARM_A );
+bool CheckCollisionConfig( Eigen::VectorXd _q, Eigen::VectorXi _links );
 #endif /** _GLOBAL_STUFF_H_ */

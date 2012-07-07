@@ -41,7 +41,8 @@ enum TrackerTabEvents {
   button_Test_SimpleSearch,
   button_Test_LeastNorm,
   button_Execute_Test,
-  button_Plot_1S_Test
+  button_Plot_1S_Test,
+  button_Execute_Test_withTarget
 };
 
 //-- Sizer for TrackerTab
@@ -180,9 +181,18 @@ GRIPTab( parent, id, pos, size, style ) {
 
    // --*--
   BT_ButtonSizer->Add( BT_AB_ButtonSizer, 0, wxALL, 1 );
+
+   //-- Simulation - special buttons
+   wxBoxSizer *BT_Video_ButtonSizer = new wxBoxSizer( wxHORIZONTAL );
+
+  BT_Video_ButtonSizer->Add( new wxButton( this, button_Execute_BT_AB, _T("Execute both") ),
+		     				 1, wxALIGN_NOT );
+
+  BT_Video_ButtonSizer->Add( new wxButton( this, button_Execute_Test_withTarget, _T("Execute + Target") ),
+		     				 1, wxALIGN_NOT );
+
    // --*--
-  BT_ButtonSizer->Add( new wxButton( this, button_Execute_BT_AB, _T("Track BT Both") ),
-		     1, wxALIGN_NOT );
+  BT_ButtonSizer->Add( BT_Video_ButtonSizer, 0, wxALL, 1 );
 
 
   // ** Button sizer LA (Look Ahead) **
@@ -389,6 +399,10 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
   }
     break;
 
+   case button_Execute_Test_withTarget: {
+    ExecuteBothWithObject();
+  } break;
+
     /** Execute Search LA IK */
   case button_Execute_LA: {
     SetTimeline( mTrack_LA_Path, 5.0, ARM_A );
@@ -593,4 +607,58 @@ void TrackerTab::ExecuteBoth() {
     }
 
   printf("--> End of Executing both \n");
+}
+
+/**
+ * @function ExecuteBothWithObject
+ */
+void TrackerTab::ExecuteBothWithObject() {
+  double _time = 5.0;
+  printf("--> Start of Executing both with Target Object \n");
+ if( mWorld == NULL || mTrack_BT_Path_A.size() == 0 || mTrack_BT_Path_B.size() == 0) {
+    std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
+    return;
+  }  
+
+
+	//-- Identify the target object
+	int objInd;
+    for( size_t i = 0; i < mWorld->mObjects.size(); ++i ) {
+		if( mWorld->mObjects[i]->getName().compare( gTargetObjectName_A ) == 0 ) {
+			objInd = i;
+            std::cout << "* Target :" << gTargetObjectName_A << " - ID: " << objInd << std::endl;
+			break;
+		}
+    }
+
+  if( mTrack_BT_Path_A.size() != mTrack_BT_Path_B.size() ) {
+    std::cout << "--(!) Different sizes of paths A and B" << std::endl;
+  }
+  	
+  int numsteps = mTrack_BT_Path_A.size(); printf("** Num steps A = B : %d \n", numsteps);
+  double increment = _time / (double)numsteps;
+  
+  cout << "-->(+) Updating Timeline - Increment: " << increment << " Total T: " << _time << " Steps: " << numsteps << endl;
+  
+  frame->InitTimer( string("* Planning"),increment );
+  
+
+    Eigen::VectorXd vals_A( gLinks_A.size() );
+    Eigen::VectorXd vals_B( gLinks_B.size() );
+  
+    for( size_t i = 0; i < numsteps; ++i ) {
+
+	  mWorld->mObjects[objInd]->setPositionX( gPosePath_A[i][0] ); 
+      mWorld->mObjects[objInd]->setPositionY( gPosePath_A[i][1] );
+      mWorld->mObjects[objInd]->setPositionZ( gPosePath_A[i][2] );
+      mWorld->mObjects[objInd]->initSkel();
+      double x, y, z;
+	  mWorld->mObjects[objInd]->getPositionXYZ( x, y, z ); 
+      mWorld->mRobots[gRobotId]->setDofs( mTrack_BT_Path_A[i], gLinks_A );
+      mWorld->mRobots[gRobotId]->setDofs( mTrack_BT_Path_B[i], gLinks_B );
+      mWorld->mRobots[gRobotId]->update();   
+      frame->AddWorld( mWorld );
+    }
+
+  printf("--> End of Executing both  with object \n");
 }

@@ -44,6 +44,7 @@ class TrackerTab : public GRIPTab
   void OnButton( wxCommandEvent &evt );
 
   void ExecuteBoth();
+  void ExecuteBothWithObject(); 
 
   // Key variables
   IK *mIk;
