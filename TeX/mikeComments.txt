@@ -1,10 +1,4 @@
-Ana,
 
-Here are some comments on your humanoids paper:
-
-- Overall, you have some very good content. However, you need to work on focusing on a single thesis and proving it throughout the paper. Also, I think the title could be less wordy and more informative ;0} -
-
-- \dontprintsemicolong and \SetNoline don't let me compile it... something's missing or you have some kind of definitions that I don't. I was able to compile it after commenting them out
 
 - You definitely need to do a thorough grammar/spelling check ont this. Get some folks to help you edit (Neil at least).
 
@@ -14,8 +8,6 @@ Here are some comments on your humanoids paper:
 
 - From what I know of your work, you are introducing a \emph{resolution complete} algorithm for workspace trajectory tracking that searchers the robot nullspace. Your method is general to any number of degrees of freedom, making it particularly useful for humanoid robots. Furthermore it is computationally efficient, making it suitable for use in real-time. To our knowledge this is the first resolution complete algorithm for trajectory tracking in high-dimensional spaces.
 
-- Your abstract is a bit too wordy and it doesn't actually statate what problem you are solving :0} Make it very clear what problem you're addressing (right now it sounds like you're solving IK)...
-
 - What are "computability restrictions"? Are you trying to say something "constraints on computational complexity and processing time..." or something like that?
 
 - You only introduce the problem in paragraph 4 of the introduction. It should be introduced from the beginning. Center everything around the problem and the thesis.
@@ -24,10 +16,14 @@ Here are some comments on your humanoids paper:
 
 - There needs to be an Analysis section that shows or proves that your algorithm is resolution complete! A proof is a convincing argument. You just need to convince the reader that in the limit your algorithm will explore all the options of joint-space motion and will return in finite time if no solution exists.
 
-- I anticipate you will be adding the humanoid experiment etc.
+
+- (DONE) Your abstract is a bit too wordy and it doesn't actually statate what problem you are solving :0} Make it very clear what problem you're addressing (right now it sounds like you're solving IK)...
+
+- (DONE) Overall, you have some very good content. However, you need to work on focusing on a single thesis and proving it throughout the paper. Also, I think the title could be less wordy and more informative ;0} -
+
+- (DONE) I anticipate you will be adding the humanoid experiment etc.
 
 - (DONE) Lose the acknowledgements for now
 
-I hope I have another chance to look at this before I take off to Australia - but if not, I think the content is good and as long as the issues above are addressed, you should submit it.
+- (NOTHING TO DO HERE) \dontprintsemicolong and \SetNoline don't let me compile it... something's missing or you have some kind of definitions that I don't. I was able to compile it after commenting them out
 
-Mike

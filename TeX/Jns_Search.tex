@@ -38,7 +38,7 @@
 
 % *********************************************************
 % Paper Info
-\title{Redundancy Resolution using Backtracking and a Discretized Nullspace-Search Approach}
+\title{{D}eterministic {M}otion {P}lanning for {R}edundant {R}obots along {E}nd-{E}ffector {P}aths}
 \author{Ana Huam\'an Quispe and Mike Stilman% <-this % stops a space
   \thanks{The authors are with the Center for Robotics and Intelligent
     Machines at the Georgia Institute of Technology, Atlanta, GA
@@ -48,22 +48,21 @@
 % *********************************************************
 \begin{abstract}
 %\boldmath
-Redundant manipulators pose a non-trivial inverse kinematics problem.
-Due to computability restrictions, most of the existing approaches only offer
-local optimality guarantees. The vast majority of these methods are based on the Gradient
-Projection Method (GPM)\cite{liegeois-ns-1977} which use the self-motions in the
-Jacobian nullspace to achieve secondary tasks. In this paper, we propose a method that 
-also exploits the nullspace, but instead of projecting arbitrary configurations, our approach 
-discretizes the nullspace and perform an exhaustive search, selecting the configuration(s) that maximizes
-a desirable performance function. Furthermore, our algorithm implements a backtracking schema 
-to prevent failures caused by local minima. Simulated experiments show that our algorithm solve
-tracking problems that cannot be solved otherwise by using a GPM based approach.
-We present results with diverse robotic manipulators of up to 9 DOF.  
+In this paper we propose a deterministic approach to solve the \emph{Motion Planning
+along End-Effector Paths problem} (MPEP) for redundant manipulators. Most of the existing
+approaches are based on local optimization, hence they do not
+offer global guarantees of finding a path if it exists. Our proposed method is resolution complete.
+This feature is achieved by discretizing the Jacobian nullspace at each waypoint and selecting the 
+next configuration according to a given heuristic function. To escape from possible local minima, our
+algorithm implements a backtracking strategy that allows our planner to recover from erroneous
+previous configuration choices by performing a breadth-first backwards search procedure. We present the 
+results of simulated experiments performed with diverse manipulators and a humanoid robot.  
+
 \end{abstract}
 
 % **********************************************************
 \section{Introduction}
-Task redundancy is a desirable feature in robotic manipulators. The 
+\cite{oriolo-ns-2002} Task redundancy is a desirable feature in robotic manipulators. The 
 additional degrees of freedom allow the robot to not only achieve
 a primary goal, such as following an end-effector trajectory, but 
 it also endows the system with multiple ways to execute the same 
@@ -102,7 +101,7 @@ We end this paper with conclusions and future work in Section \ref{sec:Conclusio
 % Cover Figure
 \begin{figure}[]
   \centering
-  \subfigure[Workspace Trajectory]{
+  \subfigure[Workspace Path]{
     \includegraphics[height=100pt]{figures/Cover_Barret_1_WorkspacePath.png} 	
   }
   \subfigure[Execution]{
@@ -539,7 +538,7 @@ has more redundant degrees of freedom with respect to
 this kind of tasks. Having less constraints poses a more
 challenging scenario to test our algorithm.}
 \item{The workspace trajectories used in the experiments were generated
-with a low-level workspace planner described in \textit{Tech-Report}}
+with a low-level workspace planner described in \cite{achq-wsp-2012}}
 \item{All the kinematics evaluations were handled by the DART dynamics package. Additional linear algebra calculations (such as the nullspace basis or the Jacobian pseudo-inverse) were performed using the Eigen\footnote{\url{http://eigen.tuxfamily.org}} C++ library.}
 \item{All the experiments used a discretization of $10$ values per each $\nsc_{i}$. The range of each $\nsc_{i}$ was $[-10,10]$. The nullspace basis $\nsb_{i}$ were normalized to have the same relative norm w.r.t each other.}
 \end{itemize}
