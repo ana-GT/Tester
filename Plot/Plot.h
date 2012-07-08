@@ -25,5 +25,9 @@ int plotVariables_d1( std::vector<Eigen::VectorXd> _var,
 		      std::string _variable = "Joint",
 		      std::string _title = "Joint vs time" );
 
+int printPlotData( std::vector<Eigen::VectorXd> _var,
+		   double _dt = 0,
+                   std::string _name = "DataPlot.txt",
+		   std::vector<double> _t = std::vector<double>(0) );
 #endif /** _PLOT_H_ */
 

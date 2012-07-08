@@ -93,3 +93,46 @@ int plotVariables_d1( std::vector<Eigen::VectorXd> _var,
   r = pclose(g);
   
 }
+/**
+ * @function printPlotData
+ */
+int printPlotData( std::vector<Eigen::VectorXd> _var,
+	           double _dt,
+		   std::string _name, 
+		   std::vector<double> _t ) {
+
+    int n = _var.size();
+
+    if( n == 0 ) {
+        printf( " (!) No data to print! \n" );
+        return -1;        
+    }
+
+    int m = _var[0].size();
+	
+    if( _dt == 0 ) {
+        _dt = 1;	// default time step of 1
+    }
+    	
+    if( _t.size() == 0 ) {
+	_t.resize( n );
+        for( size_t i = 0; i < n; ++i ) {
+            _t[i] = i*_dt;
+	}
+    }
+
+    //-- Print
+    FILE *pPlotData = fopen( _name.c_str(), "w" );
+   
+    for( size_t i = 0; i < n; ++i ) {
+	fprintf( pPlotData, "%.3f", _t[i] );
+	for( size_t j = 0; j < m; ++j ) {
+	    fprintf( pPlotData, " %.3f", _var[i][j] );
+	}
+	fprintf( pPlotData, "\n" );
+    }	
+
+    fclose( pPlotData );	
+
+}
+

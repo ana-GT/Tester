@@ -16,6 +16,7 @@
 \usepackage[]{subfigure}
 \usepackage{url}
 \usepackage[algoruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{verbatim}
 
 \hyphenation{op-tical net-works semi-conduc-tor}
 
@@ -558,18 +559,15 @@ shown in Fig.\ref{fig:Experiment1_LWA3}(c).
 % Experiment 1: LWA3
 \begin{figure}[]
   \centering
-  \subfigure[Start conf. and target location]{
-    \includegraphics[height=100pt]{figures/Experiment_LWA3_Path_2_StartTarget_720x540.png} 	
+  \subfigure[Workspace trajectory]{
+    \includegraphics[width=0.45\columnwidth, height=80pt]{figures/LWA3_Experiment/Experiment_LWA3_Path_2_WS.png} 
   }
-  \subfigure[Workspace path $(x,y,z)$]{
-    \includegraphics[height=100pt]{figures/Experiment_LWA3_WSPath_2_450x450.png} 
-  } \\
+  \subfigure[Joint trajectory]{
+    \includegraphics[width=0.45\columnwidth]{figures/LWA3_Experiment/Experiment_LWA3_Path_2_Joints.png} 	
+  }
   \subfigure[Execution]{
-    \includegraphics[height=100pt]{figures/Experiment_LWA3_Path_2_Layered_720x540.png} 	
+    \includegraphics[height=100pt]{figures/LWA3_Experiment/Experiment_LWA3_Path_2_Layered_720x540.png} 	
   }
-  %\subfigure[Joints vs time steps]{
-  %  \includegraphics[height=50pt]{figures/Experiment_LWA3_Path_2_Joints_620x340.png} 
-  %}  
   \caption{ Experiment with a 7-DOF LWA3 Schunk arm}
   \label{fig:Experiment1_LWA3}
 \end{figure}
@@ -594,22 +592,87 @@ workspace to follow.
 
 \begin{figure}[]
   \centering
-  \subfigure[Start conf. and target location]{
-    \includegraphics[height=90pt]{figures/Experiment_Barret_Path_2_StartTarget_560x560.png} 	
-  }
   \subfigure[Workspace path $(x,y,z)$]{
-    \includegraphics[height=100pt]{figures/Experiment_Barret_WSPath_2_550x400.png} 
-  } \\
-  \subfigure[Execution]{
-    \includegraphics[height=90pt]{figures/Experiment_Barret_Path_2_Layered_560x560.png} 	
+    \includegraphics[height=100pt]{figures/Barret_Experiment/Experiment_Barret_Path_2_WS.png} 
+  } 
+  \subfigure[Tracking]{
+    \includegraphics[width=0.45\columnwidth]{figures/Barret_Experiment/Experiment_Barret_Path_2_Joints.png} 	
   }
-  %\subfigure[Joints vs time steps]{
-  %  \includegraphics[height=50pt]{figures/Experiment_LWA3_Path_2_Joints_620x340.png} 
-  %}  
-  \caption{ Experiment with a 7-DOF LWA3 Schunk arm}
+  \subfigure[Execution]{
+    \includegraphics[width=0.45\columnwidth]{figures/Barret_Experiment/Experiment_Barret_Path_2_Layered_560x560.png} 	
+  }
+  \caption{ Experiment with a 7-DOF BarretWMA}
   \label{fig:Experiment2_Barret}
 \end{figure}
 
+
+% ###############################
+\subsection{Experiment 3: Mitsubishi}
+
+\subsubsection{Case 1: Straight Line}
+% ...............................................
+% Experiment 3A: Mitsubishi Arm 
+
+\begin{figure}[]
+  \centering
+  \subfigure[Workspace trajectory]{
+    \includegraphics[width=0.45\columnwidth]{figures/Mitsubishi_A_Experiment/wsPath.png} 	
+  }
+  \subfigure[Tracking]{
+    \includegraphics[width=0.45\columnwidth]{figures/Mitsubishi_A_Experiment/jointPlot.png} 	
+  }
+  \subfigure[Execution]{
+    \includegraphics[height=100pt]{figures/Mitsubishi_A_Experiment/movementOverlay.png} 
+  }
+
+  \caption{ Experiment with a 6-DOF manipulator}
+  \label{fig:Experiment3A_Mitsubishi}
+\end{figure}
+
+
+\subsubsection{Case 2: Straight Line}
+% ...............................................
+% Experiment 3B: Mitsubishi Arm 
+
+\begin{figure}[]
+  \centering
+  \subfigure[Workspace trajectory]{
+    \includegraphics[width=0.45\columnwidth]{figures/Mitsubishi_B_Experiment/wsPath.png} 	
+  }
+  \subfigure[Tracking]{
+    \includegraphics[width=0.45\columnwidth]{figures/Mitsubishi_B_Experiment/jointPlot.png} 	
+  }
+  \subfigure[Execution]{
+    \includegraphics[height=90pt]{figures/Mitsubishi_B_Experiment/movementOverlay.png} 
+  }
+
+  \caption{ Experiment with a 6-DOF manipulator}
+  \label{fig:Experiment3B_Mitsubishi}
+\end{figure}
+
+
+% ###############################
+\subsection{Experiment 4:  Dual-Armed robot}
+
+% ...............................................
+% Experiment 4: LWA4
+\begin{figure}[]
+  \centering
+  \subfigure[Problem setup]{
+    \includegraphics[height=90pt]{figures/LWA4_Experiment/config_Problem.png} 
+  }
+  \subfigure[Workspace traj]{
+    \includegraphics[height=90pt]{figures/LWA4_Experiment/BothWSPaths.png} 	
+  }\\
+  \subfigure[Reach execution]{
+    \includegraphics[height=90pt]{figures/LWA4_Experiment/LWA4_1_Layered_small.png} 	
+  }
+  \subfigure[Move execution]{
+    \includegraphics[height=90pt]{figures/LWA4_Experiment/LWA4_2_Layered_small.png} 	
+  }
+  \caption{ Experiment with a Dual-Armed robot}
+  \label{fig:Experiment4_LWA4}
+\end{figure}
 
 % *********************************************************
 \section{Conclusions and Future Work}
@@ -628,10 +691,11 @@ scenarios and further test the presented method in a physical manipulator. Addit
 we plan to test  our approach with \emph{pose tracking} problems to verify its effectiveness.
 
 % *********************************************************
+\begin{comment}
 \section*{Acknowledgments}
 The authors would like to thank all members of the Humanoid Lab
 at Georgia Tech for their insightful feedback and continuous support.
-
+\end{comment}
 % *********************************************************
 %\IEEEtriggeratref{8}
 %\IEEEtriggercmd{\enlargethispage{-5in}}

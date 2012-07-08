@@ -69,6 +69,11 @@ class ConfigTab : public GRIPTab
   planning::Robot* selectedRobot;
   kinematics::BodyNode* selectedNode;
 
+  /// Video stuff
+  wxTextCtrl *mFPSText;
+  wxTextCtrl *mVideoTimeText;
+
+
   /// Functions about Arm
   void GetLinksId();
 

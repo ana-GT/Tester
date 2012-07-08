@@ -382,14 +382,14 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
 
     /** Execute Search BT3 IK -- A */
   case button_Execute_BT_A: {
-    SetTimeline( mTrack_BT_Path_A, 5.0 );
+    SetTimeline( FormatPathToVideo( mTrack_BT_Path_A ), 5.0 );
   }
     break;
 
     
     /** Execute Search BT3 IK -- B */
   case button_Execute_BT_B: {
-    SetTimeline( mTrack_BT_Path_B, 5.0, ARM_B );
+    SetTimeline( FormatPathToVideo( mTrack_BT_Path_B ), 5.0, ARM_B );
   }
     break;
 
@@ -412,11 +412,13 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     /** Plot BT3 --A Joint evolution vs step */
   case button_Plot_1S_BT_A: {
     plotVariables( mTrack_BT_Path_A, "t", "joint", "Joint", "A: BT Joints vs t" );
+    printPlotData( mTrack_BT_Path_A, 0.1, "Path A" );
   } break;
 
     /** Plot BT3 --B Joint evolution vs step */
   case button_Plot_1S_BT_B: {
     plotVariables( mTrack_BT_Path_B, "t", "joint", "Joint", "B: BT Joints vs t" );
+    printPlotData( mTrack_BT_Path_A, 0.1, "Path B" );
   } break;
 
 
@@ -577,7 +579,7 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
  * @function ExecuteBoth
  */
 void TrackerTab::ExecuteBoth() {
-  double _time = 5.0;
+
   printf("--> Start of Executing both \n");
  if( mWorld == NULL || mTrack_BT_Path_A.size() == 0 || mTrack_BT_Path_B.size() == 0) {
     std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
@@ -587,21 +589,19 @@ void TrackerTab::ExecuteBoth() {
   if( mTrack_BT_Path_A.size() != mTrack_BT_Path_B.size() ) {
     std::cout << "--(!) Different sizes of paths A and B" << std::endl;
   }
-  	
-  int numsteps = mTrack_BT_Path_A.size(); printf("** Num steps A = B : %d \n", numsteps);
-  double increment = _time / (double)numsteps;
-  
-  cout << "-->(+) Updating Timeline - Increment: " << increment << " Total T: " << _time << " Steps: " << numsteps << endl;
-  
-  frame->InitTimer( string("Plan"),increment );
-  
+  	  
+  // Set to Video format
+  std::vector<Eigen::VectorXd> pathA; pathA = FormatPathToVideo( mTrack_BT_Path_A );  
+  std::vector<Eigen::VectorXd> pathB; pathB = FormatPathToVideo( mTrack_BT_Path_B );  
+  int numsteps = pathA.size();  
 
-    Eigen::VectorXd vals_A( gLinks_A.size() );
-    Eigen::VectorXd vals_B( gLinks_B.size() );
-  
+  std::cout << "-->(+) Updating Timeline - Increment: " << 1.0 / gFPS << " Total T: " << gVideoTime << " Steps: " << numsteps << std::endl;  
+  frame->InitTimer( string("Plan"), 1.0 / gFPS );
+
+
     for( size_t i = 0; i < numsteps; ++i ) {
-      mWorld->mRobots[gRobotId]->setDofs( mTrack_BT_Path_A[i], gLinks_A );
-      mWorld->mRobots[gRobotId]->setDofs( mTrack_BT_Path_B[i], gLinks_B );
+      mWorld->mRobots[gRobotId]->setDofs( pathA[i], gLinks_A );
+      mWorld->mRobots[gRobotId]->setDofs( pathB[i], gLinks_B );
       mWorld->mRobots[gRobotId]->update();   
       frame->AddWorld( mWorld );
     }
@@ -613,7 +613,7 @@ void TrackerTab::ExecuteBoth() {
  * @function ExecuteBothWithObject
  */
 void TrackerTab::ExecuteBothWithObject() {
-  double _time = 5.0;
+
   printf("--> Start of Executing both with Target Object \n");
  if( mWorld == NULL || mTrack_BT_Path_A.size() == 0 || mTrack_BT_Path_B.size() == 0) {
     std::cout << "--(!) Must create a valid plan before updating its duration (!)--" << std::endl;
@@ -621,8 +621,8 @@ void TrackerTab::ExecuteBothWithObject() {
   }  
 
 
-	//-- Identify the target object
-	int objInd;
+  //-- Identify the target object
+  int objInd;
     for( size_t i = 0; i < mWorld->mObjects.size(); ++i ) {
 		if( mWorld->mObjects[i]->getName().compare( gTargetObjectName_A ) == 0 ) {
 			objInd = i;
@@ -634,28 +634,22 @@ void TrackerTab::ExecuteBothWithObject() {
   if( mTrack_BT_Path_A.size() != mTrack_BT_Path_B.size() ) {
     std::cout << "--(!) Different sizes of paths A and B" << std::endl;
   }
-  	
-  int numsteps = mTrack_BT_Path_A.size(); printf("** Num steps A = B : %d \n", numsteps);
-  double increment = _time / (double)numsteps;
-  
-  cout << "-->(+) Updating Timeline - Increment: " << increment << " Total T: " << _time << " Steps: " << numsteps << endl;
-  
-  frame->InitTimer( string("* Planning"),increment );
-  
+  	  
+  // Set to Video format
+  std::vector<Eigen::VectorXd> pathA; pathA = FormatPathToVideo( mTrack_BT_Path_A );  
+  std::vector<Eigen::VectorXd> pathB; pathB = FormatPathToVideo( mTrack_BT_Path_B );
+  std::vector<Eigen::VectorXd> pathT; pathT = FormatPathToVideo( gPosePath_A );  
+  int numsteps = pathA.size();  
+ 
+  std::cout << "-->(+) Updating Timeline - Increment: " << 1.0 / gFPS << " Total T: " << gVideoTime << " Steps: " << numsteps << std::endl;  
+  frame->InitTimer( string("* Planning"), 1.0 / gFPS );
 
-    Eigen::VectorXd vals_A( gLinks_A.size() );
-    Eigen::VectorXd vals_B( gLinks_B.size() );
-  
     for( size_t i = 0; i < numsteps; ++i ) {
 
-	  mWorld->mObjects[objInd]->setPositionX( gPosePath_A[i][0] ); 
-      mWorld->mObjects[objInd]->setPositionY( gPosePath_A[i][1] );
-      mWorld->mObjects[objInd]->setPositionZ( gPosePath_A[i][2] );
+      mWorld->mObjects[objInd]->setPositionXYZ( pathT[i][0], pathT[i][1], pathT[i][2] ); 
       mWorld->mObjects[objInd]->initSkel();
-      double x, y, z;
-	  mWorld->mObjects[objInd]->getPositionXYZ( x, y, z ); 
-      mWorld->mRobots[gRobotId]->setDofs( mTrack_BT_Path_A[i], gLinks_A );
-      mWorld->mRobots[gRobotId]->setDofs( mTrack_BT_Path_B[i], gLinks_B );
+      mWorld->mRobots[gRobotId]->setDofs( pathA[i], gLinks_A );
+      mWorld->mRobots[gRobotId]->setDofs( pathB[i], gLinks_B );
       mWorld->mRobots[gRobotId]->update();   
       frame->AddWorld( mWorld );
     }

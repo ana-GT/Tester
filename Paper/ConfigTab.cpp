@@ -33,7 +33,8 @@ enum ConfigTabEvents {
   button_SetStart_B,
   button_ShowStart_B,
   button_SetTarget_B,
-  button_ShowTarget_B
+  button_ShowTarget_B,
+  button_SetVideoParam
 };
 
 
@@ -100,7 +101,7 @@ GRIPTab( _parent, _id, _pos, _size, _style ) {
 			   wxALIGN_NOT,
 			   0 );
 
-  SuperSizer->Add( RobotType_BoxSizer, 2, wxEXPAND | wxALL, 5 );
+  SuperSizer->Add( RobotType_BoxSizer, 3, wxEXPAND | wxALL, 6 );
 
 
   // **** SET ARMS A AND B ****
@@ -138,8 +139,53 @@ GRIPTab( _parent, _id, _pos, _size, _style ) {
   setArm_AB_BoxSizer->Add( setArm_B_Sizer, 0, wxALL, 1 );
 
   // **----- Add to sizerFull -----**
-  SuperSizer->Add( setArm_AB_BoxSizer, 2, wxEXPAND | wxALL, 5 ); 
+  SuperSizer->Add( setArm_AB_BoxSizer, 2, wxEXPAND | wxALL, 6 ); 
 
+
+  // ** VIDEO CONFIGURATION**
+ 
+  // Create StaticBox container for all items
+  wxStaticBox* Video_Box = new wxStaticBox(this, -1, wxT("Video Conf"));
+  
+  // Create sizer for this box with horizontal layout
+  wxStaticBoxSizer* Video_BoxSizer = new wxStaticBoxSizer( Video_Box, wxVERTICAL );
+
+  // Video Parameters
+  wxBoxSizer *VideoParam_Sizer = new wxBoxSizer(wxVERTICAL);
+  
+  // -- FPS --
+  wxBoxSizer *FPS_Sizer = new wxBoxSizer(wxHORIZONTAL);
+  wxStaticText *FPS_Label = new wxStaticText( this, 1013, wxT(" FPS: ") );
+  mFPSText = new wxTextCtrl(this,1014,wxT("20"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);//,wxTE_PROCESS_ENTER | wxTE_RIGHT);
+  
+  FPS_Sizer->Add( FPS_Label, 0, wxALL, 1 );
+  FPS_Sizer->Add( mFPSText, 0, wxALL, 1 );
+  
+  VideoParam_Sizer->Add( FPS_Sizer, 0, wxALL, 1 );
+  
+  // -- Video Time --
+  wxBoxSizer *VideoTime_Sizer = new wxBoxSizer(wxHORIZONTAL);
+  wxStaticText *VideoTime_Label = new wxStaticText( this, 1015, wxT(" Time: ") );
+  mVideoTimeText = new wxTextCtrl(this,1016,wxT("5"), wxDefaultPosition,wxSize(40,20),wxTE_LEFT);//,wxTE_PROCESS_ENTER | wxTE_RIGHT);
+
+  VideoTime_Sizer->Add( VideoTime_Label, 0, wxALL, 1 );
+  VideoTime_Sizer->Add( mVideoTimeText, 0, wxALL, 1 );
+  
+  VideoParam_Sizer->Add( VideoTime_Sizer, 0, wxALL, 1 );
+
+  // -- * --
+  Video_BoxSizer->Add( VideoParam_Sizer, 0, wxALIGN_NOT, 1 );
+
+  // -- Video Button -- 
+  wxBoxSizer *VideoButton_Sizer = new wxBoxSizer( wxHORIZONTAL );
+  VideoButton_Sizer->Add( new wxButton(this, button_SetVideoParam, wxT("Set")), 0, wxALL, 1 );
+
+  // -- * --
+  Video_BoxSizer->Add( VideoButton_Sizer, 1, wxALIGN_NOT ); 
+
+
+  // **----- Add to sizerFull -----**
+  SuperSizer->Add( Video_BoxSizer, 1, wxEXPAND | wxALL, 6 );
 
   // **** Set SuperSizer ****
   SetSizer( SuperSizer);
@@ -420,6 +466,14 @@ void ConfigTab::OnButton( wxCommandEvent &_evt ) {
   }
     break;
 
+  /** Set Video parameters */
+  case button_SetVideoParam: {
+      //-- Get data from Text	
+      mFPSText->GetValue().ToDouble( &gFPS );
+      mVideoTimeText->GetValue().ToDouble( &gVideoTime );
+
+  }
+    break;
     
 
   }  // End of switch

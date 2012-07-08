@@ -53,6 +53,9 @@ extern const char* sLA_Ids_LWA4[];
 extern const int sNum_RA_Links_LWA4;
 extern const char* sRA_Ids_LWA4[];
 
+// ***************************************
+extern double gFPS;	// Frames per second, usually 20
+extern double gVideoTime; // Duration of the video
 
 // ***************************************
 
@@ -112,4 +115,5 @@ Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q, eConfig _which = ARM_A );
 void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time = 5.0, eConfig _which = ARM_A );
 bool CheckCollisionConfig( Eigen::VectorXd _q, eConfig _which = ARM_A );
 bool CheckCollisionConfig( Eigen::VectorXd _q, Eigen::VectorXi _links );
+std::vector<Eigen::VectorXd> FormatPathToVideo( std::vector<Eigen::VectorXd> _path );
 #endif /** _GLOBAL_STUFF_H_ */

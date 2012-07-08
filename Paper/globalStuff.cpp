@@ -51,6 +51,9 @@ const char* sLA_Ids_LWA4[sNum_LA_Links_LWA4] = {"LJ1", "LJ2", "LJ3", "LJ4", "LJ5
 const int sNum_RA_Links_LWA4 = 7;
 const char* sRA_Ids_LWA4[sNum_RA_Links_LWA4] = {"RJ1", "RJ2", "RJ3", "RJ4", "RJ5", "RJ6", "RJ7"};
 
+// ***********************************
+double gFPS;	
+double gVideoTime; 
 
 // ***********************************
 //-- Declare global variables once
@@ -184,4 +187,28 @@ bool CheckCollisionConfig( Eigen::VectorXd _q, Eigen::VectorXi _links ) {
     mWorld->mRobots[gRobotId]->update();
     return mCollision->CheckCollisions();  
 }
+
+/**
+ * @function FormatPathToVideo
+ */
+std::vector<Eigen::VectorXd> FormatPathToVideo( std::vector<Eigen::VectorXd> _path ) {
+
+    std::vector<Eigen::VectorXd> newPath;
+
+    int s = _path.size();
+    int n = (int)( gFPS*gVideoTime );
+    int m = n / (s-1);
+ 
+    newPath.push_back( _path[0] );
+
+    for( size_t i = 1; i < s; ++i ) {
+        Eigen::VectorXd dp = ( _path[i] - _path[i-1] )/m;
+        for( size_t j = 1; j <= m; ++j ) {
+            newPath.push_back( _path[i-1] +  dp* j );
+        }
+    }
+    return newPath;	
+
+}
+
 
