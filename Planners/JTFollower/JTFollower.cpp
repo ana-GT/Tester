@@ -5,8 +5,8 @@
  * @date March 07th, 2012
  */
 
-#include <planning/Robot.h>
-#include <planning/Object.h>
+#include <robotics/Robot.h>
+#include <robotics/Object.h>
 #include <kinematics/BodyNode.h>
 #include <kinematics/TrfmTranslate.h>
 #include <kinematics/Transformation.h>
@@ -27,7 +27,7 @@ JTFollower::JTFollower() {
  * @function JTFollower
  * @brief Constructor
  */
-JTFollower::JTFollower( planning::World &_world, 
+JTFollower::JTFollower( robotics::World &_world, 
                         Collision *_collision,
                         bool _copyWorld, double _configStep ) {
 
@@ -71,7 +71,7 @@ std::vector< Eigen::VectorXd > JTFollower::PlanPath( int _robotId,
 
   mMaxIter = 100;
   mWorkspaceThresh = _res; // An error of half the resolution
-  mEENode = mWorld->mRobots[mRobotId]->getNode( _EEName.c_str() );
+  mEENode = mWorld->getRobot(mRobotId)->getNode( _EEName.c_str() );
   mEEId = _EEId;
 
 
@@ -148,8 +148,8 @@ Eigen::VectorXd JTFollower::GetXYZ( Eigen::VectorXd _q ) {
 
 	
   	// Get current XYZ position
-  	mWorld->mRobots[mRobotId]->setDofs( _q, mLinks );
-  	mWorld->mRobots[mRobotId]->update();
+  	mWorld->getRobot(mRobotId)->setDofs( _q, mLinks );
+  	mWorld->getRobot(mRobotId)->update();
 
   	Eigen::MatrixXd qTransform = mEENode->getWorldTransform();
   	Eigen::VectorXd qXYZ(3); qXYZ << qTransform(0,3), qTransform(1,3), qTransform(2,3);

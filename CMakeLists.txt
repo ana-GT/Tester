@@ -5,22 +5,22 @@ project ( Tester )
 
 set (CMAKE_INSTALL_PREFIX /usr/local )
 set (CMAKE_CXX_COMPILER "g++-4.4" )
-set (CMAKE_CXX_FLAGS " -g -O0 -Wall -Wextra -Wpointer-arith -fno-default-inline -fno-implicit-inline-templates -DwxUSE_THREADS")
+set( CMAKE_CXX_FLAGS "-L /usr/local/lib" )
 
-include (${CMAKE_INSTALL_PREFIX}/share/dart/DART_config.cmake)
+include (${CMAKE_INSTALL_PREFIX}/share/dart/DARTConfig.cmake)
 include (${CMAKE_INSTALL_PREFIX}/share/grip/GRIP_config.cmake)
 
 find_package( PCL 1.1 REQUIRED )
 
 include_directories( /usr/include/eigen3
   ${PCL_INCLUDE_DIRS}
+  ${DART_INCLUDE_DIRS}
   . )
 
 link_directories( ${PCL_LIBRARY_DIRS} )
 add_definitions( ${PCL_DEFINITIONS} ) 
 
 message ( STATUS "Creating Makefile for Tester" )
-set( CMAKE_CXX_FLAGS "-L /usr/local/lib" )
 
 
 set( SRC_PLANNERS Planners/RRT/RRT.cpp
@@ -81,7 +81,8 @@ if (wxWidgets_FOUND)
   add_executable ( TesterTab  ${HDR_FILES} ${SRC_FILES} ${SRC_PLANNERS} ${HDR_PLANNERS} ${HDR_IK} ${SRC_IK} ${SRC_PLOT} ${HDR_PLOT} ${SRC_UTILS} ${HDR_UTILS} )
   target_link_libraries( TesterTab ${PCL_LIBRARIES}
     ${GRIP_LIBRARIES} 
-    ${DART_LIBRARIES} 
+    #${DART_LIBRARIES} 
+    robotics dynamics kinematics utils assimp
     ${wxWidgets_LIBRARIES} )	
 
    

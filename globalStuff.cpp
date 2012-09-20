@@ -50,8 +50,8 @@ std::vector<Eigen::VectorXd> gPosePath;
  */
 Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q ) {
 
-    mWorld->mRobots[gRobotId]->setDofs( _q, gLinks );
-    mWorld->mRobots[gRobotId]->update();
+    mWorld->getRobot(gRobotId)->setDofs( _q, gLinks );
+    mWorld->getRobot(gRobotId)->update();
     Eigen::MatrixXd pose = gEENode->getWorldTransform(); 
     Eigen::VectorXd xyz(3); xyz << pose(0,3), pose(1,3), pose(2,3);
 
@@ -79,8 +79,8 @@ void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time ) {
   Eigen::VectorXd vals( gLinks.size() );
   
   for( size_t i = 0; i < numsteps; ++i ) {
-    mWorld->mRobots[gRobotId]->setDofs( _path[i], gLinks );
-    mWorld->mRobots[gRobotId]->update();
+    mWorld->getRobot(gRobotId)->setDofs( _path[i], gLinks );
+    mWorld->getRobot(gRobotId)->update();
     
     frame->AddWorld( mWorld );
   }
@@ -90,8 +90,16 @@ void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time ) {
  * @function CheckCollisionConfig
  * @brief Check if there is a collision in the specified manipulator config
  */
-bool CheckCollisionConfig( Eigen::VectorXd _q ) {
-  mWorld->mRobots[gRobotId]->setDofs( _q, gLinks );
-  mWorld->mRobots[gRobotId]->update();
+/*bool CheckCollisionConfig( Eigen::VectorXd _q ) {
+  mWorld->getRobot(gRobotId)->setDofs( _q, gLinks );
+  mWorld->getRobot(gRobotId)->update();
   return mCollision->CheckCollisions();  
+  }*/
+
+/***/
+bool CheckCollisionConfig( Eigen::VectorXd _q, Eigen::VectorXi _links ) {
+
+    mWorld->getRobot(gRobotId)->setDofs( _q, _links );
+    mWorld->getRobot(gRobotId)->update();
+    return mCollision->CheckCollisions();  
 }

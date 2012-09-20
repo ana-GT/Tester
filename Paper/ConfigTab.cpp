@@ -206,7 +206,7 @@ ConfigTab::~ConfigTab(){
  */
 void ConfigTab::GetLinksId() {
 
-  Eigen::VectorXi linksAll = mWorld->mRobots[gRobotId]->getQuickDofsIndices();  
+  Eigen::VectorXi linksAll = mWorld->getRobot(gRobotId)->getQuickDofsIndices();  
 
   //-- **** MITSUBISHI ****
   if( gRobotName.compare( gRobotNames[0] ) == 0 ) {
@@ -215,7 +215,7 @@ void ConfigTab::GetLinksId() {
 
     for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
       for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
-	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(),
+	if( strcmp( mWorld->getRobot(gRobotId)->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(),
 		    sLA_Ids_Mitsubishi[i] ) == 0 ) {
 	  gLinks_A[i] = linksAll[j]; 
 	  break;   
@@ -232,7 +232,7 @@ void ConfigTab::GetLinksId() {
 
     for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
       for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
-	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(),
+	if( strcmp( mWorld->getRobot(gRobotId)->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(),
 		    sLA_Ids_LWA3[i] ) == 0 ) {
 	  gLinks_A[i] = linksAll[j]; 
 	  break;   
@@ -249,7 +249,7 @@ void ConfigTab::GetLinksId() {
 
     for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
       for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
-	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
+	if( strcmp( mWorld->getRobot(gRobotId)->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
 		    sLA_Ids_Barret[i] ) == 0 ) {
 	  gLinks_A[i] = linksAll[j]; 
 	  break;   
@@ -265,7 +265,7 @@ void ConfigTab::GetLinksId() {
 
     for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
       for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
-	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
+	if( strcmp( mWorld->getRobot(gRobotId)->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
 		    sLA_Ids_Katana[i] ) == 0 ) {
 	  gLinks_A[i] = linksAll[j]; 
 	  break;   
@@ -281,7 +281,7 @@ void ConfigTab::GetLinksId() {
 
     for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
       for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
-	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
+	if( strcmp( mWorld->getRobot(gRobotId)->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
 		    sLA_Ids_Snake[i] ) == 0 ) {
 	  gLinks_A[i] = linksAll[j]; 
 	  break;   
@@ -298,7 +298,7 @@ void ConfigTab::GetLinksId() {
 
     for( unsigned int i = 0; i < gNumLinks_A; i++ ) {
       for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
-	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
+	if( strcmp( mWorld->getRobot(gRobotId)->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
 		    sLA_Ids_LWA4[i] ) == 0 ) {
 	  gLinks_A[i] = linksAll[j]; 
 	  break;   
@@ -310,7 +310,7 @@ void ConfigTab::GetLinksId() {
     gLinks_B.resize( gNumLinks_B );
     for( unsigned int i = 0; i < gNumLinks_B; i++ ) {
       for( unsigned int j = 0; j < linksAll.size(); j++ ) {      
-	if( strcmp( mWorld->mRobots[gRobotId]->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
+	if( strcmp( mWorld->getRobot(gRobotId)->getDof( linksAll[j] )->getJoint()->getChildNode()->getName(), 
 		    sRA_Ids_LWA4[i] ) == 0 ) {
 	  gLinks_B[i] = linksAll[j]; 
 	  break;   
@@ -342,13 +342,13 @@ void ConfigTab::OnButton( wxCommandEvent &_evt ) {
   case button_SetStart_A: {
     
     if ( mWorld != NULL ) {
-      if( mWorld->mRobots.size() < 1) {
+      if( mWorld->getNumRobots() < 1) {
 	cout << "--(!) Must have a world with a robot to set a Start state (!)--" << endl;
 	break;
       }
       std::cout << "--(i) Setting Start state for " << gRobotName << ":" << std::endl;
       
-      gStartConf_A = mWorld->mRobots[gRobotId]->getDofs( gLinks_A );
+      gStartConf_A = mWorld->getRobot(gRobotId)->getDofs( gLinks_A );
       
       for( unsigned int i = 0; i < gStartConf_A.size(); i++ )
 	{  std::cout << gStartConf_A(i) << " ";  } 
@@ -367,13 +367,13 @@ void ConfigTab::OnButton( wxCommandEvent &_evt ) {
       break;
     } 
     
-    mWorld->mRobots[gRobotId]->setDofs( gStartConf_A, gLinks_A );
+    mWorld->getRobot(gRobotId)->setDofs( gStartConf_A, gLinks_A );
     
     for( unsigned int i = 0; i< gStartConf_A.size(); i++ )
       {  std::cout << gStartConf_A(i) << " "; }
     std::cout << std::endl;
     
-    mWorld->mRobots[gRobotId]->update();
+    mWorld->getRobot(gRobotId)->update();
     viewer->UpdateCamera();
   }
     break;
@@ -382,7 +382,7 @@ void ConfigTab::OnButton( wxCommandEvent &_evt ) {
   case button_SetTarget_A: {
     
     if( mWorld != NULL ) {  
-      if( mWorld->mRobots.size() < 1 )
+      if( mWorld->getNumRobots() < 1 )
 	{  printf("---------(xx) No robot in the loaded world, you idiot, I need one! (xx)---------- \n"); break; }
       
       if( selectedObject != NULL )
@@ -407,13 +407,13 @@ void ConfigTab::OnButton( wxCommandEvent &_evt ) {
   case button_SetStart_B: {
     
     if ( mWorld != NULL ) {
-      if( mWorld->mRobots.size() < 1) {
+      if( mWorld->getNumRobots() < 1) {
 	cout << "--(!) Must have a world with a robot to set a Start state (!)--" << endl;
 	break;
       }
       std::cout << "--(i) Setting Start state for " << gRobotName << ":" << std::endl;
       
-      gStartConf_B = mWorld->mRobots[gRobotId]->getDofs( gLinks_B );
+      gStartConf_B = mWorld->getRobot(gRobotId)->getDofs( gLinks_B );
       
       for( unsigned int i = 0; i < gStartConf_B.size(); i++ )
 	{  std::cout << gStartConf_B(i) << " ";  } 
@@ -432,13 +432,13 @@ void ConfigTab::OnButton( wxCommandEvent &_evt ) {
       break;
     } 
     
-    mWorld->mRobots[gRobotId]->setDofs( gStartConf_B, gLinks_B );
+    mWorld->getRobot(gRobotId)->setDofs( gStartConf_B, gLinks_B );
     
     for( unsigned int i = 0; i< gStartConf_B.size(); i++ )
       {  std::cout << gStartConf_B(i) << " "; }
     std::cout << std::endl;
     
-    mWorld->mRobots[gRobotId]->update();
+    mWorld->getRobot(gRobotId)->update();
     viewer->UpdateCamera();
   }
     break;
@@ -446,7 +446,7 @@ void ConfigTab::OnButton( wxCommandEvent &_evt ) {
     // **** Set Target B ****
   case button_SetTarget_B: {
     if( mWorld != NULL ) {  
-      if( mWorld->mRobots.size() < 1 )
+      if( mWorld->getNumRobots() < 1 )
 	{  printf("---------(xx) No robot in the loaded world, you idiot, I need one! (xx)---------- \n"); break; }
       
       if( selectedObject != NULL )
@@ -495,7 +495,7 @@ void ConfigTab::OnRadio( wxCommandEvent &_evt ) {
     gRobotName = gRobotNames[num];
     // Set EE for arm A
     gEEName_A = gEEId_A_Names[num];
-    gEENode_A = mWorld->mRobots[gRobotId]->getNode( gEEName_A.c_str() );
+    gEENode_A = mWorld->getRobot(gRobotId)->getNode( gEEName_A.c_str() );
     gEEId_A = gEENode_A->getSkelIndex();
     // Display Info
     std::cout << "--> Robot set: " << gRobotName << std::endl;
@@ -505,7 +505,7 @@ void ConfigTab::OnRadio( wxCommandEvent &_evt ) {
 	if( num == 5 ) {
     // Set EE for arm B
     gEEName_B = gEEId_B_Names[num];
-    gEENode_B = mWorld->mRobots[gRobotId]->getNode( gEEName_B.c_str() );
+    gEENode_B = mWorld->getRobot(gRobotId)->getNode( gEEName_B.c_str() );
     gEEId_B = gEENode_B->getSkelIndex();	
     std::cout << "--> [B] End Effector: " << gEEName_B << " ID: " << gEEId_B << std::endl;
 	}
@@ -534,14 +534,14 @@ void ConfigTab::GRIPStateChange() {
   switch (selectedTreeNode->dType) {
 
   case Return_Type_Object:
-    selectedObject = (planning::Object*) ( selectedTreeNode->data );
+    selectedObject = (robotics::Object*) ( selectedTreeNode->data );
     statusBuf = " Selected Object: " + selectedObject->getName();
     buf = "You clicked on object: " + selectedObject->getName();
     // Enter action for object select events here:
     break;
     
   case Return_Type_Robot:
-    selectedRobot = (planning::Robot*) ( selectedTreeNode->data );
+    selectedRobot = (robotics::Robot*) ( selectedTreeNode->data );
     statusBuf = " Selected Robot: " + selectedRobot->getName();
     buf = " You clicked on robot: " + selectedRobot->getName();
     // Enter action for Robot select events here:
@@ -550,8 +550,8 @@ void ConfigTab::GRIPStateChange() {
   case Return_Type_Node:
     selectedNode = (kinematics::BodyNode*) ( selectedTreeNode->data );
     statusBuf = " Selected Body Node: " + string(selectedNode->getName()) + " of Robot: "
-      + ( (planning::Robot*) selectedNode->getSkel() )->getName();
-    buf = " Node: " + string(selectedNode->getName()) + " of Robot: " + ( (planning::Robot*) selectedNode->getSkel() )->getName();
+      + ( (robotics::Robot*) selectedNode->getSkel() )->getName();
+    buf = " Node: " + string(selectedNode->getName()) + " of Robot: " + ( (robotics::Robot*) selectedNode->getSkel() )->getName();
     // Enter action for link select events here:
     break;
   default:

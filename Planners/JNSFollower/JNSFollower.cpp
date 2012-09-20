@@ -5,8 +5,8 @@
  * @date March 07th, 2012
  */
 
-#include <planning/Robot.h>
-#include <planning/Object.h>
+#include <robotics/Robot.h>
+#include <robotics/Object.h>
 #include <kinematics/BodyNode.h>
 #include <kinematics/TrfmTranslate.h>
 #include <kinematics/Transformation.h>
@@ -40,7 +40,7 @@ JNSFollower::JNSFollower() {
  * @function JNSFollower
  * @brief Constructor
  */
-JNSFollower::JNSFollower( planning::World &_world, 
+JNSFollower::JNSFollower( robotics::World &_world, 
 			  Collision *_collision,
 			  bool _copyWorld, 
 			  double _configStep ) {
@@ -94,7 +94,7 @@ std::vector< Eigen::VectorXd > JNSFollower::PlanPath( int _robotId,
   
   mMaxIter = 10;
   mWorkspaceThresh = _res; // An error of half the resolution
-  mEENode = mWorld->mRobots[mRobotId]->getNode( _EEName.c_str() );
+  mEENode = mWorld->getRobot(mRobotId)->getNode( _EEName.c_str() );
   mEEId = _EEId;
   
   //-- Follow the path
@@ -241,8 +241,8 @@ bool JNSFollower::GoToEEPosCheckCollision( Eigen::VectorXd &_q,
  */
 bool JNSFollower::CheckCollisionConfig( Eigen::VectorXd _q ) {
   
-  mWorld->mRobots[mRobotId]->setDofs( _q, mLinks );
-  mWorld->mRobots[mRobotId]->update();
+  mWorld->getRobot(mRobotId)->setDofs( _q, mLinks );
+  mWorld->getRobot(mRobotId)->update();
   return mCollision->CheckCollisions();  
 }
 
@@ -276,8 +276,8 @@ void JNSFollower::GetJacStuff( const Eigen::VectorXd &_q, Eigen::MatrixXd &_Jt, 
 Eigen::VectorXd JNSFollower::GetEEPos( Eigen::VectorXd _q ) {
 	
   // Get current XYZ position
-  mWorld->mRobots[mRobotId]->setDofs( _q, mLinks );
-  mWorld->mRobots[mRobotId]->update();
+  mWorld->getRobot(mRobotId)->setDofs( _q, mLinks );
+  mWorld->getRobot(mRobotId)->update();
   
   Eigen::MatrixXd qTransform = mEENode->getWorldTransform();
   Eigen::VectorXd qXYZ(3); qXYZ << qTransform(0,3), qTransform(1,3), qTransform(2,3);
@@ -295,8 +295,8 @@ bool JNSFollower::GetLimits( Eigen::VectorXd &_minLim, Eigen::VectorXd &_maxLim 
 	_maxLim.resize(n);
 
 	for( int i = 0; i < n; ++i ) {
-		_minLim(i) = mWorld->mRobots[mRobotId]->getDof( mLinks[i] )->getMin();
-		_maxLim(i) = mWorld->mRobots[mRobotId]->getDof( mLinks[i] )->getMax();
+		_minLim(i) = mWorld->getRobot(mRobotId)->getDof( mLinks[i] )->getMin();
+		_maxLim(i) = mWorld->getRobot(mRobotId)->getDof( mLinks[i] )->getMax();
 	}
 	
 	return true;

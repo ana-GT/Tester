@@ -113,13 +113,13 @@ Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q, eConfig _which ) {
   Eigen::MatrixXd pose;
 
   if( _which == ARM_A ) {
-    mWorld->mRobots[gRobotId]->setDofs( _q, gLinks_A );
-    mWorld->mRobots[gRobotId]->update();
+    mWorld->getRobot(gRobotId)->setDofs( _q, gLinks_A );
+    mWorld->getRobot(gRobotId)->update();
     pose = gEENode_A->getWorldTransform(); 
   }
   else {
-    mWorld->mRobots[gRobotId]->setDofs( _q, gLinks_B );
-    mWorld->mRobots[gRobotId]->update();
+    mWorld->getRobot(gRobotId)->setDofs( _q, gLinks_B );
+    mWorld->getRobot(gRobotId)->update();
     pose = gEENode_B->getWorldTransform(); 
   }
 
@@ -148,8 +148,8 @@ void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time, eConfig _whi
     Eigen::VectorXd vals( gLinks_A.size() );
   
     for( size_t i = 0; i < numsteps; ++i ) {
-      mWorld->mRobots[gRobotId]->setDofs( _path[i], gLinks_A );
-      mWorld->mRobots[gRobotId]->update();      
+      mWorld->getRobot(gRobotId)->setDofs( _path[i], gLinks_A );
+      mWorld->getRobot(gRobotId)->update();      
       frame->AddWorld( mWorld );
     }
   }
@@ -157,8 +157,8 @@ void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time, eConfig _whi
     Eigen::VectorXd vals( gLinks_B.size() );
   
     for( size_t i = 0; i < numsteps; ++i ) {
-      mWorld->mRobots[gRobotId]->setDofs( _path[i], gLinks_B );
-      mWorld->mRobots[gRobotId]->update();      
+      mWorld->getRobot(gRobotId)->setDofs( _path[i], gLinks_B );
+      mWorld->getRobot(gRobotId)->update();      
       frame->AddWorld( mWorld );
     }
   }
@@ -171,20 +171,20 @@ void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time, eConfig _whi
 bool CheckCollisionConfig( Eigen::VectorXd _q, eConfig _which ) {
 
   if( _which == ARM_A ) {
-    mWorld->mRobots[gRobotId]->setDofs( _q, gLinks_A );
+    mWorld->getRobot(gRobotId)->setDofs( _q, gLinks_A );
   }
   else {
-    mWorld->mRobots[gRobotId]->setDofs( _q, gLinks_B );
+    mWorld->getRobot(gRobotId)->setDofs( _q, gLinks_B );
   }
-    mWorld->mRobots[gRobotId]->update();
+    mWorld->getRobot(gRobotId)->update();
     return mCollision->CheckCollisions();  
 }
 
 /***/
 bool CheckCollisionConfig( Eigen::VectorXd _q, Eigen::VectorXi _links ) {
 
-    mWorld->mRobots[gRobotId]->setDofs( _q, _links );
-    mWorld->mRobots[gRobotId]->update();
+    mWorld->getRobot(gRobotId)->setDofs( _q, _links );
+    mWorld->getRobot(gRobotId)->update();
     return mCollision->CheckCollisions();  
 }
 

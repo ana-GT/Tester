@@ -9,8 +9,8 @@
 #include <wx/wx.h>
 #include <string>
 #include <Eigen/Core>
-#include <planning/Robot.h>
-#include <planning/Object.h>
+#include <robotics/Robot.h>
+#include <robotics/Object.h>
 #include <kinematics/BodyNode.h>
 #include <kinematics/TrfmTranslate.h>
 #include <kinematics/Transformation.h>

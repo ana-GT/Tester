@@ -10,7 +10,7 @@
 #include <iostream>
 #include <Eigen/Core>
 #include <vector>
-#include <planning/World.h>
+#include <robotics/World.h>
 #include <Tools/Collision.h>
 
 #include "globalStuff.h"
@@ -23,7 +23,7 @@
 class IKSearch : public IK {
  public:
   IKSearch() {};
-  IKSearch( planning::World &_world,
+  IKSearch( robotics::World &_world,
 	    Collision *_collision );
   virtual ~IKSearch();
   virtual std::vector<Eigen::VectorXd> Track( int _robotId,

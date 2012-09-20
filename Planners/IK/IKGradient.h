@@ -9,7 +9,7 @@
 #include <iostream>
 #include <Eigen/Core>
 #include <vector>
-#include <planning/World.h>
+#include <robotics/World.h>
 #include <Tools/Collision.h>
 
 #include "globalStuff.h"
@@ -23,7 +23,7 @@ class IKGradient : public IK {
 
  public:
   IKGradient() {};
-  IKGradient( planning::World &_world,
+  IKGradient( robotics::World &_world,
 	      Collision *_collision );
   virtual ~IKGradient();
   virtual std::vector<Eigen::VectorXd> Track( int _robotId,

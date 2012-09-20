@@ -11,7 +11,7 @@
  * @function IKGradient
  * @brief Constructor
  */
-IKGradient::IKGradient( planning::World &_world,
+IKGradient::IKGradient( robotics::World &_world,
 			Collision *_collision) 
   : IK( _world, _collision ) {
 }

@@ -485,7 +485,7 @@ void RipPlannerTab::GRIPStateChange() {
     switch (selectedTreeNode->dType) {
 
         case Return_Type_Object:
-	    selectedObject = (planning::Object*) ( selectedTreeNode->data );
+	    selectedObject = (robotics::Object*) ( selectedTreeNode->data );
 	    statusBuf = " Selected Object: " + selectedObject->getName();
 	    buf = "You clicked on object: " + selectedObject->getName();
 
@@ -493,7 +493,7 @@ void RipPlannerTab::GRIPStateChange() {
 
 	    break;
 	case Return_Type_Robot:
-	    selectedRobot = (planning::Robot*) ( selectedTreeNode->data );
+	    selectedRobot = (robotics::Robot*) ( selectedTreeNode->data );
 	    statusBuf = " Selected Robot: " + selectedRobot->getName();
 	    buf = " You clicked on robot: " + selectedRobot->getName();
 
@@ -503,8 +503,8 @@ void RipPlannerTab::GRIPStateChange() {
 	case Return_Type_Node:
 	    selectedNode = (kinematics::BodyNode*) ( selectedTreeNode->data );
 	    statusBuf = " Selected Body Node: " + string(selectedNode->getName()) + " of Robot: "
-			+ ( (planning::Robot*) selectedNode->getSkel() )->getName();
-	    buf = " Node: " + string(selectedNode->getName()) + " of Robot: " + ( (planning::Robot*) selectedNode->getSkel() )->getName();
+			+ ( (robotics::Robot*) selectedNode->getSkel() )->getName();
+	    buf = " Node: " + string(selectedNode->getName()) + " of Robot: " + ( (robotics::Robot*) selectedNode->getSkel() )->getName();
 
 	    // Enter action for link select events here:
 

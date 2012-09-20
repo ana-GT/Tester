@@ -361,8 +361,14 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
       //-- Create LJM2 Object
       mLjm2_A = new LJM2( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
       mCp_A = new CheckProcess( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
-      mCp_A->getObjectsData( mWorld->mObjects, gTargetObjectName_A );  
-      mCp_A->build_voxel( mWorld->mObjects, *mLjm2_A, gPadding ); // Here your LJM2 is built
+
+      std::vector<robotics::Object*> objects;
+      for( int i = 0; i < mWorld->getNumObjects(); ++i ) {
+	objects.push_back( mWorld->getObject(i) );
+      }
+
+      mCp_A->getObjectsData( objects, gTargetObjectName_A );  
+      mCp_A->build_voxel( objects, *mLjm2_A, gPadding ); // Here your LJM2 is built
       mCp_A->reportObjects(); 
       printf(" (i) Process Geometry (i) \n");
       mLjm2_A->ProcessGeometry();
@@ -414,8 +420,14 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
       //-- Create LJM2 Object
       mLjm2_B = new LJM2( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
       mCp_B = new CheckProcess( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
-      mCp_B->getObjectsData( mWorld->mObjects, gTargetObjectName_B );  
-      mCp_B->build_voxel( mWorld->mObjects, *mLjm2_B, gPadding ); // Here your LJM2 is built
+
+      std::vector<robotics::Object*> objects;
+      for( int i = 0; i < mWorld->getNumObjects(); ++i ) {
+	objects.push_back( mWorld->getObject(i) );
+      }
+
+      mCp_B->getObjectsData( objects, gTargetObjectName_B );  
+      mCp_B->build_voxel( objects, *mLjm2_B, gPadding ); // Here your LJM2 is built
       mCp_B->reportObjects(); 
       printf(" (i) Process Geometry (i) \n");
       mLjm2_B->ProcessGeometry();
@@ -450,6 +462,7 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
     double temp;
     mNumPathsText->GetValue().ToDouble( &temp );
     mNumPaths = (int)temp;
+    printf("Workspace Plan A \n");
     //-- Execute
     WorkspacePlan_A();
   }
@@ -594,7 +607,7 @@ void PlannerTab::OnButton(wxCommandEvent &_evt ) {
 void PlannerTab::WorkspacePlan_A() {
  
     /// Check start position is not in collision
-    mWorld->mRobots[gRobotId]->setDofs( gStartConf_A, gLinks_A );
+    mWorld->getRobot(gRobotId)->setDofs( gStartConf_A, gLinks_A );
 
     if( mCollision->CheckCollisions() ) {   
       printf(" --(!) Initial status is in collision. I am NOT proceeding. Exiting \n");
@@ -632,7 +645,7 @@ void PlannerTab::WorkspacePlan_A() {
 void PlannerTab::WorkspacePlan_B() {
  
     /// Check start position is not in collision
-    mWorld->mRobots[gRobotId]->setDofs( gStartConf_B, gLinks_B );
+    mWorld->getRobot(gRobotId)->setDofs( gStartConf_B, gLinks_B );
 
     if( mCollision->CheckCollisions() ) {   
       printf(" --(!) Initial status is in collision. I am NOT proceeding. Exiting \n");
@@ -696,14 +709,14 @@ void PlannerTab::GRIPStateChange() {
     switch (selectedTreeNode->dType) {
 
         case Return_Type_Object:
-	          selectedObject = (planning::Object*) ( selectedTreeNode->data );
+	          selectedObject = (robotics::Object*) ( selectedTreeNode->data );
 	          statusBuf = " Selected Object: " + selectedObject->getName();
 	          buf = "You clicked on object: " + selectedObject->getName();
 	          // Enter action for object select events here:
 	          break;
 
 	      case Return_Type_Robot:
-	          selectedRobot = (planning::Robot*) ( selectedTreeNode->data );
+	          selectedRobot = (robotics::Robot*) ( selectedTreeNode->data );
 	          statusBuf = " Selected Robot: " + selectedRobot->getName();
 	          buf = " You clicked on robot: " + selectedRobot->getName();
       	    // Enter action for Robot select events here:
@@ -711,8 +724,8 @@ void PlannerTab::GRIPStateChange() {
 	      case Return_Type_Node:
 	          selectedNode = (kinematics::BodyNode*) ( selectedTreeNode->data );
 	          statusBuf = " Selected Body Node: " + string(selectedNode->getName()) + " of Robot: "
-			      + ( (planning::Robot*) selectedNode->getSkel() )->getName();
-	          buf = " Node: " + string(selectedNode->getName()) + " of Robot: " + ( (planning::Robot*) selectedNode->getSkel() )->getName();
+			      + ( (robotics::Robot*) selectedNode->getSkel() )->getName();
+	          buf = " Node: " + string(selectedNode->getName()) + " of Robot: " + ( (robotics::Robot*) selectedNode->getSkel() )->getName();
 	          // Enter action for link select events here:
       	    break;
         default:

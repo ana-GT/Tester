@@ -47,8 +47,8 @@
  * @brief Constructor
  */
 CheckProcess::CheckProcess( double _sizeX, double _sizeY, double _sizeZ,
-	    		    		double _originX, double _originY, double _originZ, 
-			    			double _resolution )
+			    double _originX, double _originY, double _originZ, 
+			    double _resolution )
 {
 
   //-- Save data
@@ -111,7 +111,7 @@ void CheckProcess::build_slideBox()
  * @function getObjectsData
  * @brief Copy the information of the world objects in our class
  */
-void CheckProcess::getObjectsData( std::vector<planning::Object*> _objects, std::string _objectNoIncludedName )
+void CheckProcess::getObjectsData( std::vector<robotics::Object*> _objects, std::string _objectNoIncludedName )
 {
   mObjectNoIncludedName = _objectNoIncludedName;
   
@@ -126,7 +126,7 @@ void CheckProcess::getObjectsData( std::vector<planning::Object*> _objects, std:
 	if( _objects[i]->getName() != mObjectNoIncludedName ) {
 		printf("-------(i) Getting info from %s \n", _objects[i]->getName().c_str() );
 		CheckObject obj;
-		obj.getModelData( _objects[i]->mModels[0] ); 
+		obj.getModelData( _objects[i]->getModel(0) ); 
         mObjs.push_back(obj);
 	    mObjNames.push_back( _objects[i]->getName() );
 		mNumObjs++;
@@ -138,7 +138,7 @@ void CheckProcess::getObjectsData( std::vector<planning::Object*> _objects, std:
  * @function getLinksData
  * @brief Get data from the robot links
  */
-void CheckProcess::getLinksData( planning::Robot* _robot, Eigen::VectorXi _linksID )
+void CheckProcess::getLinksData( robotics::Robot* _robot, Eigen::VectorXi _linksID )
 {
   mNumLinks = _linksID.size();
   mLinksID = _linksID;
@@ -149,8 +149,8 @@ void CheckProcess::getLinksData( planning::Robot* _robot, Eigen::VectorXi _links
 
   // Only use the models indicated
   for( int i = 0; i < mNumLinks; i++ ) {
-     for( int j = 0; j < _robot->mModels.size(); j++ ) {
-	   if( _robot->mModelIndices[j] == _linksID[i] ) {
+     for( int j = 0; j < _robot->getNumModels(); j++ ) {
+       if( _robot->getModelIndex(j) == _linksID[i] ) {
 	     ind[i] = j;
        }
      }
@@ -160,7 +160,7 @@ void CheckProcess::getLinksData( planning::Robot* _robot, Eigen::VectorXi _links
   
   for( int i = 0; i < mNumLinks; i++ ) 
   { 
-    mLinks[i].getModelData( _robot->mModels[ind[i]] );
+    mLinks[i].getModelData( _robot->getModel( ind[i] ) );
     mLinks[i].updateObjectData( _robot->getNode( mLinksID[i] ) );
   }
 }
@@ -170,7 +170,7 @@ void CheckProcess::getLinksData( planning::Robot* _robot, Eigen::VectorXi _links
  * @function build_voxel
  * @brief Collision quick checking
  */
-void CheckProcess::build_voxel( std::vector<planning::Object*> _objects, LJM2 &_ljm2, int _inflated )
+void CheckProcess::build_voxel( std::vector<robotics::Object*> _objects, LJM2 &_ljm2, int _inflated )
 {
    //time_t ts; time_t tf; double dt;
    mObjsVoxels.clear();

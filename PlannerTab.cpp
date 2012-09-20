@@ -207,10 +207,15 @@ void PlannerTab::OnButton(wxCommandEvent &evt) {
 	printf("      Get 3D Info     \n");
 	printf("**********************\n");
 	printf("--(!) Be sure to set start conf and target object or I will output rubbish \n");
+	std::vector<robotics::Object*> objects;
+	for( int i = 0; i < mWorld->getNumObjects(); ++i ) {
+	  objects.push_back( mWorld->getObject(i) );
+	}
+
 	mLjm2 = new LJM2( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
 	mCp = new CheckProcess( gSizeX, gSizeY, gSizeZ, gOriginX, gOriginY, gOriginZ, gResolution );
-	mCp->getObjectsData( mWorld->mObjects, gTargetObjectName );  
-	mCp->build_voxel( mWorld->mObjects, *mLjm2, gPadding ); // Here your LJM2 is built
+	mCp->getObjectsData( objects, gTargetObjectName );  
+	mCp->build_voxel( objects, *mLjm2, gPadding ); // Here your LJM2 is built
 	mCp->reportObjects(); 
 	printf(" (i) Process Geometry (i) \n");
 	mLjm2->ProcessGeometry();
@@ -376,8 +381,8 @@ void PlannerTab::RRTExecute( std::list<Eigen::VectorXd> _path ) {
 
     for( std::list<Eigen::VectorXd>::iterator it = _path.begin(); it != _path.end(); it++ ) {
 
-        mWorld->mRobots[gRobotId]->setDofs( *it, gLinks );
-	mWorld->mRobots[gRobotId]->update();
+        mWorld->getRobot(gRobotId)->setDofs( *it, gLinks );
+	mWorld->getRobot(gRobotId)->update();
 
         frame->AddWorld( mWorld );
     }
@@ -389,7 +394,7 @@ void PlannerTab::RRTExecute( std::list<Eigen::VectorXd> _path ) {
 void PlannerTab::WorkspacePlan() {
  
     /// Check start position is not in collision
-    mWorld->mRobots[gRobotId]->setDofs( gStartConf, gLinks );
+    mWorld->getRobot(gRobotId)->setDofs( gStartConf, gLinks );
 
     if( mCollision->CheckCollisions() ) {   
       printf(" --(!) Initial status is in collision. I am NOT proceeding. Exiting \n");
@@ -458,8 +463,8 @@ void PlannerTab::WorkspaceExecute( std::vector<Eigen::VectorXd> _path, int _type
     Eigen::VectorXd vals( gLinks.size() );
 
     for( size_t i = 0; i < numsteps; ++i ) {
-      mWorld->mRobots[gRobotId]->setDofs( configPath[i], gLinks );
-      mWorld->mRobots[gRobotId]->update();
+      mWorld->getRobot(gRobotId)->setDofs( configPath[i], gLinks );
+      mWorld->getRobot(gRobotId)->update();
       
       frame->AddWorld( mWorld );
     }
@@ -527,14 +532,14 @@ void PlannerTab::GRIPStateChange() {
     switch (selectedTreeNode->dType) {
 
         case Return_Type_Object:
-	          selectedObject = (planning::Object*) ( selectedTreeNode->data );
+	          selectedObject = (robotics::Object*) ( selectedTreeNode->data );
 	          statusBuf = " Selected Object: " + selectedObject->getName();
 	          buf = "You clicked on object: " + selectedObject->getName();
 	          // Enter action for object select events here:
 	          break;
 
 	      case Return_Type_Robot:
-	          selectedRobot = (planning::Robot*) ( selectedTreeNode->data );
+	          selectedRobot = (robotics::Robot*) ( selectedTreeNode->data );
 	          statusBuf = " Selected Robot: " + selectedRobot->getName();
 	          buf = " You clicked on robot: " + selectedRobot->getName();
       	    // Enter action for Robot select events here:
@@ -542,8 +547,8 @@ void PlannerTab::GRIPStateChange() {
 	      case Return_Type_Node:
 	          selectedNode = (kinematics::BodyNode*) ( selectedTreeNode->data );
 	          statusBuf = " Selected Body Node: " + string(selectedNode->getName()) + " of Robot: "
-			      + ( (planning::Robot*) selectedNode->getSkel() )->getName();
-	          buf = " Node: " + string(selectedNode->getName()) + " of Robot: " + ( (planning::Robot*) selectedNode->getSkel() )->getName();
+			      + ( (robotics::Robot*) selectedNode->getSkel() )->getName();
+	          buf = " Node: " + string(selectedNode->getName()) + " of Robot: " + ( (robotics::Robot*) selectedNode->getSkel() )->getName();
 	          // Enter action for link select events here:
       	    break;
         default:

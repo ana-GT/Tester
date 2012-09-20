@@ -10,8 +10,8 @@
 #include <Tabs/GRIPTab.h>
 #include <Tabs/GRIPThread.h>
 
-#include <planning/Robot.h>
-#include <planning/Object.h>
+#include <robotics/Robot.h>
+#include <robotics/Object.h>
 #include <kinematics/BodyNode.h>
 #include <kinematics/TrfmTranslate.h>
 #include <kinematics/Transformation.h>

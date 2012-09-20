@@ -15,12 +15,13 @@
 #include <kinematics/Joint.h>
 #include <kinematics/Dof.h>
 #include "RRT.h"
+#include <stdint.h> // For uintptr_t not being found without this header
 
 /**
  * @function RRT
  * @brief Constructor
  */
-RRT::RRT( planning::World *_world, 
+RRT::RRT( robotics::World *_world, 
           Collision *_collision,
           int _robotId, 
           const Eigen::VectorXi &_links, 
@@ -152,8 +153,8 @@ int RRT::addNode( const Eigen::VectorXd &_qnew, int _parentId )
 Eigen::VectorXd RRT::getRandomConfig() {
     Eigen::VectorXd config( ndim );
     for( unsigned int i = 0; i < ndim; i++ ) {
-        double minVal = world->mRobots[robotId]->getDof(links[i])->getMin();
-        double maxVal = world->mRobots[robotId]->getDof(links[i])->getMax();
+        double minVal = world->getRobot(robotId)->getDof(links[i])->getMin();
+        double maxVal = world->getRobot(robotId)->getDof(links[i])->getMax();
         config[i] = randomInRange( minVal, maxVal ); 
     }
 
@@ -207,8 +208,8 @@ void RRT::tracePath( int _node,
  * @brief Returns true if collisions. If it is false, we are cool.
  */
 bool RRT::checkCollisions( const Eigen::VectorXd &_config ) {
-    world->mRobots[robotId]->setDofs( _config, links );
-    world->mRobots[robotId]->update();
+    world->getRobot(robotId)->setDofs( _config, links );
+    world->getRobot(robotId)->update();
     return collision->CheckCollisions();
 }
 

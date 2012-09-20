@@ -42,7 +42,7 @@
 #include <iostream>
 #include <Eigen/Core>
 #include <vector>
-#include <planning/World.h>
+#include <robotics/World.h>
 #include <Tools/Collision.h>
 
 /**
@@ -64,7 +64,7 @@ public:
 
   /// Member variables
   double mConfigStep;
-  planning::World *mWorld;
+  robotics::World *mWorld;
   Collision *mCollision;
   int mRobotId;
   Eigen::VectorXi mLinks;
@@ -76,7 +76,7 @@ public:
   
   /// Constructor
   JNSFollower();
-  JNSFollower( planning::World &_world,
+  JNSFollower( robotics::World &_world,
 	       Collision *_collision,
 	       bool _copyWorld = false,
 	       double _configStep = 1.05 ); // 0.35 = sqrt(7)*1_degree

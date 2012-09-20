@@ -9,7 +9,7 @@
 #include <iostream>
 #include <Eigen/Core>
 #include <vector>
-#include <planning/World.h>
+#include <robotics/World.h>
 #include <Tools/Collision.h>
 
 /**
@@ -22,7 +22,7 @@ class IK {
 
   /// Functions
   IK();
-  IK( planning::World &_world,
+  IK( robotics::World &_world,
       Collision *_collision );
   virtual ~IK();
   virtual std::vector<Eigen::VectorXd> Track( int _robotId,
@@ -55,7 +55,7 @@ class IK {
   bool IsInLim( const Eigen::VectorXd &_val ); 		       
     
   // ** Member variables **
-  planning::World *mWorld;
+  robotics::World *mWorld;
   Collision *mCollision;
   int mRobotId;
   Eigen::VectorXi mLinks;

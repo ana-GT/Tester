@@ -294,9 +294,9 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     /** Set Pose for NS Evaluation */
   case button_SetPose_NS: {
 
-      std::cout << "--(i) Setting NS Pose for " << mWorld->mRobots[gRobotId]->getName() << ":" << std::endl;
+      std::cout << "--(i) Setting NS Pose for " << mWorld->getRobot(gRobotId)->getName() << ":" << std::endl;
       
-      mNSConf = mWorld->mRobots[gRobotId]->getDofs( gLinks );      
+      mNSConf = mWorld->getRobot(gRobotId)->getDofs( gLinks );      
       std::cout << "NS Pose: " << mNSConf.transpose() << std::endl;
     
   } break;

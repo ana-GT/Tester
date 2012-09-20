@@ -430,9 +430,9 @@ void TrackerTab::OnButton( wxCommandEvent &evt ) {
     /** Set Pose for NS Evaluation */
   case button_SetPose_NS: {
 
-      std::cout << "--(i) Setting NS Pose for " << mWorld->mRobots[gRobotId]->getName() << ":" << std::endl;
+      std::cout << "--(i) Setting NS Pose for " << mWorld->getRobot(gRobotId)->getName() << ":" << std::endl;
       
-      mNSConf = mWorld->mRobots[gRobotId]->getDofs( gLinks_A );      
+      mNSConf = mWorld->getRobot(gRobotId)->getDofs( gLinks_A );      
       std::cout << "NS Pose: " << mNSConf.transpose() << std::endl;
     
   } break;
@@ -600,9 +600,9 @@ void TrackerTab::ExecuteBoth() {
 
 
     for( size_t i = 0; i < numsteps; ++i ) {
-      mWorld->mRobots[gRobotId]->setDofs( pathA[i], gLinks_A );
-      mWorld->mRobots[gRobotId]->setDofs( pathB[i], gLinks_B );
-      mWorld->mRobots[gRobotId]->update();   
+      mWorld->getRobot(gRobotId)->setDofs( pathA[i], gLinks_A );
+      mWorld->getRobot(gRobotId)->setDofs( pathB[i], gLinks_B );
+      mWorld->getRobot(gRobotId)->update();   
       frame->AddWorld( mWorld );
     }
 
@@ -623,13 +623,13 @@ void TrackerTab::ExecuteBothWithObject() {
 
   //-- Identify the target object
   int objInd;
-    for( size_t i = 0; i < mWorld->mObjects.size(); ++i ) {
-		if( mWorld->mObjects[i]->getName().compare( gTargetObjectName_A ) == 0 ) {
-			objInd = i;
-            std::cout << "* Target :" << gTargetObjectName_A << " - ID: " << objInd << std::endl;
-			break;
-		}
+  for( size_t i = 0; i < mWorld->getNumObjects(); ++i ) {
+    if( mWorld->getObject(i)->getName().compare( gTargetObjectName_A ) == 0 ) {
+      objInd = i;
+      std::cout << "* Target :" << gTargetObjectName_A << " - ID: " << objInd << std::endl;
+      break;
     }
+  }
 
   if( mTrack_BT_Path_A.size() != mTrack_BT_Path_B.size() ) {
     std::cout << "--(!) Different sizes of paths A and B" << std::endl;
@@ -642,15 +642,15 @@ void TrackerTab::ExecuteBothWithObject() {
   int numsteps = pathA.size();  
  
   std::cout << "-->(+) Updating Timeline - Increment: " << 1.0 / gFPS << " Total T: " << gVideoTime << " Steps: " << numsteps << std::endl;  
-  frame->InitTimer( string("* Planning"), 1.0 / gFPS );
+  frame->InitTimer( string("* Robotics"), 1.0 / gFPS );
 
     for( size_t i = 0; i < numsteps; ++i ) {
 
-      mWorld->mObjects[objInd]->setPositionXYZ( pathT[i][0], pathT[i][1], pathT[i][2] ); 
-      mWorld->mObjects[objInd]->initSkel();
-      mWorld->mRobots[gRobotId]->setDofs( pathA[i], gLinks_A );
-      mWorld->mRobots[gRobotId]->setDofs( pathB[i], gLinks_B );
-      mWorld->mRobots[gRobotId]->update();   
+      mWorld->getObject(objInd)->setPositionXYZ( pathT[i][0], pathT[i][1], pathT[i][2] ); 
+      mWorld->getObject(objInd)->initSkel();
+      mWorld->getRobot(gRobotId)->setDofs( pathA[i], gLinks_A );
+      mWorld->getRobot(gRobotId)->setDofs( pathB[i], gLinks_B );
+      mWorld->getRobot(gRobotId)->update();   
       frame->AddWorld( mWorld );
     }
 

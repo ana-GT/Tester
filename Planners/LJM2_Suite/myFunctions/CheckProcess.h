@@ -46,7 +46,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <string>
-#include <planning/Robot.h>
+#include <robotics/Robot.h>
 #include <vector>
 #include "CheckObject.h"
 #include "../LJM2/LJM2.h"
@@ -81,12 +81,12 @@ class CheckProcess
  	    	    double _originX, double _originY, double _originZ, 
 	            double _resolution );
   void build_slideBox();
-  void getObjectsData( std::vector<planning::Object*> _objects, std::string _objectNoIncludedName = "default" );
-  void getLinksData( planning::Robot* _robot, Eigen::VectorXi _linksID );
+  void getObjectsData( std::vector<robotics::Object*> _objects, std::string _objectNoIncludedName = "default" );
+  void getLinksData( robotics::Robot* _robot, Eigen::VectorXi _linksID );
   void reportObjects();
 
   //-- Voxel construction
-  void build_voxel( std::vector<planning::Object*> _objects, LJM2 &_ljm2, int _inflated = 0 );
+  void build_voxel( std::vector<robotics::Object*> _objects, LJM2 &_ljm2, int _inflated = 0 );
 
   //-- Distance transform 
   std::vector< Eigen::Vector3i >mObjsVoxels;

@@ -11,7 +11,7 @@
  * @function IKSearch
  * @brief Constructor
  */
-IKSearch::IKSearch( planning::World &_world,
+IKSearch::IKSearch( robotics::World &_world,
 		    Collision *_collision) 
   : IK( _world, _collision ) {
 

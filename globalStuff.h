@@ -8,8 +8,8 @@
 
 #include <string>
 #include <Eigen/Core>
-#include <planning/Robot.h>
-#include <planning/Object.h>
+#include <robotics/Robot.h>
+#include <robotics/Object.h>
 #include <kinematics/BodyNode.h>
 #include <kinematics/TrfmTranslate.h>
 #include <kinematics/Transformation.h>
@@ -48,5 +48,5 @@ extern std::vector<Eigen::VectorXd> gPosePath;
 //-- General functions
 Eigen::VectorXd GetEE_Pos( const Eigen::VectorXd &_q );
 void SetTimeline( std::vector<Eigen::VectorXd> _path, double _time = 5.0 );
-bool CheckCollisionConfig( Eigen::VectorXd _q );
+bool CheckCollisionConfig( Eigen::VectorXd _q, Eigen::VectorXi _links );
 #endif /** _GLOBAL_STUFF_H_ */

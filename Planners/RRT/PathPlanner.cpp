@@ -26,7 +26,7 @@ PathPlanner::PathPlanner() {
  * @function PathPlanner
  * @brief Constructor
  */
-PathPlanner::PathPlanner( planning::World &_world, 
+PathPlanner::PathPlanner( robotics::World &_world, 
                           Collision *_collision,
                           bool _copyWorld, double _stepSize ) {
 
@@ -68,12 +68,12 @@ bool PathPlanner::planPath( int _robotId,
                             unsigned int _maxNodes ) {
 
 
-    //world->mRobots[_robotId]->setQuickDofs( _start ); // Other quick way
-    world->mRobots[_robotId]->setDofs( _start, _links );
+    //world->getRobot(_robotId)->setQuickDofs( _start ); // Other quick way
+    world->getRobot(_robotId)->setDofs( _start, _links );
     if( collision->CheckCollisions() )
         return false;
 
-    world->mRobots[_robotId]->setDofs( _goal, _links );
+    world->getRobot(_robotId)->setDofs( _goal, _links );
     if( collision->CheckCollisions() )
         return false;
 	
@@ -242,7 +242,7 @@ bool PathPlanner::checkPathSegment( int _robotId,
 
     for( int i = 0; i < n; i++ ) {
         Eigen::VectorXd conf = (double)(n - i)/(double)n * _config1 + (double)(i)/(double)n * _config2;
-        world->mRobots[_robotId]->setDofs( conf, _links );
+        world->getRobot(_robotId)->setDofs( conf, _links );
 	if( collision->CheckCollisions() ) {
 	    return false;
 	}

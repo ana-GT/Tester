@@ -1,20 +1,21 @@
-# Tester
+# Paper
 
 cmake_minimum_required( VERSION 2.8 )
 project ( Tester )
 
 set (CMAKE_INSTALL_PREFIX /usr/local )
-set (CMAKE_CXX_COMPILER "g++-4.4" )
+#set (CMAKE_CXX_COMPILER "g++-4.4" )
 set (CMAKE_CXX_FLAGS "-L /usr/local/lib" )
 
 
-include (${CMAKE_INSTALL_PREFIX}/share/dart/DART_config.cmake)
+include (${CMAKE_INSTALL_PREFIX}/share/dart/DARTConfig.cmake)
 include (${CMAKE_INSTALL_PREFIX}/share/grip/GRIP_config.cmake)
 
 find_package( PCL 1.1 REQUIRED )
 
 include_directories( /usr/include/eigen3
   ${PCL_INCLUDE_DIRS}
+  ${DART_INCLUDE_DIRS}
   . .. )
 
 link_directories( ${PCL_LIBRARY_DIRS} )
@@ -23,9 +24,15 @@ add_definitions( ${PCL_DEFINITIONS} )
 message ( STATUS "Creating Makefile for Paper" )
 
 set( SRC_FILES   PaperApp.cpp
-  ConfigTab.cpp PlannerTab.cpp TrackerTab.cpp globalStuff.cpp )
+  ConfigTab.cpp 
+  PlannerTab.cpp 
+  TrackerTab.cpp 
+  globalStuff.cpp )
 			       
-set ( HDR_FILES  ConfigTab.h PlannerTab.h TrackerTab.h globalStuff.h )
+set ( HDR_FILES  ConfigTab.h 
+  PlannerTab.h 
+  TrackerTab.h 
+  globalStuff.h )
 
 # ***********************
 # PLANNERS FILES
@@ -78,10 +85,11 @@ if (wxWidgets_FOUND)
   include (${wxWidgets_USE_FILE})
   include_directories(${DART_HEADERS} ${GRIP_HEADERS} ${WXWIDGETS_SHARED_INCLUDE_DIRS})
   link_directories(${CMAKE_SOURCE_DIR}/lib ${GRIP_LIBDIR} ${WXWIDGETS_SHARED_LIBRARY_DIRS} )
-    add_executable ( Paper  ${HDR_FILES} ${SRC_FILES} ${SRC_PLANNERS} ${HDR_PLANNERS} ${SRC_IK} ${HDR_IK} ${SRC_UTILS} ${HDR_UTILS} ${SRC_PLOT} ${HDR_PLOT} )
-  target_link_libraries( Paper ${PCL_LIBRARIES}
+    add_executable ( Papera  ${HDR_FILES} ${SRC_FILES} ${SRC_PLANNERS} ${HDR_PLANNERS} ${SRC_IK} ${HDR_IK} ${SRC_UTILS} ${HDR_UTILS} ${SRC_PLOT} ${HDR_PLOT} )
+  target_link_libraries( Papera ${PCL_LIBRARIES}
     ${GRIP_LIBRARIES} 
-    ${DART_LIBRARIES} 
+    #${DART_LIBRARIES}
+    robotics dynamics kinematics utils assimp
     ${wxWidgets_LIBRARIES} )	
 
    

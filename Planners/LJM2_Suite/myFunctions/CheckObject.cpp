@@ -3,7 +3,7 @@
  */
 
 #include "CheckObject.h"
-#include <planning/Model3DS.h>
+#include <robotics/Model3D.h>
 #include <kinematics/BodyNode.h>
 
 /**
@@ -29,7 +29,7 @@ void CheckObject::reset_minmax()
  * @function getModelData
  * @brief Get model information in object world. Call this guy after you filled your space with triangles
  */
-void CheckObject::getModelData( Model3DS *_model )
+void CheckObject::getModelData( Model3D *_model )
 {
   getModelTriangles( _model );
   getModelCenter();
@@ -41,11 +41,11 @@ void CheckObject::getModelData( Model3DS *_model )
  * @function getModelTriangles
  * @brief Get the triangles to form the RAPID object
  */
-void CheckObject::getModelTriangles( Model3DS *_model )
+void CheckObject::getModelTriangles( Model3D *_model )
 {
-  vector<Model3DS::Triangle> *trigs = new vector<Model3DS::Triangle>;
+  vector<Model3D::Triangle> trigs;
 
-  _model->ReportTriangles( trigs );
+  _model->getTriangles( trigs );
 
   //-- Save it as a RAPID object
   this->rapidObject = new RAPID_model();
@@ -53,9 +53,9 @@ void CheckObject::getModelTriangles( Model3DS *_model )
 
   //-- Save the triangles of each object
   int count = 0;
-  for( int i = 0; i < (*trigs).size() ; i++ )
+  for( int i = 0; i < (trigs).size() ; i++ )
   { 
-    this->rapidObject->AddTri( (*trigs)[i].v1, (*trigs)[i].v2, (*trigs)[i].v3, count );
+    this->rapidObject->AddTri( (trigs)[i].v1, (trigs)[i].v2, (trigs)[i].v3, count );
     count++; 
   }
   this->rapidObject->EndModel();

@@ -42,8 +42,8 @@
 #include <Tabs/GRIPTab.h>
 #include <Tabs/GRIPThread.h>
 
-#include <planning/Robot.h>
-#include <planning/Object.h>
+#include <robotics/Robot.h>
+#include <robotics/Object.h>
 #include <kinematics/BodyNode.h>
 #include <kinematics/TrfmTranslate.h>
 #include <kinematics/Transformation.h>
@@ -75,8 +75,8 @@ class PlannerTab : public GRIPTab
   
   
   /// Public vars to capture external selection stuff 
-  planning::Object* selectedObject;
-  planning::Robot* selectedRobot;
+  robotics::Object* selectedObject;
+  robotics::Robot* selectedRobot;
   kinematics::BodyNode* selectedNode;
 
   void OnSlider(wxCommandEvent &evt);

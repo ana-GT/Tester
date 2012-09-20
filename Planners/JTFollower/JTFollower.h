@@ -42,7 +42,7 @@
 #include <iostream>
 #include <Eigen/Core>
 #include <vector>
-#include <planning/World.h>
+#include <robotics/World.h>
 #include <Tools/Collision.h>
 
 /**
@@ -55,7 +55,7 @@ public:
 
     /// Member variables
     double mConfigStep;
-    planning::World *mWorld;
+    robotics::World *mWorld;
     Collision *mCollision;
     int mRobotId;
     Eigen::VectorXi mLinks;
@@ -67,7 +67,7 @@ public:
     
     /// Constructor
     JTFollower();
-    JTFollower( planning::World &_world,
+    JTFollower( robotics::World &_world,
 		Collision *_collision,
                 bool _copyWorld = false,
                 double _configStep = 1.05 ); // 0.35 = sqrt(7)*1_degree

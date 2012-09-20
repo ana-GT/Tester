@@ -7,7 +7,7 @@
 
 #include <grip/VCollide/RAPID.H>
 #include <grip/VCollide/obb.H>
-#include <planning/Object.h>
+#include <robotics/Object.h>
 #include <kinematics/BodyNode.h>
 #include <iostream>
 
@@ -36,8 +36,8 @@ class CheckObject
   /**< Constructor */
   CheckObject();  
   void reset_minmax();
-  void getModelData( Model3DS *_model );
-  void getModelTriangles( Model3DS *_model );
+  void getModelData( Model3D *_model );
+  void getModelTriangles( Model3D *_model );
   void getModelRadius();
   void getModelCenter();
   void getModelBoxVertices();

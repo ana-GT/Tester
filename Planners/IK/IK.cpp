@@ -5,8 +5,8 @@
  * @date 2012-06-08
  */
 
-#include <planning/Robot.h>
-#include <planning/Object.h>
+#include <robotics/Robot.h>
+#include <robotics/Object.h>
 #include <kinematics/BodyNode.h>
 #include <kinematics/TrfmTranslate.h>
 #include <kinematics/Transformation.h>
@@ -29,7 +29,7 @@ IK::IK() {
  * @function IK
  * @brief Constructor
  */
-IK::IK( planning::World &_world, 
+IK::IK( robotics::World &_world, 
 	Collision *_collision ) {
   
   mWorld = &_world;
@@ -151,8 +151,8 @@ Eigen::VectorXd IK::GetPose( Eigen::VectorXd _q ) {
   Eigen::VectorXd temp(6);
   Eigen::VectorXd s;
 
-  mWorld->mRobots[mRobotId]->setDofs( _q, mLinks );
-  mWorld->mRobots[mRobotId]->update();
+  mWorld->getRobot(mRobotId)->setDofs( _q, mLinks );
+  mWorld->getRobot(mRobotId)->update();
 
   Eigen::MatrixXd Tw; Tw = mEENode->getWorldTransform();
   Eigen::Matrix3d Rot; Rot = Tw.block(0,0,3,3);
@@ -186,7 +186,7 @@ Eigen::VectorXd IK::GetPoseError( Eigen::VectorXd _s1, Eigen::VectorXd _s2 ) {
  */
 Eigen::MatrixXd IK::GetJ( const Eigen::VectorXd &_q ) {
 
-  mWorld->mRobots[mRobotId]->update();
+  mWorld->getRobot(mRobotId)->update();
   
   Eigen::MatrixXd J( 6, mNumLinks );
   Eigen::MatrixXd Jc( mNumConstraints, mNumLinks );
@@ -239,7 +239,7 @@ void IK::GetGeneralInfo( int _robotId,
   mRobotId = _robotId;
   mLinks = _links;
   mNumLinks = mLinks.size();
-  mEENode = mWorld->mRobots[mRobotId]->getNode( _EEName.c_str() );
+  mEENode = mWorld->getRobot(mRobotId)->getNode( _EEName.c_str() );
   mEEId = _EEId;
   
   
@@ -269,8 +269,8 @@ void IK::GetJointLimits( Eigen::VectorXd &_jm,
   _jM.resize( mNumLinks );
   
   for( size_t i = 0; i < mNumLinks; ++i ) {
-    _jm(i) = mWorld->mRobots[mRobotId]->getDof( mLinks[i] )->getMin();
-    _jM(i) = mWorld->mRobots[mRobotId]->getDof( mLinks[i] )->getMax();
+    _jm(i) = mWorld->getRobot(mRobotId)->getDof( mLinks[i] )->getMin();
+    _jM(i) = mWorld->getRobot(mRobotId)->getDof( mLinks[i] )->getMax();
   }
   
 }
